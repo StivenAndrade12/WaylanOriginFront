@@ -1,0 +1,385 @@
+/* --- PALETA DE COLORES (VARIABLES DE DISEÑO) --- */
+:root {
+    --waylan-dark-coffee: #2F190E;
+    --waylan-gold: #B89A5E;
+    --waylan-gold-hover: #A3844C;
+    --waylan-cherry-red: #3A120D;
+    --waylan-cherry-hover: #2B0D0A;
+    --waylan-white: #F7F2ED;
+    --waylan-pure-white: #FFFFFF;
+    --waylan-shadow: rgba(0, 0, 0, 0.15);
+    /* 🔥 ALTURA REAL DEL HEADER (AJUSTE DEL ESPACIO BLANCO) */
+    --header-height: 120px;
+}
+
+/* --- RESET Y ESTILOS BASE DEL DOCUMENTO --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background-color: #FAF6F0;
+    color: var(--waylan-dark-coffee);
+}
+
+/* --- 🔥 FIX REAL DEL ESPACIO BLANCO ENTRE HEADER Y CONTENIDO --- */
+.main-content {
+    padding-top: var(--header-height) !important;
+    margin-top: 0 !important;
+}
+
+/* --- HEADER FIJO --- */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    transition: transform 0.35s ease-in-out;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Esta clase es la que se inyecta dinámicamente desde Blazor */
+.header-waylan--oculto {
+    transform: translateY(-100%);
+}
+
+/* --- BARRA DE NAVEGACIÓN PRINCIPAL (NAVBAR) --- */
+.navbar-waylan {
+    width: 100%;
+    background-color: rgba(58, 18, 13, 0.88) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(250, 250, 249, 0.1);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
+    padding: 14px 0 !important;
+    /* 🔥 OPCIONAL PERO RECOMENDADO PARA QUE NO SE MUEVA NUNCA */
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+
+.nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+}
+
+.nav-logo-img {
+    height: 52px;
+    width: auto;
+}
+
+/* --- ENLACES DEL MENÚ --- */
+.nav-links {
+    display: flex;
+    align-items: center;
+}
+
+    .nav-links a {
+        color: #F7F2ED !important;
+        text-decoration: none;
+        margin: 0 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        transition: color 0.2s ease;
+    }
+
+        .nav-links a:hover {
+            color: #B89A5E !important;
+        }
+
+
+
+/* --- DROPDOWN DE NOSOTROS (CONTROLADO POR BLAZOR) --- */
+.dropdown-waylan-container {
+    position: relative;
+    display: inline-block;
+    margin: 0 12px;
+}
+
+.dropdown-waylan-btn {
+    background: none;
+    border: none;
+    color: #F7F2ED !important;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s ease;
+}
+
+    .dropdown-waylan-btn:hover,
+    .dropdown-waylan-btn.active {
+        color: #B89A5E !important;
+    }
+
+.arrow-icon {
+    transition: transform 0.2s ease;
+}
+
+    .arrow-icon.rotate {
+        transform: rotate(180deg);
+    }
+
+/* El menú aparece limpio, centrado y con una leve animación al abrirse */
+.dropdown-waylan-menu {
+    position: absolute;
+    top: 34px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #FFFFFF !important;
+    border-radius: 6px;
+    min-width: 200px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    padding: 8px 0;
+    z-index: 1100;
+    animation: fadeInDropdown 0.2s ease-out;
+}
+
+    /* --- AGREGADO: PUENTE INVISIBLE PARA EVITAR QUE SE CIERRE AL MOVER EL MOUSE --- */
+    .dropdown-waylan-menu::before {
+        content: '';
+        position: absolute;
+        top: -15px; /* Sube y cubre el espacio vacío entre el botón y el recuadro */
+        left: 0;
+        right: 0;
+        height: 15px; /* El grosor del puente */
+        background: transparent; /* Totalmente invisible */
+    }
+
+    .dropdown-waylan-menu a {
+        color: var(--waylan-dark-coffee) !important;
+        padding: 10px 20px;
+        margin: 0 !important;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-shadow: none;
+        text-align: left;
+        transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+        .dropdown-waylan-menu a:hover {
+            background-color: #FAF6F0;
+            color: var(--waylan-gold) !important;
+        }
+/* Animación de entrada sutil */
+@keyframes fadeInDropdown {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+/* --- CONTENEDOR DE ICONOS Y ACCIONES --- */
+.nav-auth-actions {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.nav-icon-btn {
+    background: none;
+    border: none;
+    color: #F7F2ED !important;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    transition: color 0.2s ease;
+}
+
+    .nav-icon-btn:hover {
+        color: var(--waylan-gold) !important;
+    }
+
+.cart-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background-color: #B89A5E;
+    color: var(--waylan-dark-coffee);
+    font-size: 0.7rem;
+    font-weight: 750;
+    border-radius: 50%;
+    padding: 2px 6px;
+    min-width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+}
+
+.cart-badge-bump {
+    animation: cartBump 0.3s ease-out;
+}
+
+@keyframes cartBump {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.4); }
+    100% { transform: scale(1); }
+}
+
+.nav-links a.nav-active {
+    color: #B89A5E !important;
+    border-bottom: 2px solid #B89A5E;
+    padding-bottom: 4px;
+}
+
+/* --- MENÚ DESPLEGABLE (DROPDOWN LOGIN) --- */
+.user-menu-container {
+    position: relative;
+}
+
+.login-form-dropdown {
+    position: absolute;
+    top: 42px;
+    right: 0;
+    background-color: var(--waylan-pure-white);
+    border-radius: 8px;
+    width: 290px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 1100;
+    animation: fadeInDropdown 0.2s ease-out;
+}
+
+/* --- ANIMACIÓN --- */
+@keyframes fadeInDropdown {
+    from {
+        opacity: 0;
+        transform: translate(var(--tw-translate-x, -50%), -8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(var(--tw-translate-x, -50%), 0);
+    }
+}
+
+/* --- COMPONENTES INTERNOS DEL FORMULARIO DE LOGIN --- */
+.dropdown-form-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--waylan-dark-coffee);
+    margin-bottom: 4px;
+    text-align: center;
+}
+
+.form-group-waylan {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+    .form-group-waylan label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #55504A;
+    }
+
+    .form-group-waylan input {
+        width: 100%;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        border: 1px solid #D2CFC9;
+        border-radius: 4px;
+        background-color: #FAF6F0;
+        color: var(--waylan-dark-coffee);
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+        .form-group-waylan input:focus {
+            border-color: var(--waylan-gold);
+        }
+
+/* --- BOTONES Y ENLACES DEL DROPDOWN --- */
+.btn-submit-login {
+    background-color: var(--waylan-cherry-red);
+    color: #FFFFFF !important;
+    border: none;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 6px;
+}
+
+    .btn-submit-login:hover {
+        background-color: var(--waylan-cherry-hover);
+    }
+
+.dropdown-divider {
+    height: 1px;
+    background-color: #E6E4E0;
+    margin: 6px 0;
+}
+
+.dropdown-text {
+    font-size: 0.75rem;
+    color: #706B64;
+    text-align: center;
+}
+
+.dropdown-link-register {
+    color: var(--waylan-gold) !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-align: center;
+    transition: color 0.2s;
+}
+
+    .dropdown-link-register:hover {
+        color: var(--waylan-gold-hover) !important;
+        text-decoration: underline;
+    }
+
+/* --- BOTÓN DESTACADO "COMPRAR ORIGEN" --- */
+.btn-nav-accent {
+    background-color: var(--waylan-cherry-red) !important;
+    color: #FFFFFF !important;
+    text-decoration: none;
+    padding: 10px 22px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    border-radius: 4px;
+    display: inline-block;
+    border: none !important;
+    transition: background-color 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+    .btn-nav-accent:hover {
+        background-color: var(--waylan-cherry-hover) !important;
+    }

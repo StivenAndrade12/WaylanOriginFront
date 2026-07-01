@@ -1,0 +1,200 @@
+@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+@inject CartState CartState
+@implements IDisposable
+@using System.Threading.Tasks
+
+<header>
+    <nav class="navbar-waylan">
+        <div class="nav-container">
+
+            <a class="nav-brand" href="">
+                <img src="/logotipo/Logotipo Waylan Origin-Photoroom.png" alt="Waylan Origin Logo" class="nav-logo-img" />
+            </a>
+
+            <div class="nav-links">
+                <a href="@GetLink("#inicio")">Inicio</a>
+
+                @* --- EVENTOS OPTIMIZADOS CON ESPERA PARA RECUADRO --- *@
+                <div class="dropdown-waylan-container"
+                     @onmouseenter="ManejarMouseEnter"
+                     @onmouseleave="ManejarMouseLeave">
+
+                    <button class="dropdown-waylan-btn @(isNosotrosOpen ? "active" : "")" type="button">
+                        Nosotros
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-down arrow-icon @(isNosotrosOpen ? "rotate" : "")" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708" />
+                        </svg>
+                    </button>
+
+                    @if (isNosotrosOpen)
+                    {
+                        <div class="dropdown-waylan-menu">
+                            <a href="@GetLink("#nosotros")" @onclick="CloseNosotros">Nuestra Historia</a>
+                            <a href="/nuestro-proceso" @onclick="CloseNosotros">Nuestro Proceso</a>
+                            <a href="/exportaciones" @onclick="CloseNosotros">Exportaciones</a>
+                            <a href="@GetLink("#contacto")" @onclick="CloseNosotros">Contacto</a>
+                        </div>
+                    }
+                </div>
+
+                <a href="@GetLink("#sostenibilidad")">Sostenibilidad</a>
+                <a href="@GetLink("#productores")">Productores</a>
+                <a href="productos" class="@(IsActive("productos") ? "nav-active" : "")">Productos</a>
+                <a href="@GetLink("#Contactanos")">Contáctanos</a>
+            </div>
+
+            <div class="nav-auth-actions">
+                <button class="nav-icon-btn" title="Buscar productos..." type="button" @onclick="AbrirBuscador">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                    </svg>
+                </button>
+
+                <div class="user-menu-container">
+                    <button class="nav-icon-btn" @onclick="ToggleDropdown" title="Mi Cuenta" type="button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
+                            <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z" />
+                        </svg>
+                    </button>
+
+                    @if (isDropdownOpen)
+                    {
+                        <div class="user-dropdown-menu login-form-dropdown">
+                            <h4 class="dropdown-form-title">Ingresar a mi Cuenta</h4>
+
+                            <div class="form-group-waylan">
+                                <label for="login-user">Correo o Teléfono</label>
+                                <input type="text" id="login-user" @bind="userInput" placeholder="ejemplo@correo.com" />
+                            </div>
+
+                            <div class="form-group-waylan">
+                                <label for="login-pass">Contraseña</label>
+                                <input type="password" id="login-pass" @bind="passwordInput" placeholder="••••••••" />
+                            </div>
+
+                            <button type="button" class="btn-submit-login" @onclick="ProcesarLogin">
+                                Iniciar Sesión
+                            </button>
+
+                            <div class="dropdown-divider"></div>
+
+                            <p class="dropdown-text">¿No tienes cuenta?</p>
+                            <a href="#registro" @onclick="CloseDropdown" class="dropdown-link-register">Crear una cuenta</a>
+                        </div>
+                    }
+                </div>
+
+                <a href="#carrito" class="nav-icon-btn" title="Ver carrito de compras">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-bag" viewBox="0 0 16 16">
+                        <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z" />
+                    </svg>
+                    <span class="cart-badge @(CartState.CartCount > 0 ? "cart-badge-bump" : "")">@CartState.CartCount</span>
+                </a>
+
+                <a href="#suscripciones" class="btn-nav-accent">COMPRAR ORIGEN</a>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="main-content">
+    @Body
+</main>
+
+@code {
+    private bool isDropdownOpen = false;
+    private bool isNosotrosOpen = false;
+    private string userInput = "";
+    private string passwordInput = "";
+    private int cancelacionToken = 0; // Para manejar la sincronización del hover
+
+    protected override void OnInitialized()
+    {
+        CartState.OnChange += StateHasChanged;
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    public void Dispose()
+    {
+        CartState.OnChange -= StateHasChanged;
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        StateHasChanged();
+    }
+
+    // --- MANEJO INTELIGENTE DEL HOVER ---
+    private void ManejarMouseEnter()
+    {
+        cancelacionToken++; // Rompe cualquier orden de cierre previa
+        isNosotrosOpen = true;
+        isDropdownOpen = false;
+    }
+
+    private async Task ManejarMouseLeave()
+    {
+        var tokenActual = cancelacionToken;
+        // Espera 200 milisegundos. Si el usuario movió el mouse al recuadro blanco,
+        // el token habrá cambiado o el puntero habrá vuelto a entrar.
+        await Task.Delay(200);
+
+        if (tokenActual == cancelacionToken)
+        {
+            isNosotrosOpen = false;
+            StateHasChanged();
+        }
+    }
+
+    private string GetLink(string fragment)
+    {
+        var relativeUri = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        if (string.IsNullOrEmpty(relativeUri) || relativeUri.StartsWith("?") || relativeUri.StartsWith("#"))
+        {
+            return fragment;
+        }
+        else
+        {
+            return "/" + fragment;
+        }
+    }
+
+    private bool IsActive(string pageName)
+    {
+        var relativeUri = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        if (pageName == "productos")
+        {
+            return relativeUri.StartsWith("productos", StringComparison.OrdinalIgnoreCase);
+        }
+        return false;
+    }
+
+    private void ToggleDropdown()
+    {
+        isDropdownOpen = !isDropdownOpen;
+        if (isDropdownOpen) isNosotrosOpen = false;
+    }
+
+    private void CloseDropdown()
+    {
+        isDropdownOpen = false;
+    }
+
+    private void CloseNosotros()
+    {
+        isNosotrosOpen = false;
+    }
+
+    private void ProcesarLogin()
+    {
+        Console.WriteLine($"Usuario: {userInput}, Password: {passwordInput}");
+        CloseDropdown();
+    }
+
+    private void AbrirBuscador()
+    {
+        Console.WriteLine("Buscador activado: Listo para implementar lógica en el backend.");
+    }
+}

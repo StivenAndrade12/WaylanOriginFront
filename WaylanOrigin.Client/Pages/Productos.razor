@@ -1,0 +1,1893 @@
+@page "/productos"
+@inject CartState CartState
+@inject NavigationManager NavigationManager
+@implements IDisposable
+
+<div class="productos-page">
+    
+    <!-- 1. HERO SECTION -->
+    <section class="store-hero">
+        <div class="hero-bg-overlay"></div>
+        <div class="store-hero-container">
+            <span class="hero-tag">--- TIENDA WAYLAN ORIGIN ---</span>
+            <h1 class="hero-title">
+                Descubre cafés <br />
+                <span class="serif-gold">que cuentan historias</span>
+            </h1>
+            <p class="hero-desc">
+                Desde nuestras montañas hasta tu taza. <br />
+                Cada grano refleja origen, cuidado y excelencia.
+            </p>
+            <div class="hero-buttons">
+                <a href="#catalogo" class="btn-buy-now">COMPRAR AHORA <span class="arrow-gold">›</span></a>
+                <a href="#categorias" class="btn-collections-outline">VER COLECCIONES</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. HIGHLIGHTS BAR (Dark) -->
+    <div class="highlights-bar-dark">
+        <div class="highlights-container">
+            <div class="highlight-item">
+                <div class="highlight-icon">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#B89A5E" stroke-width="1.5">
+                        <rect x="1" y="3" width="15" height="13" />
+                        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                        <circle cx="5.5" cy="18.5" r="2.5" />
+                        <circle cx="18.5" cy="18.5" r="2.5" />
+                    </svg>
+                </div>
+                <div class="highlight-text">
+                    <h4>Envíos nacionales</h4>
+                    <p>e internacionales</p>
+                </div>
+            </div>
+            <div class="highlight-item">
+                <div class="highlight-icon">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#B89A5E" stroke-width="1.5">
+                        <path d="M12 22C12 22 20 18 20 12C20 6 12 2 12 2C12 2 4 6 4 12C4 18 12 22 12 22Z" />
+                        <path d="M12 2V22" />
+                        <path d="M12 12C12 12 16 10 18 10" />
+                        <path d="M12 15C12 15 8 13 6 13" />
+                    </svg>
+                </div>
+                <div class="highlight-text">
+                    <h4>Producción</h4>
+                    <p>sostenible</p>
+                </div>
+            </div>
+            <div class="highlight-item">
+                <div class="highlight-icon">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#B89A5E" stroke-width="1.5">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                        <line x1="12" y1="22.08" x2="12" y2="12" />
+                    </svg>
+                </div>
+                <div class="highlight-text">
+                    <h4>Empaque premium</h4>
+                    <p>y responsable</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. CATEGORÍAS SECTION -->
+    <section id="categorias" class="categories-section">
+        <div class="section-title-wrapper">
+            <h2 class="categories-section-title">Categorías</h2>
+            <div class="title-line"></div>
+        </div>
+        <div class="categories-grid">
+            
+            <!-- Category 1 -->
+            <div class="category-card" @onclick='() => FilterByCategory("Grano")'>
+                <div class="category-image">
+                    <img src="/images/coffee_bag_generic.png" alt="Café en grano" />
+                </div>
+                <div class="category-overlay-content">
+                    <h3>Café en grano</h3>
+                    <button class="btn-category-action">VER PRODUCTOS <span class="arrow-arrow">→</span></button>
+                </div>
+            </div>
+
+            <!-- Category 2 -->
+            <div class="category-card" @onclick='() => FilterByCategory("Molido")'>
+                <div class="category-image">
+                    <img src="/imagenes/taza.png" alt="Café molido" />
+                </div>
+                <div class="category-overlay-content">
+                    <h3>Café molido</h3>
+                    <button class="btn-category-action">VER PRODUCTOS <span class="arrow-arrow">→</span></button>
+                </div>
+            </div>
+
+            <!-- Category 3 -->
+            <div class="category-card" @onclick="ClearAllFilters">
+                <div class="category-image">
+                    <img src="/images/coffee_bag_esperanza.png" alt="Ediciones especiales" />
+                </div>
+                <div class="category-overlay-content">
+                    <h3>Ediciones especiales</h3>
+                    <button class="btn-category-action">VER PRODUCTOS <span class="arrow-arrow">→</span></button>
+                </div>
+            </div>
+
+            <!-- Category 4 -->
+            <div class="category-card" @onclick="ClearAllFilters">
+                <div class="category-image">
+                    <img src="/images/coffee_gift_box.png" alt="Kits y regalos" />
+                </div>
+                <div class="category-overlay-content">
+                    <h3>Kits y regalos</h3>
+                    <button class="btn-category-action">VER PRODUCTOS <span class="arrow-arrow">→</span></button>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- 4. CATALOG SECTION -->
+    <section id="catalogo" class="catalog-section">
+        
+        <!-- Ripped Divider on top of Catalog (overlapping light categories section) -->
+        <div class="ripped-divider-top">
+            <svg viewBox="0 0 1440 20" preserveAspectRatio="none" class="ripped-svg">
+                <path d="M0,10 L8,9 L16,10 L24,8 L32,11 L40,9 L48,10 L56,8 L64,11 L72,9 L80,10 L88,11 L96,8 L104,10 L112,9 L120,11 L128,8 L136,10 L144,9 L152,11 L160,8 L168,10 L176,9 L184,11 L192,8 L200,10 L208,9 L216,11 L224,8 L232,10 L240,9 L248,11 L256,8 L264,10 L272,9 L280,11 L288,8 L296,10 L304,9 L312,11 L320,8 L328,10 L336,9 L344,11 L352,8 L360,10 L368,9 L376,11 L384,8 L392,10 L400,9 L408,11 L416,8 L424,10 L432,9 L440,11 L448,8 L456,10 L464,9 L472,11 L480,8 L488,10 L496,9 L504,11 L512,8 L520,10 L528,9 L536,11 L544,8 L552,10 L560,9 L568,11 L576,8 L584,10 L592,9 L600,11 L608,8 L616,10 L624,9 L632,11 L640,8 L648,10 L656,9 L664,11 L672,8 L680,10 L688,9 L696,11 L704,8 L712,10 L720,9 L728,11 L736,8 L744,10 L752,9 L760,11 L768,8 L776,10 L784,9 L792,11 L800,8 L808,10 L816,9 L824,11 L832,8 L840,10 L848,9 L856,11 L864,8 L872,10 L880,9 L888,11 L896,8 L904,10 L912,9 L920,11 L928,8 L936,10 L944,9 L952,11 L960,8 L968,10 L976,9 L984,11 L992,8 L1000,10 L1008,9 L1016,11 L1024,8 L1032,10 L1040,9 L1048,11 L1056,8 L1064,10 L1072,9 L1080,11 L1088,8 L1096,10 L1104,9 L1112,11 L1120,8 L1128,10 L1136,9 L1144,11 L1152,8 L1160,10 L1168,9 L1176,11 L1184,8 L1192,10 L1200,9 L1208,11 L1216,8 L1224,10 L1232,9 L1240,11 L1248,8 L1256,10 L1264,9 L1272,11 L1280,8 L1288,10 L1296,9 L1304,11 L1312,8 L1320,10 L1328,9 L1336,11 L1344,8 L1352,10 L1360,9 L1368,11 L1376,8 L1384,10 L1392,9 L1400,11 L1408,8 L1416,10 L1424,9 L1432,11 L1440,10 L1440,20 L0,20 Z" fill="#EDE4D9"></path>
+            </svg>
+        </div>
+
+        <div class="catalog-container">
+            
+            <!-- SIDEBAR FILTERS -->
+            <aside class="filter-sidebar">
+                <div class="filter-header">
+                    <h3>
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block; vertical-align:middle; margin-right:8px;">
+                            <line x1="4" y1="21" x2="4" y2="14" />
+                            <line x1="4" y1="10" x2="4" y2="3" />
+                            <line x1="12" y1="21" x2="12" y2="12" />
+                            <line x1="12" y1="8" x2="12" y2="3" />
+                            <line x1="20" y1="21" x2="20" y2="16" />
+                            <line x1="20" y1="12" x2="20" y2="3" />
+                            <line x1="1" y1="14" x2="7" y2="14" />
+                            <line x1="9" y1="8" x2="15" y2="8" />
+                            <line x1="17" y1="16" x2="23" y2="16" />
+                        </svg>
+                        FILTRAR PRODUCTOS
+                    </h3>
+                </div>
+
+                <!-- TYPE FILTER (TIPO) -->
+                <div class="filter-group">
+                    <div class="filter-group-header" @onclick="ToggleTypeContent">
+                        <span>TIPO</span>
+                        <span class="arrow-indicator">@(isTypeExpanded ? "▲" : "▼")</span>
+                    </div>
+                    @if (isTypeExpanded)
+                    {
+                        <div class="filter-group-content">
+                            <label class="checkbox-container">
+                                <input type="checkbox" checked='@SelectedFormats.Contains("Grano")' @onchange='() => ToggleFormatFilter("Grano")' />
+                                <span class="checkmark"></span>
+                                <span class="filter-label-text">En grano</span>
+                                <span class="filter-count">(@GetFormatCount("Grano"))</span>
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" checked='@SelectedFormats.Contains("Molido")' @onchange='() => ToggleFormatFilter("Molido")' />
+                                <span class="checkmark"></span>
+                                <span class="filter-label-text">Molido</span>
+                                <span class="filter-count">(@GetFormatCount("Molido"))</span>
+                            </label>
+                        </div>
+                    }
+                </div>
+
+                <!-- FLAVOR PROFILE (PERFIL DE SABOR) -->
+                <div class="filter-group">
+                    <div class="filter-group-header" @onclick="ToggleProfileContent">
+                        <span>PERFIL DE SABOR</span>
+                        <span class="arrow-indicator">@(isProfileExpanded ? "▲" : "▼")</span>
+                    </div>
+                    @if (isProfileExpanded)
+                    {
+                        <div class="filter-group-content">
+                            <label class="checkbox-container">
+                                <input type="checkbox" checked='@SelectedProfiles.Contains("Dulce")' @onchange='() => ToggleProfileFilter("Dulce")' />
+                                <span class="checkmark"></span>
+                                <span class="filter-label-text">Dulce</span>
+                                <span class="filter-count">(@GetProfileCount("Dulce"))</span>
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" checked='@SelectedProfiles.Contains("Balanceado")' @onchange='() => ToggleProfileFilter("Balanceado")' />
+                                <span class="checkmark"></span>
+                                <span class="filter-label-text">Balanceado</span>
+                                <span class="filter-count">(@GetProfileCount("Balanceado"))</span>
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" checked='@SelectedProfiles.Contains("Ácido")' @onchange='() => ToggleProfileFilter("Ácido")' />
+                                <span class="checkmark"></span>
+                                <span class="filter-label-text">Ácido</span>
+                                <span class="filter-count">(@GetProfileCount("Ácido"))</span>
+                            </label>
+                        </div>
+                    }
+                </div>
+
+                <!-- INTENSITY (INTENSIDAD) -->
+                <div class="filter-group">
+                    <div class="filter-group-header" @onclick="ToggleIntensityContent">
+                        <span>INTENSIDAD</span>
+                        <span class="arrow-indicator">@(isIntensityExpanded ? "▲" : "▼")</span>
+                    </div>
+                    @if (isIntensityExpanded)
+                    {
+                        <div class="filter-group-content">
+                            <div class="intensity-dots-filter">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    int level = i;
+                                    <button class="intensity-dot-btn @(SelectedIntensity == level ? "active" : "")" 
+                                            @onclick="() => FilterByIntensity(level)" 
+                                            type="button" 
+                                            title="Filtrar por intensidad @level">
+                                    </button>
+                                }
+                                @if (SelectedIntensity > 0)
+                                {
+                                    <button class="btn-clear-intensity" @onclick="ClearIntensityFilter" type="button">×</button>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- RECOMMENDED METHOD (MÉTODO RECOMENDADO) -->
+                <div class="filter-group">
+                    <div class="filter-group-header" @onclick="ToggleMethodContent">
+                        <span>MÉTODO RECOMENDADO</span>
+                        <span class="arrow-indicator">@(isMethodExpanded ? "▲" : "▼")</span>
+                    </div>
+                    @if (isMethodExpanded)
+                    {
+                        <div class="filter-group-content">
+                            <label class="checkbox-container">
+                                <input type="checkbox" checked='@SelectedMethods.Contains("Espresso")' @onchange='() => ToggleMethodFilter("Espresso")' />
+                                <span class="checkmark"></span>
+                                <span class="filter-label-text">Espresso</span>
+                                <span class="filter-count">(@GetMethodCount("Espresso"))</span>
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" checked='@SelectedMethods.Contains("Filtrado")' @onchange='() => ToggleMethodFilter("Filtrado")' />
+                                <span class="checkmark"></span>
+                                <span class="filter-label-text">Filtrado</span>
+                                <span class="filter-count">(@GetMethodCount("Filtrado"))</span>
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" checked='@SelectedMethods.Contains("Prensa francesa")' @onchange='() => ToggleMethodFilter("Prensa francesa")' />
+                                <span class="checkmark"></span>
+                                <span class="filter-label-text">Prensa francesa</span>
+                                <span class="filter-count">(@GetMethodCount("Prensa francesa"))</span>
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" checked='@SelectedMethods.Contains("Cold brew")' @onchange='() => ToggleMethodFilter("Cold brew")' />
+                                <span class="checkmark"></span>
+                                <span class="filter-label-text">Cold brew</span>
+                                <span class="filter-count">(@GetMethodCount("Cold brew"))</span>
+                            </label>
+                        </div>
+                    }
+                </div>
+
+                <!-- PRICE RANGE SLIDER (RANGO DE PRECIO) -->
+                <div class="filter-group">
+                    <div class="filter-group-header">
+                        <span>RANGO DE PRECIO</span>
+                        <span class="arrow-indicator">▲</span>
+                    </div>
+                    <div class="filter-group-content price-slider-box">
+                        <input type="range" min="25000" max="150000" step="5000" @bind="MaxPrice" @bind:event="oninput" class="range-slider" />
+                        <div class="price-labels">
+                            <span>$25.000</span>
+                            <span class="current-price">$@MaxPrice.ToString("N0") COP</span>
+                            <span>$150.000+</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-clear-filters" @onclick="ClearAllFilters">LIMPIAR FILTROS</button>
+            </aside>
+
+            <!-- PRODUCTS PANEL -->
+            <main class="products-panel">
+                
+                <!-- GRID HEADER -->
+                <div class="products-header">
+                    <div class="results-count">
+                        <h3>Cafés destacados</h3>
+                    </div>
+                    <div class="sort-container">
+                        <button class="btn-view-all" @onclick="ClearAllFilters" type="button">Ver todos los productos <span class="arrow-arrow">→</span></button>
+                    </div>
+                </div>
+
+                <!-- REGULAR PRODUCT LIST -->
+                <div class="regular-products-list">
+                    @foreach (var p in GetFilteredProducts())
+                    {
+                        <div class="product-card">
+                            
+                            <!-- Header Bag tag -->
+                            @if (!string.IsNullOrEmpty(p.Tag))
+                            {
+                                <span class="card-status-badge @(p.Tag == "NUEVO" ? "badge-new" : p.Tag == "MÁS VENDIDO" ? "badge-best" : "badge-limit")">@p.Tag</span>
+                            }
+
+                            <div class="product-image-container">
+                                <img src="@p.Image" alt="@p.Name" class="product-img" />
+                                
+                                <!-- Favorite Heart Icon Overlay -->
+                                <button class="favorite-btn" @onclick="() => ToggleFavorite(p)" type="button">
+                                    @if (p.IsFavorite)
+                                    {
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#B89A5E" class="bi bi-heart-fill" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
+                                        </svg>
+                                    }
+                                    else
+                                    {
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                                            <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                                        </svg>
+                                    }
+                                </button>
+                            </div>
+                            <div class="product-card-body">
+                                <h3 class="product-title">@p.Name</h3>
+                                <span class="product-region">@p.Region</span>
+                                <p class="product-notes">Notas: @p.Notes</p>
+                                
+                                <!-- Intensity circles -->
+                                <div class="product-intensity-row">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <span class="intensity-circle @(i <= p.Intensity ? "filled" : "")"></span>
+                                    }
+                                </div>
+
+                                <span class="product-price">$@p.Price.ToString("N0") COP</span>
+
+                                <div class="product-card-action">
+                                    <button class="btn-add-to-cart-red" @onclick="() => AgregarAlCarrito(p)" type="button">
+                                        AÑADIR AL CARRITO
+                                    </button>
+                                    <button class="btn-heart-action-only" @onclick="() => ToggleFavorite(p)" type="button">
+                                        @if (p.IsFavorite)
+                                        {
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#B89A5E" class="bi bi-heart-fill" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
+                                            </svg>
+                                        }
+                                        else
+                                        {
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                                                <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                                            </svg>
+                                        }
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </main>
+        </div>
+    </section>
+
+    <!-- 5. ¿POR QUÉ ELEGIR WAYLAN ORIGIN? -->
+    <section class="why-choose-section">
+        <div class="why-choose-topography-overlay"></div>
+        <div class="why-choose-container">
+            <h2 class="why-choose-title">
+                ¿Por qué elegir <span class="serif-gold-italic">Waylan Origin?</span>
+            </h2>
+            <div class="why-choose-grid">
+                <div class="why-item">
+                    <div class="why-icon">
+                        <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#B89A5E" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+                        </svg>
+                    </div>
+                    <h3>Trazabilidad total</h3>
+                    <p>Conocemos cada paso de nuestro café, del cultivo a tu taza.</p>
+                </div>
+                
+                <div class="why-item">
+                    <div class="why-icon">
+                        <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#B89A5E" stroke-width="1.5">
+                            <path d="M17 11V7a5 5 0 0 0-10 0v4M3 21h18v-8H3v8z" />
+                        </svg>
+                    </div>
+                    <h3>Comercio justo</h3>
+                    <p>Relaciones transparentes que reflejan bienestar en nuestras comunidades.</p>
+                </div>
+
+                <div class="why-item">
+                    <div class="why-icon">
+                        <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#B89A5E" stroke-width="1.5">
+                            <path d="M12 2L2 22h20L12 2z" />
+                            <path d="M12 2l4 8-8 3" />
+                        </svg>
+                    </div>
+                    <h3>Café de origen único</h3>
+                    <p>Perfiles de sabor auténticos que reflejan nuestra tierra y nuestro clima.</p>
+                </div>
+
+                <div class="why-item">
+                    <div class="why-icon">
+                        <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#B89A5E" stroke-width="1.5">
+                            <path d="M12 22V12m0 0c0-4 3-6 8-6m-8 6c0-4-3-6-8-6m8 6c2-3 5-4 8-4m-8 4C10 9 7 8 4 8" />
+                        </svg>
+                    </div>
+                    <h3>Producción sostenible</h3>
+                    <p>Cuidamos el planeta con prácticas responsables en cada etapa.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. TESTIMONIALES SECTION -->
+    <section class="testimonials-section">
+        
+        <!-- Ripped Divider pointing down to Testimonials -->
+        <div class="ripped-divider-top">
+            <svg viewBox="0 0 1440 20" preserveAspectRatio="none" class="ripped-svg">
+                <path d="M0,10 L8,9 L16,10 L24,8 L32,11 L40,9 L48,10 L56,8 L64,11 L72,9 L80,10 L88,11 L96,8 L104,10 L112,9 L120,11 L128,8 L136,10 L144,9 L152,11 L160,8 L168,10 L176,9 L184,11 L192,8 L200,10 L208,9 L216,11 L224,8 L232,10 L240,9 L248,11 L256,8 L264,10 L272,9 L280,11 L288,8 L296,10 L304,9 L312,11 L320,8 L328,10 L336,9 L344,11 L352,8 L360,10 L368,9 L376,11 L384,8 L392,10 L400,9 L408,11 L416,8 L424,10 L432,9 L440,11 L448,8 L456,10 L464,9 L472,11 L480,8 L488,10 L496,9 L504,11 L512,8 L520,10 L528,9 L536,11 L544,8 L552,10 L560,9 L568,11 L576,8 L584,10 L592,9 L600,11 L608,8 L616,10 L624,9 L632,11 L640,8 L648,10 L656,9 L664,11 L672,8 L680,10 L688,9 L696,11 L704,8 L712,10 L720,9 L728,11 L736,8 L744,10 L752,9 L760,11 L768,8 L776,10 L784,9 L792,11 L800,8 L808,10 L816,9 L824,11 L832,8 L840,10 L848,9 L856,11 L864,8 L872,10 L880,9 L888,11 L896,8 L904,10 L912,9 L920,11 L928,8 L936,10 L944,9 L952,11 L960,8 L968,10 L976,9 L984,11 L992,8 L1000,10 L1008,9 L1016,11 L1024,8 L1032,10 L1040,9 L1048,11 L1056,8 L1064,10 L1072,9 L1080,11 L1088,8 L1096,10 L1104,9 L1112,11 L1120,8 L1128,10 L1136,9 L1144,11 L1152,8 L1160,10 L1168,9 L1176,11 L1184,8 L1192,10 L1200,9 L1208,11 L1216,8 L1224,10 L1232,9 L1240,11 L1248,8 L1256,10 L1264,9 L1272,11 L1280,8 L1288,10 L1296,9 L1304,11 L1312,8 L1320,10 L1328,9 L1336,11 L1344,8 L1352,10 L1360,9 L1368,11 L1376,8 L1384,10 L1392,9 L1400,11 L1408,8 L1416,10 L1424,9 L1432,11 L1440,10 L1440,20 L0,20 Z" fill="#EDE4D9"></path>
+            </svg>
+        </div>
+
+        <div class="testimonials-container">
+            
+            <!-- Card 1: Review -->
+            <div class="testimonial-card-left">
+                <h3>Lo que dicen nuestros clientes</h3>
+                <div class="quote-box">
+                    <span class="quote-symbol">“</span>
+                    <p class="quote-text">El mejor café que he probado. Se siente el origen en cada sorbo.</p>
+                </div>
+                <div class="stars-row">
+                    @for (int i = 0; i < 5; i++)
+                    {
+                        <span class="star-gold">★</span>
+                    }
+                </div>
+                <span class="client-name">Andrés M.</span>
+            </div>
+
+            <!-- Card 2: Impact -->
+            <div class="testimonial-card-center">
+                <div class="impact-icon-wrapper">
+                    <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#B89A5E" stroke-width="1.5">
+                        <path d="M12 22V12m0 0c0-4 3-6 8-6m-8 6c0-4-3-6-8-6m8 6c2-3 5-4 8-4m-8 4C10 9 7 8 4 8" />
+                    </svg>
+                </div>
+                <h3>Cada compra genera impacto</h3>
+                <p>Apoyas a más de 120 familias productoras y contribuyes a un futuro más sostenible.</p>
+            </div>
+
+            <!-- Card 3: Image / Button -->
+            <div class="testimonial-card-right">
+                <div class="card-bg-overlay"></div>
+                <div class="card-right-content">
+                    <p class="promo-text">No vendemos café, compartimos origen.</p>
+                    <a href="/" class="btn-discover-history">CONOCE NUESTRA HISTORIA <span class="arrow-arrow">›</span></a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- 7. DETAILED FOOTER -->
+    <footer class="detailed-store-footer">
+        
+        <!-- Ripped Divider pointing down to Footer -->
+        <div class="ripped-divider-top">
+            <svg viewBox="0 0 1440 20" preserveAspectRatio="none" class="ripped-svg">
+                <path d="M0,10 L8,9 L16,10 L24,8 L32,11 L40,9 L48,10 L56,8 L64,11 L72,9 L80,10 L88,11 L96,8 L104,10 L112,9 L120,11 L128,8 L136,10 L144,9 L152,11 L160,8 L168,10 L176,9 L184,11 L192,8 L200,10 L208,9 L216,11 L224,8 L232,10 L240,9 L248,11 L256,8 L264,10 L272,9 L280,11 L288,8 L296,10 L304,9 L312,11 L320,8 L328,10 L336,9 L344,11 L352,8 L360,10 L368,9 L376,11 L384,8 L392,10 L400,9 L408,11 L416,8 L424,10 L432,9 L440,11 L448,8 L456,10 L464,9 L472,11 L480,8 L488,10 L496,9 L504,11 L512,8 L520,10 L528,9 L536,11 L544,8 L552,10 L560,9 L568,11 L576,8 L584,10 L592,9 L600,11 L608,8 L616,10 L624,9 L632,11 L640,8 L648,10 L656,9 L664,11 L672,8 L680,10 L688,9 L696,11 L704,8 L712,10 L720,9 L728,11 L736,8 L744,10 L752,9 L760,11 L768,8 L776,10 L784,9 L792,11 L800,8 L808,10 L816,9 L824,11 L832,8 L840,10 L848,9 L856,11 L864,8 L872,10 L880,9 L888,11 L896,8 L904,10 L912,9 L920,11 L928,8 L936,10 L944,9 L952,11 L960,8 L968,10 L976,9 L984,11 L992,8 L1000,10 L1008,9 L1016,11 L1024,8 L1032,10 L1040,9 L1048,11 L1056,8 L1064,10 L1072,9 L1080,11 L1088,8 L1096,10 L1104,9 L1112,11 L1120,8 L1128,10 L1136,9 L1144,11 L1152,8 L1160,10 L1168,9 L1176,11 L1184,8 L1192,10 L1200,9 L1208,11 L1216,8 L1224,10 L1232,9 L1240,11 L1248,8 L1256,10 L1264,9 L1272,11 L1280,8 L1288,10 L1296,9 L1304,11 L1312,8 L1320,10 L1328,9 L1336,11 L1344,8 L1352,10 L1360,9 L1368,11 L1376,8 L1384,10 L1392,9 L1400,11 L1408,8 L1416,10 L1424,9 L1432,11 L1440,10 L1440,20 L0,20 Z" fill="#1A100A"></path>
+            </svg>
+        </div>
+
+        <div class="footer-grid-container">
+            
+            <!-- Col 1: Waylan brand -->
+            <div class="footer-col-brand">
+                <img src="/logotipo/Logotipo Waylan Origin-Photoroom.png" alt="Waylan Origin Logo" class="footer-logo-img" />
+                <p class="brand-sub">Café de origen colombiano con propósito y pasión.</p>
+                <div class="social-row">
+                    <a href="https://instagram.com" target="_blank" title="Instagram">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-instagram" viewBox="0 0 16 16">
+                            <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.917 3.917 0 0 0-1.417.923A3.927 3.927 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.916 3.916 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.926 3.926 0 0 0-.923-1.417A3.911 3.911 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.999 0h.002zm-.008 1.441c2.111 0 2.36.008 3.194.047.773.035 1.192.164 1.472.273.371.143.636.315.914.593.28.28.453.546.593.914.11.279.24.698.275 1.47.038.834.047 1.083.047 3.194 0 2.113-.009 2.36-.047 3.194-.035.772-.164 1.191-.275 1.47-.143.37-.315.637-.593.915-.28.279-.546.452-.914.593-.28.11-.698.24-1.47.275-.834.038-1.083.047-3.194.047-2.11 0-2.36-.009-3.194-.047-.772-.035-1.191-.164-1.47-.275a2.735 2.735 0 0 1-.915-.593 2.73 2.73 0 0 1-.593-.914c-.11-.279-.24-.699-.275-1.47-.038-.834-.047-1.083-.047-3.194 0-2.111.009-2.36.047-3.194.035-.772.164-1.192.275-1.47.143-.37.315-.636.593-.914.28-.28.546-.453.914-.593.28-.11.698-.24 1.47-.275.834-.037 1.083-.047 3.194-.047h.002zm0 2.22a3.441 3.441 0 1 0 0 6.882 3.441 3.441 0 0 0 0-6.882zM8 9.773a1.773 1.773 0 1 1 0-3.546 1.773 1.773 0 0 1 0 3.546z"/>
+                        </svg>
+                    </a>
+                    <a href="https://facebook.com" target="_blank" title="Facebook">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-facebook" viewBox="0 0 16 16">
+                            <path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.02-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951z"/>
+                        </svg>
+                    </a>
+                    <a href="https://youtube.com" target="_blank" title="YouTube">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-youtube" viewBox="0 0 16 16">
+                            <path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.101.38.172.883.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.108-.082 2.06l-.008.105-.009.104c-.05.572-.124 1.14-.235 1.558a2.007 2.007 0 0 1-1.415 1.42c-1.16.312-5.569.334-6.18.335h-.142c-.309 0-1.587-.006-2.927-.052l-.17-.006-.087-.004-.171-.007-.171-.007c-1.11-.049-2.167-.128-2.654-.26a2.007 2.007 0 0 1-1.415-1.419c-.111-.417-.185-.986-.235-1.558L.09 9.82l-.008-.104A31.4 31.4 0 0 1 0 7.58v-.075c.001-.2.01-1.108.082-2.06l.008-.105.009-.104c.05-.572.124-1.14.235-1.558A2.007 2.007 0 0 1 1.74 2.333c1.127-.3 5.292-.33 6.11-.335h.089zm-1.448 8.49l4.59-2.58-4.59-2.58v5.16z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Col 2: Tienda -->
+            <div class="footer-col-links">
+                <h4>TIENDA</h4>
+                <a href="#catalogo" @onclick="ClearAllFilters">Todos los productos</a>
+                <a href="#catalogo" @onclick='() => FilterByCategory("Grano")'>Café en grano</a>
+                <a href="#catalogo" @onclick='() => FilterByCategory("Molido")'>Café molido</a>
+                <a href="#catalogo" @onclick="ClearAllFilters">Ediciones especiales</a>
+                <a href="#catalogo" @onclick="ClearAllFilters">Kits y regalos</a>
+            </div>
+
+            <!-- Col 3: Informacion -->
+            <div class="footer-col-links">
+                <h4>INFORMACIÓN</h4>
+                <a href="/">Sobre nosotros</a>
+                <a href="/nuestro-proceso">Nuestro proceso</a>
+                <a href="/">Sostenibilidad</a>
+                <a href="/">Exportaciones</a>
+                <a href="/">Blog</a>
+            </div>
+
+            <!-- Col 4: Ayuda -->
+            <div class="footer-col-links">
+                <h4>AYUDA</h4>
+                <a href="/">Preguntas frecuentes</a>
+                <a href="/">Envíos y entregas</a>
+                <a href="/">Cambios y devoluciones</a>
+                <a href="/">Términos y condiciones</a>
+                <a href="/">Contacto</a>
+            </div>
+
+            <!-- Col 5: Newsletter -->
+            <div class="footer-col-newsletter">
+                <h4>NEWSLETTER</h4>
+                <p>Recibe historias, lanzamientos y ofertas especiales.</p>
+                <div class="newsletter-form-row">
+                    <input type="email" placeholder="Tu correo electrónico" />
+                    <button class="btn-newsletter-submit" type="button">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                            <polyline points="12 5 19 12 12 19" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+        
+        <div class="footer-bottom-bar">
+            <div class="bottom-bar-content">
+                <span>© 2026 Waylan Origin. Todos los derechos reservados.</span>
+                <span class="colombia-tribute">Hecho en Colombia con ❤️ por nuestras familias cafeteras.</span>
+            </div>
+        </div>
+    </footer>
+</div>
+
+@code {
+    private HashSet<string> SelectedFormats = new();
+    private HashSet<string> SelectedProfiles = new();
+    private HashSet<string> SelectedMethods = new();
+    private int SelectedIntensity = 0;
+    private int MaxPrice = 150000;
+
+    // Sidebar expansion collapse states
+    private bool isTypeExpanded = true;
+    private bool isProfileExpanded = true;
+    private bool isIntensityExpanded = true;
+    private bool isMethodExpanded = true;
+
+    private List<Product> AllProducts = new();
+
+    protected override void OnInitialized()
+    {
+        InitializeProducts();
+        CartState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        CartState.OnChange -= StateHasChanged;
+    }
+
+    private void InitializeProducts()
+    {
+        AllProducts = new List<Product>
+        {
+            new Product { Id = "WAY-SEL", Name = "Waylan Selection", Region = "Tolima, Colombia", Notes = "Chocolate, panela, frutos rojos", Format = "Grano", Profile = "Dulce", Method = "Filtrado", Intensity = 4, Price = 72000, Tag = "NUEVO", Image = "/images/coffee_bag_esperanza.png" },
+            new Product { Id = "WAY-CLA", Name = "Waylan Classic", Region = "Tolima, Colombia", Notes = "Caramelo, avellana, cítricos", Format = "Molido", Profile = "Balanceado", Method = "Filtrado", Intensity = 4, Price = 58000, Tag = "MÁS VENDIDO", Image = "/images/coffee_bag_generic.png" },
+            new Product { Id = "WAY-RES", Name = "Waylan Reserve", Region = "Tolima, Colombia", Notes = "Frutos amarillos, miel, flores", Format = "Grano", Profile = "Dulce", Method = "Espresso", Intensity = 5, Price = 95000, Tag = "EDICIÓN LIMITADA", Image = "/images/coffee_bag_esperanza.png" },
+            new Product { Id = "WAY-DEC", Name = "Waylan Decaf", Region = "Tolima, Colombia", Notes = "Cacao, almendra, caramelo", Format = "Molido", Profile = "Dulce", Method = "Prensa francesa", Intensity = 3, Price = 60000, Tag = "", Image = "/images/coffee_bag_generic.png" },
+            
+            new Product { Id = "WAY-HON", Name = "Waylan Honey Craft", Region = "Tolima, Colombia", Notes = "Miel de caña, floral, frutos amarillos", Format = "Grano", Profile = "Dulce", Method = "Cold brew", Intensity = 3, Price = 68000, Tag = "", Image = "/images/coffee_bag_esperanza.png" },
+            new Product { Id = "WAY-DARK", Name = "Waylan Dark Espresso", Region = "Huila, Colombia", Notes = "Chocolate oscuro, nuez tostada", Format = "Grano", Profile = "Balanceado", Method = "Espresso", Intensity = 5, Price = 64000, Tag = "", Image = "/images/coffee_bag_generic.png" },
+            new Product { Id = "WAY-ORG", Name = "Waylan Organic Blend", Region = "Cauca, Colombia", Notes = "Limón dulce, té verde, panela", Format = "Molido", Profile = "Ácido", Method = "Prensa francesa", Intensity = 3, Price = 75000, Tag = "", Image = "/images/coffee_bag_esperanza.png" }
+        };
+    }
+
+    private IEnumerable<Product> GetFilteredProducts()
+    {
+        var query = AllProducts.AsEnumerable();
+
+        if (SelectedFormats.Any())
+        {
+            query = query.Where(p => SelectedFormats.Contains(p.Format));
+        }
+
+        if (SelectedProfiles.Any())
+        {
+            query = query.Where(p => SelectedProfiles.Contains(p.Profile));
+        }
+
+        if (SelectedMethods.Any())
+        {
+            query = query.Where(p => SelectedMethods.Contains(p.Method));
+        }
+
+        if (SelectedIntensity > 0)
+        {
+            query = query.Where(p => p.Intensity == SelectedIntensity);
+        }
+
+        query = query.Where(p => p.Price <= MaxPrice);
+
+        return query;
+    }
+
+    private void ToggleFormatFilter(string format)
+    {
+        if (SelectedFormats.Contains(format))
+            SelectedFormats.Remove(format);
+        else
+            SelectedFormats.Add(format);
+    }
+
+    private void ToggleProfileFilter(string profile)
+    {
+        if (SelectedProfiles.Contains(profile))
+            SelectedProfiles.Remove(profile);
+        else
+            SelectedProfiles.Add(profile);
+    }
+
+    private void ToggleMethodFilter(string method)
+    {
+        if (SelectedMethods.Contains(method))
+            SelectedMethods.Remove(method);
+        else
+            SelectedMethods.Add(method);
+    }
+
+    private void FilterByIntensity(int intensity)
+    {
+        SelectedIntensity = intensity;
+    }
+
+    private void ClearIntensityFilter()
+    {
+        SelectedIntensity = 0;
+    }
+
+    private void FilterByCategory(string categoryName)
+    {
+        SelectedFormats.Clear();
+        SelectedFormats.Add(categoryName);
+    }
+
+    private void ClearAllFilters()
+    {
+        SelectedFormats.Clear();
+        SelectedProfiles.Clear();
+        SelectedMethods.Clear();
+        SelectedIntensity = 0;
+        MaxPrice = 150000;
+    }
+
+    private int GetFormatCount(string format) => AllProducts.Count(p => p.Format == format);
+    private int GetProfileCount(string profile) => AllProducts.Count(p => p.Profile == profile);
+    private int GetMethodCount(string method) => AllProducts.Count(p => p.Method == method);
+
+    private void ToggleFavorite(Product p)
+    {
+        p.IsFavorite = !p.IsFavorite;
+    }
+
+    private void AgregarAlCarrito(Product p)
+    {
+        CartState.Increment();
+    }
+
+    private void ToggleTypeContent() => isTypeExpanded = !isTypeExpanded;
+    private void ToggleProfileContent() => isProfileExpanded = !isProfileExpanded;
+    private void ToggleIntensityContent() => isIntensityExpanded = !isIntensityExpanded;
+    private void ToggleMethodContent() => isMethodExpanded = !isMethodExpanded;
+
+    public class Product
+    {
+        public string Id { get; set; } = "";
+        public string Name { get; set; } = "";
+        public string Region { get; set; } = "";
+        public string Notes { get; set; } = "";
+        public string Format { get; set; } = "";
+        public string Profile { get; set; } = "";
+        public string Method { get; set; } = "";
+        public int Intensity { get; set; }
+        public int Price { get; set; }
+        public string Tag { get; set; } = "";
+        public string Image { get; set; } = "";
+        public bool IsFavorite { get; set; }
+    }
+}
+
+<!-- STYLES -->
+<style>
+    .productos-page {
+        --dark-coffee: #1A100A;
+        --deep-brown: #281A12;
+        --wine-red: #2A0905;
+        --wine-dark: #1E0604;
+        --luxury-gold: #B89A5E;
+        --luxury-gold-hover: #D1B894;
+        --cream-bg: #FAF6F0;
+        --cream-paper: #EDE4D9;
+        --cherry-red: #3A120D;
+        --cherry-hover: #260B08;
+        --white-pure: #FFFFFF;
+        --text-light: #E6E1DA;
+        --text-muted: #A39B94;
+        --border-color: #E2DBD3;
+        
+        font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        background-color: var(--cream-bg);
+        color: var(--dark-coffee);
+        margin: 0;
+        padding-top: 0;
+    }
+
+    .productos-page h1, 
+    .productos-page h2, 
+    .productos-page h3, 
+    .serif-gold, 
+    .serif-gold-light, 
+    .serif-gold-footer {
+        font-family: 'Playfair Display', Georgia, serif;
+    }
+
+    /* RIPPED PAPER DIVIDERS */
+    .ripped-divider-top {
+        position: absolute;
+        top: -19px;
+        left: 0;
+        width: 100%;
+        height: 20px;
+        overflow: visible;
+        z-index: 10;
+        filter: drop-shadow(0 2px 2px rgba(0,0,0,0.18));
+    }
+
+    .ripped-svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+
+    /* 1. HERO SECTION */
+    .store-hero {
+        position: relative;
+        height: 60vh;
+        min-height: 440px;
+        background-image: url('/imagenes/Gemini_Generated_Image_9hfuk69hfuk69hfu.png');
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        padding: 0 8%;
+        overflow: hidden;
+    }
+
+    .hero-bg-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to right, rgba(26, 16, 10, 0.85) 0%, rgba(26, 16, 10, 0.35) 60%, rgba(26, 16, 10, 0.7) 100%);
+        z-index: 1;
+    }
+
+    .store-hero-container {
+        position: relative;
+        z-index: 2;
+        max-width: 600px;
+        color: var(--white-pure);
+    }
+
+    .hero-tag {
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 4px;
+        color: var(--luxury-gold);
+        display: inline-block;
+        margin-bottom: 12px;
+    }
+
+    .hero-title {
+        font-size: 3.6rem;
+        font-weight: 300;
+        line-height: 1.15;
+        margin-bottom: 20px;
+        letter-spacing: 0.5px;
+    }
+
+    .serif-gold {
+        color: var(--luxury-gold);
+        font-style: italic;
+    }
+
+    .hero-desc {
+        font-size: 1.1rem;
+        font-weight: 300;
+        color: var(--text-light);
+        margin-bottom: 35px;
+        line-height: 1.6;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 15px;
+    }
+
+    .btn-buy-now {
+        display: inline-block;
+        background-color: var(--luxury-gold);
+        color: var(--dark-coffee) !important;
+        text-decoration: none;
+        padding: 14px 28px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(184, 154, 94, 0.3);
+    }
+
+    .btn-buy-now:hover {
+        background-color: var(--white-pure);
+        transform: translateY(-2px);
+    }
+
+    .btn-collections-outline {
+        display: inline-block;
+        background-color: transparent;
+        color: var(--white-pure) !important;
+        border: 1.5px solid var(--white-pure);
+        text-decoration: none;
+        padding: 12.5px 28px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-collections-outline:hover {
+        background-color: var(--white-pure);
+        color: var(--dark-coffee) !important;
+        transform: translateY(-2px);
+    }
+
+    /* 2. HIGHLIGHTS BAR (Dark) */
+    .highlights-bar-dark {
+        background-color: #120C08;
+        border-top: 1px solid rgba(184, 154, 94, 0.15);
+        border-bottom: 1px solid rgba(184, 154, 94, 0.15);
+        padding: 25px 0;
+    }
+
+    .highlights-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 24px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+    }
+
+    .highlight-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        justify-content: center;
+    }
+
+    .highlight-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .highlight-text h4 {
+        color: var(--white-pure);
+        font-size: 0.9rem;
+        font-weight: 700;
+        margin: 0 0 2px 0;
+        letter-spacing: 0.5px;
+    }
+
+    .highlight-text p {
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin: 0;
+        letter-spacing: 0.5px;
+    }
+
+    /* 3. CATEGORÍAS SECTION */
+    .categories-section {
+        background-color: var(--cream-bg);
+        background-image: url('/fondos/blanco.png') !important;
+        background-repeat: repeat;
+        padding: 80px 24px 100px 24px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .section-title-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+
+    .categories-section-title {
+        font-size: 1.8rem;
+        font-weight: 400;
+        color: var(--dark-coffee);
+        letter-spacing: 0.5px;
+        margin: 0;
+    }
+
+    .title-line {
+        flex: 1;
+        height: 1px;
+        background-color: rgba(40, 26, 18, 0.15);
+    }
+
+    .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 24px;
+    }
+
+    .category-card {
+        height: 260px;
+        border-radius: 8px;
+        overflow: hidden;
+        position: relative;
+        cursor: pointer;
+        border: 1px solid rgba(40, 26, 18, 0.1);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+        transition: all 0.4s ease;
+    }
+
+    .category-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    }
+
+    .category-image {
+        width: 100%;
+        height: 100%;
+        background-color: #F3ECE2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.4s ease;
+    }
+
+    .category-card:hover .category-image {
+        transform: scale(1.06);
+    }
+
+    .category-image img {
+        max-height: 80%;
+        max-width: 80%;
+        object-fit: contain;
+        filter: drop-shadow(0 8px 16px rgba(0,0,0,0.1));
+    }
+
+    .category-overlay-content {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(26, 16, 10, 0.85) 0%, rgba(26, 16, 10, 0.2) 60%, transparent 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 24px;
+        color: var(--white-pure);
+    }
+
+    .category-overlay-content h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0 0 8px 0;
+    }
+
+    .btn-category-action {
+        background: transparent;
+        border: none;
+        color: var(--luxury-gold);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        padding: 0;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        outline: none;
+    }
+
+    /* 4. CATALOG AREA */
+    .catalog-section {
+        background-color: #EDE4D9;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600'%3E%3Cpath d='M-50,150 C50,130 150,200 250,150 C350,100 450,130 550,150 M-50,180 C50,160 150,230 250,180 C350,130 450,160 550,180 M-50,120 C50,100 150,170 250,120 C350,70 450,100 550,120 M-50,90 C50,70 150,140 250,90 C350,40 450,70 550,90 M-50,210 C50,190 150,260 250,210 C350,160 450,190 550,210 M100,400 C150,330 250,330 300,400 C350,470 250,550 180,520 C110,490 50,470 100,400 Z M80,400 C140,310 260,310 320,400 C380,490 260,580 180,550 C100,520 20,490 80,400 Z M120,400 C160,350 240,350 280,400 C320,450 240,520 180,490 C120,460 80,450 120,400 Z M450,350 Q480,280 520,300 T580,380 M420,350 Q460,250 520,270 T600,360' stroke='%23B89A5E' stroke-opacity='0.15' stroke-width='1.2' fill='none'/%3E%3C/svg%3E"), url('/fondos/blanco.png') !important;
+        background-size: 600px 600px, auto;
+        background-repeat: repeat;
+        padding: 100px 0 120px 0;
+        position: relative;
+    }
+
+    .catalog-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 24px;
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 40px;
+    }
+
+    @@media (max-width: 900px) {
+        .catalog-container {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* FILTER SIDEBAR */
+    .filter-sidebar {
+        background-color: transparent;
+    }
+
+    .filter-header h3 {
+        font-size: 0.9rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        color: var(--deep-brown);
+        margin-bottom: 25px;
+        border-bottom: 1.5px solid var(--luxury-gold);
+        padding-bottom: 8px;
+        margin-top: 0;
+    }
+
+    .filter-group {
+        border-bottom: 1px solid rgba(40, 26, 18, 0.15);
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+    }
+
+    .filter-group-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.8rem;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        color: var(--deep-brown);
+        margin-bottom: 15px;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .arrow-indicator {
+        font-size: 0.6rem;
+        color: var(--luxury-gold);
+    }
+
+    .filter-group-content {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        animation: slideDownFilter 0.2s ease-out;
+    }
+
+    @@keyframes slideDownFilter {
+        from { opacity: 0; transform: translateY(-4px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Checkboxes styling */
+    .checkbox-container {
+        display: flex;
+        align-items: center;
+        position: relative;
+        padding-left: 28px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--deep-brown);
+        user-select: none;
+    }
+
+    .checkbox-container input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+    }
+
+    .checkmark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 16px;
+        width: 16px;
+        background-color: transparent;
+        border: 1px solid rgba(40, 26, 18, 0.4);
+        border-radius: 2px;
+        transition: all 0.2s;
+    }
+
+    .checkbox-container:hover input ~ .checkmark {
+        border-color: var(--luxury-gold);
+    }
+
+    .checkbox-container input:checked ~ .checkmark {
+        background-color: var(--deep-brown);
+        border-color: var(--deep-brown);
+    }
+
+    .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+    }
+
+    .checkbox-container input:checked ~ .checkmark:after {
+        display: block;
+    }
+
+    .checkbox-container .checkmark:after {
+        left: 5px;
+        top: 2px;
+        width: 5px;
+        height: 9px;
+        border: solid var(--white-pure);
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+
+    .filter-label-text {
+        flex: 1;
+    }
+
+    .filter-count {
+        color: var(--luxury-gold);
+        font-size: 0.75rem;
+        margin-left: 6px;
+        opacity: 0.85;
+    }
+
+    /* Price range slider styling */
+    .price-slider-box {
+        padding-top: 5px;
+    }
+
+    .range-slider {
+        width: 100%;
+        -webkit-appearance: none;
+        appearance: none;
+        height: 4px;
+        border-radius: 2px;
+        background: #E2DBD3;
+        outline: none;
+    }
+
+    .range-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--luxury-gold);
+        cursor: pointer;
+        transition: transform 0.1s;
+    }
+
+    .range-slider::-webkit-slider-thumb:hover {
+        transform: scale(1.2);
+    }
+
+    .price-labels {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--deep-brown);
+    }
+
+    .current-price {
+        color: var(--luxury-gold);
+    }
+
+    /* Intensity Filter dots */
+    .intensity-dots-filter {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+    }
+
+    .intensity-dot-btn {
+        height: 16px;
+        width: 16px;
+        border-radius: 50%;
+        border: 1.5px solid rgba(40, 26, 18, 0.4);
+        background: transparent;
+        cursor: pointer;
+        padding: 0;
+        transition: all 0.2s;
+        outline: none;
+    }
+
+    .intensity-dot-btn:hover, .intensity-dot-btn.active {
+        background-color: var(--deep-brown);
+        border-color: var(--deep-brown);
+    }
+
+    .btn-clear-intensity {
+        background: transparent;
+        border: none;
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: var(--cherry-red);
+        cursor: pointer;
+        margin-left: 6px;
+        padding: 0;
+        line-height: 1;
+        outline: none;
+    }
+
+    .btn-clear-filters {
+        width: 100%;
+        background: transparent;
+        border: 1px solid var(--deep-brown);
+        color: var(--deep-brown);
+        padding: 10px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 15px;
+        transition: all 0.2s;
+        outline: none;
+    }
+
+    .btn-clear-filters:hover {
+        background-color: var(--deep-brown);
+        color: var(--white-pure);
+    }
+
+    /* PRODUCTS PANEL */
+    .products-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .products-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(40, 26, 18, 0.15);
+        padding-bottom: 15px;
+    }
+
+    .products-header h3 {
+        font-size: 1.6rem;
+        font-weight: 400;
+        color: var(--deep-brown);
+        margin: 0;
+    }
+
+    .btn-view-all {
+        background: transparent;
+        border: none;
+        color: var(--luxury-gold);
+        font-size: 0.85rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        outline: none;
+        transition: color 0.2s;
+    }
+
+    .btn-view-all:hover {
+        color: var(--luxury-gold-hover);
+    }
+
+    /* REGULAR PRODUCTS GRID */
+    .regular-products-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 24px;
+    }
+
+    .product-card {
+        background-color: #FAF6F0;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid rgba(40, 26, 18, 0.1);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        border-color: var(--luxury-gold);
+    }
+
+    .card-status-badge {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        font-size: 0.65rem;
+        font-weight: 850;
+        letter-spacing: 1.5px;
+        color: var(--white-pure);
+        padding: 4px 10px;
+        border-radius: 4px;
+        z-index: 5;
+    }
+
+    .badge-new { background-color: #2F6F4C; }
+    .badge-best { background-color: #C47A2B; }
+    .badge-limit { background-color: #8C2424; }
+
+    .product-image-container {
+        background-color: #F3ECE2;
+        height: 240px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        border-bottom: 1px solid rgba(40, 26, 18, 0.05);
+    }
+
+    .product-img {
+        max-height: 85%;
+        max-width: 85%;
+        object-fit: contain;
+        filter: drop-shadow(0 8px 16px rgba(0,0,0,0.15));
+    }
+
+    .favorite-btn {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: var(--white-pure);
+        border: none;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        transition: all 0.2s;
+        z-index: 5;
+        outline: none;
+    }
+
+    .favorite-btn:hover {
+        transform: scale(1.1);
+        color: var(--luxury-gold);
+    }
+
+    .product-card-body {
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .product-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--deep-brown);
+        margin: 0 0 4px 0;
+    }
+
+    .product-region {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--luxury-gold);
+        margin-bottom: 12px;
+        display: block;
+    }
+
+    .product-notes {
+        font-size: 0.8rem;
+        color: #55504A;
+        line-height: 1.5;
+        margin: 0 0 15px 0;
+    }
+
+    .product-intensity-row {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 18px;
+    }
+
+    .intensity-circle {
+        height: 8px;
+        width: 8px;
+        border-radius: 50%;
+        background-color: #E2DBD3;
+        display: inline-block;
+    }
+
+    .intensity-circle.filled {
+        background-color: #B89A5E;
+    }
+
+    .product-price {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: var(--deep-brown);
+        margin-bottom: 18px;
+        display: block;
+    }
+
+    .product-card-action {
+        display: flex;
+        gap: 10px;
+        margin-top: auto;
+    }
+
+    .btn-add-to-cart-red {
+        flex: 1;
+        background-color: var(--cherry-red);
+        color: var(--white-pure);
+        border: none;
+        padding: 12px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        outline: none;
+    }
+
+    .btn-add-to-cart-red:hover {
+        background-color: var(--cherry-hover);
+    }
+
+    .btn-heart-action-only {
+        width: 42px;
+        background: transparent;
+        border: 1.5px solid rgba(40, 26, 18, 0.15);
+        color: var(--deep-brown);
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        outline: none;
+    }
+
+    .btn-heart-action-only:hover {
+        border-color: var(--luxury-gold);
+        color: var(--luxury-gold);
+    }
+
+    /* 5. ¿POR QUÉ ELEGIR WAYLAN ORIGIN? */
+    .why-choose-section {
+        background-color: #120C08;
+        padding: 90px 24px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .why-choose-topography-overlay {
+        position: absolute;
+        inset: 0;
+        opacity: 0.035;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Cpath d='M-50,150 C50,130 150,200 250,150 C350,100 450,130 550,150 M-50,180 C50,160 150,230 250,180' stroke='%23B89A5E' stroke-width='1.2' fill='none'/%3E%3C/svg%3E");
+        pointer-events: none;
+    }
+
+    .why-choose-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+    }
+
+    .why-choose-title {
+        font-size: 2.4rem;
+        font-weight: 300;
+        color: var(--white-pure);
+        text-align: center;
+        margin: 0 0 60px 0;
+    }
+
+    .serif-gold-italic {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-style: italic;
+        color: var(--luxury-gold);
+    }
+
+    .why-choose-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 40px;
+    }
+
+    .why-item {
+        text-align: center;
+    }
+
+    .why-icon {
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .why-item h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--white-pure);
+        margin: 0 0 12px 0;
+        letter-spacing: 0.5px;
+    }
+
+    .why-item p {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    /* 6. TESTIMONIALES SECTION */
+    .testimonials-section {
+        background-color: var(--cream-bg);
+        background-image: url('/fondos/blanco.png') !important;
+        background-repeat: repeat;
+        padding: 100px 24px;
+        position: relative;
+    }
+
+    .testimonials-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 30px;
+        z-index: 2;
+        position: relative;
+    }
+
+    .testimonial-card-left {
+        background-color: #FAF6F0;
+        border-radius: 8px;
+        padding: 40px;
+        border: 1px solid rgba(40, 26, 18, 0.08);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    }
+
+    .testimonial-card-left h3 {
+        font-size: 1.35rem;
+        font-weight: 400;
+        color: var(--dark-coffee);
+        margin: 0 0 25px 0;
+        letter-spacing: 0.5px;
+    }
+
+    .quote-box {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+    .quote-symbol {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 4rem;
+        color: rgba(184, 154, 94, 0.2);
+        position: absolute;
+        top: -25px;
+        left: -10px;
+        line-height: 1;
+    }
+
+    .quote-text {
+        font-size: 1rem;
+        line-height: 1.6;
+        font-weight: 500;
+        color: var(--deep-brown);
+        font-style: italic;
+        position: relative;
+        z-index: 2;
+        margin: 0;
+    }
+
+    .stars-row {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 12px;
+    }
+
+    .star-gold {
+        color: #C47A2B;
+        font-size: 1.1rem;
+    }
+
+    .client-name {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text-muted);
+    }
+
+    .testimonial-card-center {
+        background-color: #FAF6F0;
+        border-radius: 8px;
+        padding: 40px;
+        border: 1px solid rgba(40, 26, 18, 0.08);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    }
+
+    .impact-icon-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .testimonial-card-center h3 {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: var(--deep-brown);
+        margin: 0 0 15px 0;
+        letter-spacing: 0.5px;
+    }
+
+    .testimonial-card-center p {
+        font-size: 0.95rem;
+        color: #55504A;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .testimonial-card-right {
+        border-radius: 8px;
+        overflow: hidden;
+        background-image: url('/imagenes/maduro.png');
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 320px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .card-bg-overlay {
+        position: absolute;
+        inset: 0;
+        background-color: rgba(26, 16, 10, 0.65);
+        z-index: 1;
+    }
+
+    .card-right-content {
+        position: relative;
+        z-index: 2;
+        color: var(--white-pure);
+    }
+
+    .promo-text {
+        font-size: 1.5rem;
+        font-family: 'Playfair Display', Georgia, serif;
+        font-style: italic;
+        line-height: 1.4;
+        margin: 0 0 25px 0;
+    }
+
+    .btn-discover-history {
+        display: inline-block;
+        background-color: var(--luxury-gold);
+        color: var(--dark-coffee) !important;
+        text-decoration: none;
+        padding: 12px 24px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-discover-history:hover {
+        background-color: var(--white-pure);
+        transform: translateY(-2px);
+    }
+
+    /* 7. DETAILED FOOTER */
+    .detailed-store-footer {
+        background-color: #120C08;
+        border-top: 1px solid rgba(184, 154, 94, 0.15);
+        padding: 100px 0 0 0;
+        position: relative;
+    }
+
+    .footer-grid-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 24px 60px 24px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 40px;
+    }
+
+    @@media (min-width: 1024px) {
+        .footer-grid-container {
+            grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 1.4fr;
+        }
+    }
+
+    .footer-logo-img {
+        height: 48px;
+        width: auto;
+        margin-bottom: 20px;
+    }
+
+    .brand-sub {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        line-height: 1.6;
+        margin: 0 0 20px 0;
+    }
+
+    .social-row {
+        display: flex;
+        gap: 12px;
+    }
+
+    .social-row a {
+        color: var(--text-muted);
+        transition: color 0.2s;
+    }
+
+    .social-row a:hover {
+        color: var(--luxury-gold);
+    }
+
+    .footer-col-links h4, .footer-col-newsletter h4 {
+        color: var(--white-pure);
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        margin: 0 0 25px 0;
+    }
+
+    .footer-col-links a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.85rem;
+        display: block;
+        margin-bottom: 12px;
+        transition: color 0.2s;
+    }
+
+    .footer-col-links a:hover {
+        color: var(--luxury-gold);
+    }
+
+    .footer-col-newsletter p {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        line-height: 1.6;
+        margin: 0 0 20px 0;
+    }
+
+    .newsletter-form-row {
+        display: flex;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        padding-bottom: 8px;
+    }
+
+    .newsletter-form-row input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        color: var(--white-pure);
+        font-size: 0.85rem;
+        outline: none;
+    }
+
+    .newsletter-form-row input::placeholder {
+        color: #706B64;
+    }
+
+    .btn-newsletter-submit {
+        background: transparent;
+        border: none;
+        color: var(--luxury-gold);
+        cursor: pointer;
+        outline: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .footer-bottom-bar {
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 25px 24px;
+    }
+
+    .bottom-bar-content {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        color: #706B64;
+    }
+
+    .colombia-tribute {
+        font-style: italic;
+    }
+
+    @@media (max-width: 768px) {
+        .bottom-bar-content {
+            flex-direction: column;
+            gap: 10px;
+            text-align: center;
+        }
+    }
+</style>
+

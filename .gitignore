@@ -1,0 +1,84 @@
+## Ignore Visual Studio temporary files, build results, and
+## user-specific files.
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userhtml
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Re]leases/
+x64/
+x86/
+[Aa]rm/
+[Aa]rm64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio 2015/2017 cache/options directory
+.vs/
+# Uncomment if needed:
+# Generated files
+# MyProject.outputs
+
+# MSTest test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# NUnit
+*.VisualState.xml
+TestResult.xml
+nunit-agent.log
+
+# MonoDevelop Writing
+*.userprefs
+*.usertasks
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycled Bin folders
+$RECYCLE.BIN/
+
+# Visual Studio Code directories
+.vscode/
+.history/
+.eslintcache
+
+# Rider IDE
+.idea/
+
+# Package Management
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ASP.NET Core
+/AspNetUsers.db
+/mini-profiler-resources
+
+# Log files
+*.log
+*.log.*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
