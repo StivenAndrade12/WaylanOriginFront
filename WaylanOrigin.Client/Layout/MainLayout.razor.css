@@ -1,4 +1,4 @@
-   /* --- PALETA DE COLORES (VARIABLES DE DISEÑO) --- */
+/* --- PALETA DE COLORES (VARIABLES DE DISEÑO) --- */
 :root {
     --waylan-dark-coffee: #2F190E;
     --waylan-gold: #B89A5E;
@@ -8,7 +8,6 @@
     --waylan-white: #F7F2ED;
     --waylan-pure-white: #FFFFFF;
     --waylan-shadow: rgba(0, 0, 0, 0.15);
-    /* 🔥 ALTURA REAL DEL HEADER (AJUSTE DEL ESPACIO BLANCO) */
     --header-height: 120px;
 }
 
@@ -25,7 +24,7 @@ body {
     color: var(--waylan-dark-coffee);
 }
 
-/* --- 🔥 FIX REAL DEL ESPACIO BLANCO ENTRE HEADER Y CONTENIDO --- */
+/* --- FIX DEL ESPACIO BLANCO --- */
 .main-content {
     padding-top: var(--header-height) !important;
     margin-top: 0 !important;
@@ -43,12 +42,11 @@ header {
     padding: 0 !important;
 }
 
-/* Esta clase es la que se inyecta dinámicamente desde Blazor */
-.header-waylan--oculto {
+.header-waylan-oculto {
     transform: translateY(-100%);
 }
 
-/* --- BARRA DE NAVEGACIÓN PRINCIPAL (NAVBAR) --- */
+/* --- BARRA DE NAVEGACIÓN --- */
 .navbar-waylan {
     width: 100%;
     background-color: rgba(58, 18, 13, 0.88) !important;
@@ -57,7 +55,6 @@ header {
     border-bottom: 1px solid rgba(250, 250, 249, 0.1);
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
     padding: 14px 0 !important;
-    /* 🔥 OPCIONAL PERO RECOMENDADO PARA QUE NO SE MUEVA NUNCA */
     position: sticky;
     top: 0;
     z-index: 999;
@@ -77,30 +74,33 @@ header {
     width: auto;
 }
 
-/* --- ENLACES DEL MENÚ --- */
+/* --- ENLACES (VISTA PC) --- */
 .nav-links {
     display: flex;
     align-items: center;
 }
 
-    .nav-links a {
-        color: #F7F2ED !important;
-        text-decoration: none;
-        margin: 0 12px;
-        font-size: 0.9rem;
-        font-weight: 600;
-        letter-spacing: 0.2px;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-        transition: color 0.2s ease;
-    }
+.nav-links a {
+    color: #F7F2ED !important;
+    text-decoration: none;
+    margin: 0 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    transition: color 0.2s ease;
+}
 
-        .nav-links a:hover {
-            color: #B89A5E !important;
-        }
+.nav-links a:hover, .nav-links a.nav-active {
+    color: #B89A5E !important;
+}
 
+.nav-links a.nav-active {
+    border-bottom: 2px solid #B89A5E;
+    padding-bottom: 4px;
+}
 
-
-/* --- DROPDOWN DE NOSOTROS (CONTROLADO POR BLAZOR) --- */
+/* --- DROPDOWN NOSOTROS (VISTA PC) --- */
 .dropdown-waylan-container {
     position: relative;
     display: inline-block;
@@ -123,20 +123,18 @@ header {
     transition: color 0.2s ease;
 }
 
-    .dropdown-waylan-btn:hover,
-    .dropdown-waylan-btn.active {
-        color: #B89A5E !important;
-    }
+.dropdown-waylan-btn:hover, .dropdown-waylan-btn.active {
+    color: #B89A5E !important;
+}
 
 .arrow-icon {
     transition: transform 0.2s ease;
 }
 
-    .arrow-icon.rotate {
-        transform: rotate(180deg);
-    }
+.arrow-icon.rotate {
+    transform: rotate(180deg);
+}
 
-/* El menú aparece limpio, centrado y con una leve animación al abrirse */
 .dropdown-waylan-menu {
     position: absolute;
     top: 34px;
@@ -150,48 +148,36 @@ header {
     flex-direction: column;
     padding: 8px 0;
     z-index: 1100;
-    animation: fadeInDropdown 0.2s ease-out;
+    animation: fadeInDropdownMenu 0.2s ease-out;
 }
 
-    /* --- AGREGADO: PUENTE INVISIBLE PARA EVITAR QUE SE CIERRE AL MOVER EL MOUSE --- */
-    .dropdown-waylan-menu::before {
-        content: '';
-        position: absolute;
-        top: -15px; /* Sube y cubre el espacio vacío entre el botón y el recuadro */
-        left: 0;
-        right: 0;
-        height: 15px; /* El grosor del puente */
-        background: transparent; /* Totalmente invisible */
-    }
-
-    .dropdown-waylan-menu a {
-        color: var(--waylan-dark-coffee) !important;
-        padding: 10px 20px;
-        margin: 0 !important;
-        font-size: 0.85rem;
-        font-weight: 600;
-        text-shadow: none;
-        text-align: left;
-        transition: background-color 0.2s ease, color 0.2s ease;
-    }
-
-        .dropdown-waylan-menu a:hover {
-            background-color: #FAF6F0;
-            color: var(--waylan-gold) !important;
-        }
-/* Animación de entrada sutil */
-@keyframes fadeInDropdown {
-    from {
-        opacity: 0;
-        transform: translate(-50%, -8px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translate(-50%, 0);
-    }
+.dropdown-waylan-menu::before {
+    content: '';
+    position: absolute;
+    top: -15px;
+    left: 0;
+    right: 0;
+    height: 15px;
+    background: transparent;
 }
-/* --- CONTENEDOR DE ICONOS Y ACCIONES --- */
+
+.dropdown-waylan-menu a {
+    color: var(--waylan-dark-coffee) !important;
+    padding: 10px 20px;
+    margin: 0 !important;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-shadow: none;
+    text-align: left;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dropdown-waylan-menu a:hover {
+    background-color: #FAF6F0;
+    color: var(--waylan-gold) !important;
+}
+
+/* --- ACCIONES --- */
 .nav-auth-actions {
     display: flex;
     align-items: center;
@@ -211,9 +197,9 @@ header {
     transition: color 0.2s ease;
 }
 
-    .nav-icon-btn:hover {
-        color: var(--waylan-gold) !important;
-    }
+.nav-icon-btn:hover {
+    color: var(--waylan-gold) !important;
+}
 
 .cart-badge {
     position: absolute;
@@ -237,19 +223,6 @@ header {
     animation: cartBump 0.3s ease-out;
 }
 
-@keyframes cartBump {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.4); }
-    100% { transform: scale(1); }
-}
-
-.nav-links a.nav-active {
-    color: #B89A5E !important;
-    border-bottom: 2px solid #B89A5E;
-    padding-bottom: 4px;
-}
-
-/* --- MENÚ DESPLEGABLE (DROPDOWN LOGIN) --- */
 .user-menu-container {
     position: relative;
 }
@@ -267,23 +240,9 @@ header {
     flex-direction: column;
     gap: 12px;
     z-index: 1100;
-    animation: fadeInDropdown 0.2s ease-out;
+    animation: fadeInDropdownMenu 0.2s ease-out;
 }
 
-/* --- ANIMACIÓN --- */
-@keyframes fadeInDropdown {
-    from {
-        opacity: 0;
-        transform: translate(var(--tw-translate-x, -50%), -8px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translate(var(--tw-translate-x, -50%), 0);
-    }
-}
-
-/* --- COMPONENTES INTERNOS DEL FORMULARIO DE LOGIN --- */
 .dropdown-form-title {
     font-size: 1rem;
     font-weight: 700;
@@ -298,29 +257,28 @@ header {
     gap: 4px;
 }
 
-    .form-group-waylan label {
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: #55504A;
-    }
+.form-group-waylan label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #55504A;
+}
 
-    .form-group-waylan input {
-        width: 100%;
-        padding: 8px 12px;
-        font-size: 0.85rem;
-        border: 1px solid #D2CFC9;
-        border-radius: 4px;
-        background-color: #FAF6F0;
-        color: var(--waylan-dark-coffee);
-        outline: none;
-        transition: border-color 0.2s;
-    }
+.form-group-waylan input {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    border: 1px solid #D2CFC9;
+    border-radius: 4px;
+    background-color: #FAF6F0;
+    color: var(--waylan-dark-coffee);
+    outline: none;
+    transition: border-color 0.2s;
+}
 
-        .form-group-waylan input:focus {
-            border-color: var(--waylan-gold);
-        }
+.form-group-waylan input:focus {
+    border-color: var(--waylan-gold);
+}
 
-/* --- BOTONES Y ENLACES DEL DROPDOWN --- */
 .btn-submit-login {
     background-color: var(--waylan-cherry-red);
     color: #FFFFFF !important;
@@ -334,9 +292,9 @@ header {
     margin-top: 6px;
 }
 
-    .btn-submit-login:hover {
-        background-color: var(--waylan-cherry-hover);
-    }
+.btn-submit-login:hover {
+    background-color: var(--waylan-cherry-hover);
+}
 
 .dropdown-divider {
     height: 1px;
@@ -359,12 +317,11 @@ header {
     transition: color 0.2s;
 }
 
-    .dropdown-link-register:hover {
-        color: var(--waylan-gold-hover) !important;
-        text-decoration: underline;
-    }
+.dropdown-link-register:hover {
+    color: var(--waylan-gold-hover) !important;
+    text-decoration: underline;
+}
 
-/* --- BOTÓN DESTACADO "COMPRAR ORIGEN" --- */
 .btn-nav-accent {
     background-color: var(--waylan-cherry-red) !important;
     color: #FFFFFF !important;
@@ -380,6 +337,145 @@ header {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-    .btn-nav-accent:hover {
-        background-color: var(--waylan-cherry-hover) !important;
+.btn-nav-accent:hover {
+    background-color: var(--waylan-cherry-hover) !important;
+}
+
+/* --- BOTÓN DE HAMBURGUESA OCULTO EN PC --- */
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: #F7F2ED;
+    cursor: pointer;
+    padding: 6px;
+    z-index: 1001;
+}
+
+/* --- ANIMACIONES --- */
+@keyframes cartBump {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.4); }
+    100% { transform: scale(1); }
+}
+
+@keyframes fadeInDropdownMenu {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   🎯 AJUSTES RESPONSIVOS CORREGIDOS PARA MÓVILES
+   ========================================================================== */
+@media (max-width: 992px) {
+    :root {
+        --header-height: 70px;
     }
+
+    .navbar-waylan {
+        padding: 8px 0 !important;
+    }
+
+    .nav-container {
+        padding: 0 16px;
+    }
+
+    .nav-logo-img {
+        height: 38px;
+    }
+
+    /* Muestra el botón de hamburguesa en celulares */
+    .mobile-menu-btn {
+        display: block;
+    }
+
+    /* 🎯 Menú móvil en forma de cortina desplegable de fondo */
+    .nav-links {
+        display: none !important; /* Se oculta si no tiene la clase mobile-open */
+        position: absolute;
+        top: var(--header-height);
+        left: 0;
+        width: 100%;
+        background-color: #3A120D !important; /* El color café/guinda oscuro de Waylan */
+        flex-direction: column;
+        align-items: flex-start !important;
+        padding: 24px !important;
+        gap: 8px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        z-index: 998;
+    }
+
+    /* Se activa dinámicamente desde Blazor al hacer clic */
+    .nav-links.mobile-open {
+        display: flex !important;
+    }
+
+    .nav-links a {
+        margin: 0 !important;
+        width: 100%;
+        padding: 10px 0;
+        font-size: 1.05rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .nav-links a.nav-active {
+        border-bottom: 1px solid var(--waylan-gold);
+    }
+
+    .dropdown-waylan-container {
+        width: 100%;
+        margin: 0 !important;
+        padding: 6px 0;
+    }
+
+    .dropdown-waylan-btn {
+        width: 100%;
+        justify-content: space-between;
+        font-size: 1.05rem;
+        padding: 4px 0;
+    }
+
+    /* 🎯 CORRECCIÓN DEL COLOR HORRIBLE: Adiós recuadro blanco en celulares */
+    .dropdown-waylan-menu {
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        transform: none !important;
+        width: 100% !important;
+        min-width: 100% !important;
+        background-color: rgba(255, 255, 255, 0.05) !important; /* Fondo integrado transparente oscuro */
+        box-shadow: none !important;
+        padding: 4px 0 4px 14px !important; /* Sangría interna para subsecciones */
+        margin-top: 6px !important;
+        animation: none !important;
+    }
+
+    /* Los enlaces internos de "Nosotros" ahora son crema elegante */
+    .dropdown-waylan-menu a {
+        color: #F7F2ED !important;
+        font-size: 0.95rem;
+        padding: 10px 0 !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .dropdown-waylan-menu a:hover {
+        background-color: transparent !important;
+        color: var(--waylan-gold) !important;
+    }
+
+    .nav-auth-actions {
+        gap: 12px;
+    }
+
+    .btn-nav-accent {
+        padding: 6px 14px;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+    }
+
+    .login-form-dropdown {
+        width: 270px;
+        right: -10px;
+        top: 45px;
+    }
+}

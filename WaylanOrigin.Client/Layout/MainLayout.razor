@@ -12,15 +12,30 @@
                 <img src="/logotipo/Logotipo Waylan Origin-Photoroom.png" alt="Waylan Origin Logo" class="nav-logo-img" />
             </a>
 
-            <div class="nav-links">
-                <a href="@GetLink("#inicio")">Inicio</a>
+            <button class="mobile-menu-btn" @onclick="ToggleMenuMobile" type="button" aria-label="Menu">
+                @if (isMenuMobileOpen)
+                {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                        <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+                    </svg>
+                }
+                else
+                {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4.17a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4.17a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
+                    </svg>
+                }
+            </button>
+
+            <div class="nav-links @(isMenuMobileOpen ? "mobile-open" : "")">
+                <a href="@GetLink("#inicio")" @onclick="CloseMenuMobile">Inicio</a>
 
                 @* --- EVENTOS OPTIMIZADOS CON ESPERA PARA RECUADRO --- *@
                 <div class="dropdown-waylan-container"
                      @onmouseenter="ManejarMouseEnter"
                      @onmouseleave="ManejarMouseLeave">
 
-                    <button class="dropdown-waylan-btn @(isNosotrosOpen ? "active" : "")" type="button">
+                    <button class="dropdown-waylan-btn @(isNosotrosOpen ? "active" : "")" type="button" @onclick="ToggleNosotrosMobile">
                         Nosotros
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-down arrow-icon @(isNosotrosOpen ? "rotate" : "")" viewBox="0 0 16 16">
                             <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708" />
@@ -30,18 +45,18 @@
                     @if (isNosotrosOpen)
                     {
                         <div class="dropdown-waylan-menu">
-                            <a href="@GetLink("#nosotros")" @onclick="CloseNosotros">Nuestra Historia</a>
-                            <a href="/nuestro-proceso" @onclick="CloseNosotros">Nuestro Proceso</a>
-                            <a href="/exportaciones" @onclick="CloseNosotros">Exportaciones</a>
-                            <a href="@GetLink("#contacto")" @onclick="CloseNosotros">Contacto</a>
+                            <a href="@GetLink("#nosotros")" @onclick="CloseAllMenus">Nuestra Historia</a>
+                            <a href="/nuestro-proceso" @onclick="CloseAllMenus">Nuestro Proceso</a>
+                            <a href="/exportaciones" @onclick="CloseAllMenus">Exportaciones</a>
+                            <a href="@GetLink("#contacto")" @onclick="CloseAllMenus">Contacto</a>
                         </div>
                     }
                 </div>
 
-                <a href="@GetLink("#sostenibilidad")">Sostenibilidad</a>
-                <a href="@GetLink("#productores")">Productores</a>
-                <a href="productos" class="@(IsActive("productos") ? "nav-active" : "")">Productos</a>
-                <a href="@GetLink("#Contactanos")">Contáctanos</a>
+                <a href="@GetLink("#sostenibilidad")" @onclick="CloseMenuMobile">Sostenibilidad</a>
+                <a href="@GetLink("#productores")" @onclick="CloseMenuMobile">Productores</a>
+                <a href="productos" class="@(IsActive("productos") ? "nav-active" : "")" @onclick="CloseMenuMobile">Productos</a>
+                <a href="@GetLink("#Contactanos")" @onclick="CloseMenuMobile">Contáctanos</a>
             </div>
 
             <div class="nav-auth-actions">
@@ -58,7 +73,7 @@
                         </svg>
                     </button>
 
-                    @if (isDropdownOpen)
+                    @if(isDropdownOpen)
                     {
                         <div class="user-dropdown-menu login-form-dropdown">
                             <h4 class="dropdown-form-title">Ingresar a mi Cuenta</h4>
@@ -105,9 +120,10 @@
 @code {
     private bool isDropdownOpen = false;
     private bool isNosotrosOpen = false;
+    private bool isMenuMobileOpen = false; 
     private string userInput = "";
     private string passwordInput = "";
-    private int cancelacionToken = 0; // Para manejar la sincronización del hover
+    private int cancelacionToken = 0;
 
     protected override void OnInitialized()
     {
@@ -123,13 +139,36 @@
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
+        CloseAllMenus();
         StateHasChanged();
     }
 
-    // --- MANEJO INTELIGENTE DEL HOVER ---
+    private void ToggleMenuMobile()
+    {
+        isMenuMobileOpen = !isMenuMobileOpen;
+        if (isMenuMobileOpen) isDropdownOpen = false;
+    }
+
+    private void CloseMenuMobile()
+    {
+        isMenuMobileOpen = false;
+    }
+
+    private void ToggleNosotrosMobile()
+    {
+        isNosotrosOpen = !isNosotrosOpen;
+    }
+
+    private void CloseAllMenus()
+    {
+        isNosotrosOpen = false;
+        isMenuMobileOpen = false;
+        isDropdownOpen = false;
+    }
+
     private void ManejarMouseEnter()
     {
-        cancelacionToken++; // Rompe cualquier orden de cierre previa
+        cancelacionToken++;
         isNosotrosOpen = true;
         isDropdownOpen = false;
     }
@@ -137,8 +176,6 @@
     private async Task ManejarMouseLeave()
     {
         var tokenActual = cancelacionToken;
-        // Espera 200 milisegundos. Si el usuario movió el mouse al recuadro blanco,
-        // el token habrá cambiado o el puntero habrá vuelto a entrar.
         await Task.Delay(200);
 
         if (tokenActual == cancelacionToken)
@@ -155,10 +192,7 @@
         {
             return fragment;
         }
-        else
-        {
-            return "/" + fragment;
-        }
+        return "/" + fragment;
     }
 
     private bool IsActive(string pageName)
@@ -174,7 +208,11 @@
     private void ToggleDropdown()
     {
         isDropdownOpen = !isDropdownOpen;
-        if (isDropdownOpen) isNosotrosOpen = false;
+        if (isDropdownOpen)
+        {
+            isNosotrosOpen = false;
+            isMenuMobileOpen = false;
+        }
     }
 
     private void CloseDropdown()
