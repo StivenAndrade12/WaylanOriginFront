@@ -1,0 +1,154 @@
+@page "/Productores"
+
+<PageTitle>Nuestros Productores | Waylan Origin</PageTitle>
+
+<div class="prod-page-wrapper">
+
+    @* --- SECCIÓN 1: HERO / HISTORIA PRINCIPAL --- *@
+    <section class="prod-hero-section">
+        <div class="prod-hero-container">
+            <div class="prod-hero-text">
+                <span class="prod-subtitle">NUESTROS PRODUCTORES</span>
+                <h1>Detrás de cada taza, <br><span class="serif-italic">hay una historia real</span></h1>
+                
+                @* El divisor nativo con sus dos líneas *@
+                <div class="prod-divider-native">
+                    <div class="divider-line"></div>
+                    <div class="divider-icon-center">
+                        <span class="leaf-placeholder">🌱</span>
+                    </div>
+                    <div class="divider-line"></div>
+                </div>
+
+                @* Párrafo descriptivo intermedio (Recuperado) *@
+                <p class="prod-description">
+                    Trabajamos de la mano con familias caficultoras que cultivan con pasión, 
+                    tradición y respeto por la tierra. Conoce a quienes hacen posible nuestro café.
+                </p>
+
+                @* Pilares con sus contenedores circulares para los logos *@
+                <div class="prod-pillars">
+                    <div class="pillar-item">
+                        <div class="pillar-icon-circle">
+                            <i class="bi bi-flower1"></i>
+                        </div>
+                        <h3>Relaciones directas</h3>
+                        <p>Trabajamos sin intermediarios, con comercio justo.</p>
+                    </div>
+                    <div class="pillar-item">
+                        <div class="pillar-icon-circle">
+                            <i class="bi bi-mountains"></i>
+                        </div>
+                        <h3>Calidad excepcional</h3>
+                        <p>Cafés cultivados con dedicación y procesos cuidadosos.</p>
+                    </div>
+                    <div class="pillar-item">
+                        <div class="pillar-icon-circle">
+                            <i class="bi bi-globe"></i>
+                        </div>
+                        <h3>Impacto positivo</h3>
+                        <p>Apoyamos comunidades y cuidamos nuestro planeta.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="prod-hero-image">
+                <img src="imagenes/gra.png" alt="Productor de Café" />
+            </div>
+        </div>
+    </section>
+
+    @* --- SECCIÓN 2: GRILLA DE TARJETAS --- *@
+    <section class="prod-grid-section">
+        <div class="prod-grid-title">
+            <h2>Conoce a nuestros productores</h2>
+            <p>Historias que reflejan el amor por el café y el compromiso con la excelencia.</p>
+        </div>
+
+        <div class="prod-cards-container">
+            <div class="prod-card">
+                <div class="prod-card-img">
+                    <img src="/imagenes/juan-carlos.jpg" alt="Juan Carlos Restrepo" />
+                </div>
+                <div class="prod-card-body">
+                    <h3>Juan Carlos Restrepo</h3>
+                    <span class="prod-location"><i class="bi bi-geo-alt-fill"></i> Huila, Colombia</span>
+                    <p>Más de 25 años cultivando café con prácticas sostenibles y un profundo respeto por la tierra.</p>
+                    <a href="#" class="btn-story">VER SU HISTORIA <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+
+            <div class="prod-card">
+                <div class="prod-card-img">
+                    <img src="/imagenes/maria-elvira.jpg" alt="María Elvira Gómez" />
+                </div>
+                <div class="prod-card-body">
+                    <h3>María Elvira Gómez</h3>
+                    <span class="prod-location"><i class="bi bi-geo-alt-fill"></i> Antioquia, Colombia</span>
+                    <p>Su dedicación y conocimiento han convertido su finca en un referente de calidad y tradición.</p>
+                    <a href="#" class="btn-story">VER SU HISTORIA <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+
+            <div class="prod-card">
+                <div class="prod-card-img">
+                    <img src="/imagenes/carlos-alberto.jpg" alt="Carlos Alberto Ruiz" />
+                </div>
+                <div class="prod-card-body">
+                    <h3>Carlos Alberto Ruiz</h3>
+                    <span class="prod-location"><i class="bi bi-geo-alt-fill"></i> Cauca, Colombia</span>
+                    <p>Café de origen único, cultivado en armonía con la naturaleza y las comunidades.</p>
+                    <a href="#" class="btn-story">VER SU HISTORIA <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    @* --- SECCIÓN 3: BANNER OSCURO --- *@
+    <section class="prod-banner-dark">
+        <div class="banner-dark-content">
+            <div class="banner-dark-left">
+                <div class="banner-leaf-icon"><i class="bi bi-flower1"></i></div>
+                <h2>Más que café, <br><span class="gold-italic">son historias que transforman vidas</span></h2>
+            </div>
+            <div class="banner-dark-right">
+                <p>Cada compra impulsa el desarrollo de comunidades cafeteras y contribuye a un futuro más sostenible para todos.</p>
+            </div>
+        </div>
+    </section>
+
+    @* --- SECCIÓN 4: ICONOS INFERIORES DE VALORES --- *@
+    <section class="prod-values-footer">
+        <div class="values-footer-container">
+            <div class="value-footer-item">
+                <div class="vf-icon"><i class="bi bi-handshake"></i></div>
+                <div class="vf-text">
+                    <h4>Comercio justo</h4>
+                    <p>Precios justos que valoran el esfuerzo de cada familia.</p>
+                </div>
+            </div>
+            <div class="value-footer-item">
+                <div class="vf-icon"><i class="bi bi-flower1"></i></div>
+                <div class="vf-text">
+                    <h4>Sostenibilidad</h4>
+                    <p>Prácticas responsables que cuidan nuestro planeta.</p>
+                </div>
+            </div>
+            <div class="value-footer-item">
+                <div class="vf-icon"><i class="bi bi-people"></i></div>
+                <div class="vf-text">
+                    <h4>Apoyo comunitario</h4>
+                    <p>Invertimos en educación, salud y bienestar.</p>
+                </div>
+            </div>
+            <div class="value-footer-item">
+                <div class="vf-icon"><i class="bi bi-heart"></i></div>
+                <div class="vf-text">
+                    <h4>Pasión por el café</h4>
+                    <p>Amamos lo que hacemos y se refleja en cada grano.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
