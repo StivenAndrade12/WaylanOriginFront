@@ -62,7 +62,7 @@
     gap: 15px;
     margin: 20px 0 25px 0;
     width: 100%;
-    max-width: 480px; /* Evita que se estire por toda la pantalla */
+    max-width: 480px;
 }
 
 .divider-line {
@@ -106,17 +106,18 @@
     text-align: center;
 }
 
-/* Contenedor circular idéntico al diseño de la imagen */
 .pillar-icon-circle {
     width: 60px;
     height: 60px;
-    border: 1px solid #C5A880; /* Borde dorado fino */
+    border: 1px solid #C5A880; 
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 15px;
     background-color: transparent;
+    padding: 8px;
+    box-sizing: border-box;
 }
 
 .pillar-icon-circle i {
@@ -139,6 +140,12 @@
     margin: 0;
 }
 
+.pillar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
 /* Imagen del productor principal */
 .prod-hero-image {
     flex: 1;
@@ -149,7 +156,7 @@
 .prod-hero-image img {
     width: 100%;
     max-width: 550px;
-    border-radius: 12px; /* Esquinas redondeadas del boceto */
+    border-radius: 12px;
     box-shadow: 0 15px 35px rgba(0,0,0,0.06);
     object-fit: cover;
 }
@@ -179,15 +186,15 @@
 }
 
 .prod-cards-container {
-    display: flex;
-    gap: 30px;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 Columnas perfectas */
+    gap: 25px;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
 .prod-card {
     background: #FFF;
-    flex: 1;
-    max-width: 380px;
     border-radius: 4px;
     overflow: hidden;
     box-shadow: 0 4px 20px rgba(0,0,0,0.04);
@@ -243,11 +250,25 @@
     padding-bottom: 4px;
 }
 
-/* --- SECCIÓN 3: BANNER OSCURO --- */
+/* ============================================================
+   SECCIÓN 3: BANNER OSCURO PREMIUM CON DESVANECIDO LATERAL
+   ============================================================ */
+
 .prod-banner-dark {
-    background-color: #1A1310;
+    position: relative;
+    background-color: #1A1310; 
     color: #FFF;
-    padding: 60px 10%;
+    padding: 80px 10%;
+    overflow: hidden;
+    background-image: linear-gradient(to right,
+        #1A1310 50%, 
+        rgba(26, 19, 16, 0.95) 65%, 
+        rgba(26, 19, 16, 0.3) 85%, 
+        rgba(26, 19, 16, 0) 100%
+    ), url('/imagenes/w1.png');
+    background-size: 40% 100%;
+    background-position: right center; 
+    background-repeat: no-repeat;
 }
 
 .banner-dark-content {
@@ -257,26 +278,57 @@
     justify-content: space-between;
     align-items: center;
     gap: 40px;
+    position: relative;
+    z-index: 2;
 }
 
 .banner-dark-left {
     display: flex;
-    align-items: flex-start;
-    gap: 20px;
+    align-items: center;
+    gap: 25px;
+    flex: 1.2;
+    position: relative;
+}
+
+.banner-dark-left::after {
+    content: '';
+    position: absolute;
+    right: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 80px;
+    background-color: #C5A880;
+    opacity: 0.4;
 }
 
 .banner-leaf-icon {
-    font-size: 28px;
-    color: #C5A880;
+    width: 65px;
+    height: 65px;
+    border: 1px solid #C5A880; 
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-sizing: border-box;
+}
+
+.banner-leaf-icon img {
+    width: 65px !important;
+    height: auto !important;
+    display: block;
 }
 
 .banner-dark-left h2 {
-    font-size: 28px;
+    font-family: 'Playfair Display', 'Georgia', serif !important;
+    font-size: 32px !important;
     line-height: 1.3;
     margin: 0;
 }
 
 .banner-dark-right {
+    flex: 1;
     max-width: 450px;
 }
 
@@ -287,38 +339,90 @@
     margin: 0;
 }
 
-/* --- SECCIÓN 4: VALORES FOOTER --- */
+.divider-leaf-img {
+    width: 80px;
+    height: auto;
+    display: block;
+}
+
+/* ============================================================
+   SECCIÓN 4: VALORES FOOTER PREMIUM (LA PLACA BEIGE INTEGRADA)
+   ============================================================ */
+
 .prod-values-footer {
-    padding: 60px 10%;
-    background-color: #EFECE6;
+    width: 100%;
+    padding: 80px 10%;
+    display: flex;
+    justify-content: center;
+    background-color: #F5EFE6;
+}
+
+.values-premium-wrapper {
+    background-color: #EADFC9; /* Fondo beige premium interno */
+    border-radius: 12px;
+    padding: 40px 30px;
+    max-width: 1300px;
+    width: 100%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
 }
 
 .values-footer-container {
-    max-width: 1300px;
+    max-width: 100%;
     margin: 0 auto;
     display: flex;
-    gap: 20px;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .value-footer-item {
     flex: 1;
     display: flex;
-    gap: 15px;
-    background: rgba(255, 255, 255, 0.4);
-    padding: 20px;
-    border-radius: 4px;
+    align-items: center; 
+    gap: 20px;
+    padding: 0 25px;
+    position: relative;
 }
 
-.vf-icon {
-    font-size: 24px;
+/* Líneas doradas finas divisorias verticales */
+.value-footer-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 60px;
+    background-color: #C5A880;
+    opacity: 0.4;
+}
+
+.vf-icon-circle {
+    width: 55px;
+    height: 55px;
+    border: 1px solid #C5A880;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background-color: transparent;
+}
+
+.vf-icon-circle i {
+    font-size: 20px;
     color: #A3855C;
 }
 
+.vf-text {
+    flex: 1;
+}
+
 .vf-text h4 {
-    font-size: 14px;
-    font-weight: 700;
+    font-family: 'Playfair Display', serif !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
     color: #1A1310;
-    margin-bottom: 5px;
+    margin: 0 0 6px 0;
 }
 
 .vf-text p {
@@ -329,18 +433,51 @@
 }
 
 /* ==================================================================
-   RESPONSIVE (MÓVIL)
+   RESPONSIVE GLOBAL OPTIMIZADO (CELULARES Y TABLETS)
 ================================================================= */
-@media (max-width: 992px) {
+@media(max-width: 992px) {
     .prod-hero-container, .banner-dark-content, .values-footer-container, .prod-cards-container {
         flex-direction: column;
         gap: 35px;
     }
-    .prod-hero-section, .prod-grid-section, .prod-banner-dark, .prod-values-footer {
+    .prod-cards-container {
+        grid-template-columns: 1fr; /* Una columna por fila en móviles */
+    }
+    .prod-hero-section, .prod-grid-section, .prod-values-footer {
         padding: 40px 5%;
     }
     .prod-hero-text h1 { font-size: 32px !important; }
     .prod-pillars { flex-direction: column; gap: 20px; max-width: 100%; }
     .prod-card { max-width: 100%; }
     .prod-card-body p { height: auto; }
+    
+    .prod-banner-dark {
+        padding: 60px 5%;
+        background-size: cover;
+        background-position: center;
+        background-image: linear-gradient(to bottom, rgba(26, 19, 16, 0.95), rgba(26, 19, 16, 0.8)), url('/imagenes/w1.png');
+    }
+    .banner-dark-left {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .banner-dark-left::after {
+        display: none;
+    }
+    .banner-dark-right {
+        max-width: 100%;
+    }
+    
+    .values-premium-wrapper {
+        padding: 30px 15px;
+    }
+    .value-footer-item {
+        flex-direction: column;
+        text-align: center;
+        width: 100%;
+        padding: 0;
+    }
+    .value-footer-item:not(:last-child)::after {
+        display: none; /* Oculta líneas verticales en celulares */
+    }
 }
