@@ -1,4 +1,7 @@
 @page "/productos"
+@using WaylanOrigin.Client.Models
+@using WaylanOrigin.Client.Services
+@inject ApiService ApiService
 @inject CartState CartState
 @inject NavigationManager NavigationManager
 @implements IDisposable
@@ -318,13 +321,13 @@
                         <div class="product-card">
                             
                             <!-- Header Bag tag -->
-                            @if (!string.IsNullOrEmpty(p.Tag))
+                            @if (!string.IsNullOrEmpty(p.Etiqueta))
                             {
-                                <span class="card-status-badge @(p.Tag == "NUEVO" ? "badge-new" : p.Tag == "MÁS VENDIDO" ? "badge-best" : "badge-limit")">@p.Tag</span>
+                                <span class="card-status-badge @(p.Etiqueta == "NUEVO" ? "badge-new" : p.Etiqueta == "MÁS VENDIDO" ? "badge-best" : "badge-limit")">@p.Etiqueta</span>
                             }
 
                             <div class="product-image-container">
-                                <img src="@p.Image" alt="@p.Name" class="product-img" />
+                                <img src="@GetProductImage(p)" alt="@p.Nombre" class="product-img" />
                                 
                                 <!-- Favorite Heart Icon Overlay -->
                                 <button class="favorite-btn" @onclick="() => ToggleFavorite(p)" type="button">
@@ -343,19 +346,19 @@
                                 </button>
                             </div>
                             <div class="product-card-body">
-                                <h3 class="product-title">@p.Name</h3>
+                                <h3 class="product-title">@p.Nombre</h3>
                                 <span class="product-region">@p.Region</span>
-                                <p class="product-notes">Notas: @p.Notes</p>
+                                <p class="product-notes">Notas: @string.Join(", ", p.Notas.Select(n => n.Nombre))</p>
                                 
                                 <!-- Intensity circles -->
                                 <div class="product-intensity-row">
                                     @for (int i = 1; i <= 5; i++)
                                     {
-                                        <span class="intensity-circle @(i <= p.Intensity ? "filled" : "")"></span>
+                                        <span class="intensity-circle @(i <= p.Intensidad ? "filled" : "")"></span>
                                     }
                                 </div>
 
-                                <span class="product-price">$@p.Price.ToString("N0") COP</span>
+                                <span class="product-price">$@p.Precio.ToString("N0") COP</span>
 
                                 <div class="product-card-action">
                                     <button class="btn-add-to-cart-red" @onclick="() => AgregarAlCarrito(p)" type="button">
@@ -593,10 +596,14 @@
     private bool isMethodExpanded = true;
 
     private List<Product> AllProducts = new();
+    private List<Category> AllCategories = new();
+    private List<Note> AllNotes = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        InitializeProducts();
+        AllProducts = await ApiService.GetProductosActivosAsync();
+        AllCategories = await ApiService.GetCategoriasActivasAsync();
+        AllNotes = await ApiService.GetNotasAsync();
         CartState.OnChange += StateHasChanged;
     }
 
@@ -605,46 +612,31 @@
         CartState.OnChange -= StateHasChanged;
     }
 
-    private void InitializeProducts()
-    {
-        AllProducts = new List<Product>
-        {
-            new Product { Id = "WAY-SEL", Name = "Waylan Selection", Region = "Tolima, Colombia", Notes = "Chocolate, panela, frutos rojos", Format = "Grano", Profile = "Dulce", Method = "Filtrado", Intensity = 4, Price = 72000, Tag = "NUEVO", Image = "/images/coffee_bag_esperanza.png" },
-            new Product { Id = "WAY-CLA", Name = "Waylan Classic", Region = "Tolima, Colombia", Notes = "Caramelo, avellana, cítricos", Format = "Molido", Profile = "Balanceado", Method = "Filtrado", Intensity = 4, Price = 58000, Tag = "MÁS VENDIDO", Image = "/images/coffee_bag_generic.png" },
-            new Product { Id = "WAY-RES", Name = "Waylan Reserve", Region = "Tolima, Colombia", Notes = "Frutos amarillos, miel, flores", Format = "Grano", Profile = "Dulce", Method = "Espresso", Intensity = 5, Price = 95000, Tag = "EDICIÓN LIMITADA", Image = "/images/coffee_bag_esperanza.png" },
-            new Product { Id = "WAY-DEC", Name = "Waylan Decaf", Region = "Tolima, Colombia", Notes = "Cacao, almendra, caramelo", Format = "Molido", Profile = "Dulce", Method = "Prensa francesa", Intensity = 3, Price = 60000, Tag = "", Image = "/images/coffee_bag_generic.png" },
-            
-            new Product { Id = "WAY-HON", Name = "Waylan Honey Craft", Region = "Tolima, Colombia", Notes = "Miel de caña, floral, frutos amarillos", Format = "Grano", Profile = "Dulce", Method = "Cold brew", Intensity = 3, Price = 68000, Tag = "", Image = "/images/coffee_bag_esperanza.png" },
-            new Product { Id = "WAY-DARK", Name = "Waylan Dark Espresso", Region = "Huila, Colombia", Notes = "Chocolate oscuro, nuez tostada", Format = "Grano", Profile = "Balanceado", Method = "Espresso", Intensity = 5, Price = 64000, Tag = "", Image = "/images/coffee_bag_generic.png" },
-            new Product { Id = "WAY-ORG", Name = "Waylan Organic Blend", Region = "Cauca, Colombia", Notes = "Limón dulce, té verde, panela", Format = "Molido", Profile = "Ácido", Method = "Prensa francesa", Intensity = 3, Price = 75000, Tag = "", Image = "/images/coffee_bag_esperanza.png" }
-        };
-    }
-
     private IEnumerable<Product> GetFilteredProducts()
     {
         var query = AllProducts.AsEnumerable();
 
         if (SelectedFormats.Any())
         {
-            query = query.Where(p => SelectedFormats.Contains(p.Format));
+            query = query.Where(p => SelectedFormats.Contains(p.Formato));
         }
 
         if (SelectedProfiles.Any())
         {
-            query = query.Where(p => SelectedProfiles.Contains(p.Profile));
+            query = query.Where(p => SelectedProfiles.Contains(p.PerfilSabor));
         }
 
         if (SelectedMethods.Any())
         {
-            query = query.Where(p => SelectedMethods.Contains(p.Method));
+            query = query.Where(p => SelectedMethods.Contains(p.MetodoRecomendado));
         }
 
         if (SelectedIntensity > 0)
         {
-            query = query.Where(p => p.Intensity == SelectedIntensity);
+            query = query.Where(p => p.Intensidad == SelectedIntensity);
         }
 
-        query = query.Where(p => p.Price <= MaxPrice);
+        query = query.Where(p => p.Precio <= MaxPrice);
 
         return query;
     }
@@ -698,9 +690,9 @@
         MaxPrice = 150000;
     }
 
-    private int GetFormatCount(string format) => AllProducts.Count(p => p.Format == format);
-    private int GetProfileCount(string profile) => AllProducts.Count(p => p.Profile == profile);
-    private int GetMethodCount(string method) => AllProducts.Count(p => p.Method == method);
+    private int GetFormatCount(string format) => AllProducts.Count(p => p.Formato == format);
+    private int GetProfileCount(string profile) => AllProducts.Count(p => p.PerfilSabor == profile);
+    private int GetMethodCount(string method) => AllProducts.Count(p => p.MetodoRecomendado == method);
 
     private void ToggleFavorite(Product p)
     {
@@ -717,20 +709,11 @@
     private void ToggleIntensityContent() => isIntensityExpanded = !isIntensityExpanded;
     private void ToggleMethodContent() => isMethodExpanded = !isMethodExpanded;
 
-    public class Product
+    private string GetProductImage(Product p)
     {
-        public string Id { get; set; } = "";
-        public string Name { get; set; } = "";
-        public string Region { get; set; } = "";
-        public string Notes { get; set; } = "";
-        public string Format { get; set; } = "";
-        public string Profile { get; set; } = "";
-        public string Method { get; set; } = "";
-        public int Intensity { get; set; }
-        public int Price { get; set; }
-        public string Tag { get; set; } = "";
-        public string Image { get; set; } = "";
-        public bool IsFavorite { get; set; }
+        if (string.IsNullOrEmpty(p.ImagenUrl)) return "/images/coffee_bag_generic.png";
+        if (p.ImagenUrl.StartsWith("/uploads/")) return "http://localhost:5074" + p.ImagenUrl;
+        return p.ImagenUrl;
     }
 }
 
