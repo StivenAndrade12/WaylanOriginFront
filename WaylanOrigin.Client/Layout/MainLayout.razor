@@ -1,8 +1,10 @@
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
 @inject CartState CartState
+@inject ApiService ApiService
 @implements IDisposable
 @using System.Threading.Tasks
+@using WaylanOrigin.Client.Services
 
 <header>
     <nav class="navbar-waylan">
@@ -56,6 +58,10 @@
                 <a href="@GetLink("#sostenibilidad")" @onclick="CloseMenuMobile">Sostenibilidad</a>
                 <a href="/productores" class="@(IsActive("productores") ? "nav-active" : "")" @onclick="CloseMenuMobile">Productores</a>
                 <a href="productos" class="@(IsActive("productos") ? "nav-active" : "")" @onclick="CloseMenuMobile">Productos</a>
+                @if (ApiService.IsAdmin)
+                {
+                    <a href="admin" class="@(IsActive("admin") ? "nav-active" : "")" @onclick="CloseMenuMobile">Panel Admin</a>
+                }
                 <a href="@GetLink("#Contactanos")" @onclick="CloseMenuMobile">Contáctanos</a>
             </div>
 
@@ -76,26 +82,44 @@
                     @if(isDropdownOpen)
                     {
                         <div class="user-dropdown-menu login-form-dropdown">
-                            <h4 class="dropdown-form-title">Ingresar a mi Cuenta</h4>
+                            @if (ApiService.IsLoggedIn)
+                            {
+                                <h4 class="dropdown-form-title">Mi Cuenta</h4>
+                                <p class="dropdown-text">Hola, <strong>@ApiService.CurrentUser?.Nombre</strong></p>
+                                <p class="dropdown-text" style="font-size: 0.7rem; margin-bottom: 10px;">Rol: @ApiService.CurrentUser?.Rol</p>
+                                
+                                @if (ApiService.IsAdmin)
+                                {
+                                    <a href="/admin" @onclick="CloseDropdown" class="btn-submit-login" style="text-decoration:none; text-align:center; display:block; margin-bottom:8px;">Panel de Control</a>
+                                }
+                                
+                                <button type="button" class="btn-submit-login" style="background-color:#8C2424;" @onclick="ProcesarLogout">
+                                    Cerrar Sesión
+                                </button>
+                            }
+                            else
+                            {
+                                <h4 class="dropdown-form-title">Ingresar a mi Cuenta</h4>
 
-                            <div class="form-group-waylan">
-                                <label for="login-user">Correo o Teléfono</label>
-                                <input type="text" id="login-user" @bind="userInput" placeholder="ejemplo@correo.com" />
-                            </div>
+                                @if (!string.IsNullOrEmpty(loginError))
+                                {
+                                    <p style="color:#8C2424; font-size:0.75rem; text-align:center; margin-bottom:8px;">@loginError</p>
+                                }
 
-                            <div class="form-group-waylan">
-                                <label for="login-pass">Contraseña</label>
-                                <input type="password" id="login-pass" @bind="passwordInput" placeholder="••••••••" />
-                            </div>
+                                <div class="form-group-waylan">
+                                    <label for="login-user">Correo</label>
+                                    <input type="text" id="login-user" @bind="userInput" placeholder="admin@waylan.com" />
+                                </div>
 
-                            <button type="button" class="btn-submit-login" @onclick="ProcesarLogin">
-                                Iniciar Sesión
-                            </button>
+                                <div class="form-group-waylan">
+                                    <label for="login-pass">Contraseña</label>
+                                    <input type="password" id="login-pass" @bind="passwordInput" placeholder="••••••••" />
+                                </div>
 
-                            <div class="dropdown-divider"></div>
-
-                            <p class="dropdown-text">¿No tienes cuenta?</p>
-                            <a href="#registro" @onclick="CloseDropdown" class="dropdown-link-register">Crear una cuenta</a>
+                                <button type="button" class="btn-submit-login" @onclick="ProcesarLogin">
+                                    Iniciar Sesión
+                                </button>
+                            }
                         </div>
                     }
                 </div>
@@ -124,16 +148,19 @@
     private string userInput = "";
     private string passwordInput = "";
     private int cancelacionToken = 0;
+    private string loginError = "";
 
     protected override void OnInitialized()
     {
         CartState.OnChange += StateHasChanged;
+        ApiService.OnAuthStateChanged += StateHasChanged;
         NavigationManager.LocationChanged += OnLocationChanged;
     }
 
     public void Dispose()
     {
         CartState.OnChange -= StateHasChanged;
+        ApiService.OnAuthStateChanged -= StateHasChanged;
         NavigationManager.LocationChanged -= OnLocationChanged;
     }
 
@@ -225,10 +252,33 @@
         isNosotrosOpen = false;
     }
 
-    private void ProcesarLogin()
+    private async Task ProcesarLogin()
     {
-        Console.WriteLine($"Usuario: {userInput}, Password: {passwordInput}");
+        loginError = "";
+        if (string.IsNullOrEmpty(userInput) || string.IsNullOrEmpty(passwordInput))
+        {
+            loginError = "Ingresa correo y contraseña.";
+            return;
+        }
+
+        var success = await ApiService.LoginAsync(userInput, passwordInput);
+        if (success)
+        {
+            userInput = "";
+            passwordInput = "";
+            CloseDropdown();
+        }
+        else
+        {
+            loginError = "Credenciales incorrectas o inactivo.";
+        }
+    }
+
+    private void ProcesarLogout()
+    {
+        ApiService.Logout();
         CloseDropdown();
+        NavigationManager.NavigateTo("/");
     }
 
     private void AbrirBuscador()

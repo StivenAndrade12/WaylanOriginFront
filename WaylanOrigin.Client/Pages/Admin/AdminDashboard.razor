@@ -1,0 +1,1318 @@
+@page "/admin"
+@inject ApiService ApiService
+@inject NavigationManager NavigationManager
+
+<div class="admin-dashboard-page">
+    
+    <!-- HEADER BAR -->
+    <header class="admin-header">
+        <div class="admin-header-container">
+            <div class="brand-info">
+                <img src="/logotipo/Logotipo Waylan Origin-Photoroom.png" alt="Waylan Logo" class="admin-logo" />
+                <span class="admin-badge">PANEL ADMINISTRATIVO</span>
+            </div>
+            <div class="user-info-bar">
+                <span>Hola, <strong>@ApiService.CurrentUser?.Nombre</strong></span>
+                <button class="btn-logout" @onclick="HandleLogout">Cerrar Sesión</button>
+            </div>
+        </div>
+    </header>
+
+    @if (!ApiService.IsLoggedIn)
+    {
+        <!-- LOGIN PANEL FOR ADMINISTRATOR -->
+        <div class="admin-login-box">
+            <div class="login-card">
+                <h2>Iniciar Sesión como Administrador</h2>
+                <p>Ingresa tus credenciales autorizadas de Waylan Origin.</p>
+                
+                @if (!string.IsNullOrEmpty(loginErrorMessage))
+                {
+                    <div class="error-alert">@loginErrorMessage</div>
+                }
+
+                <div class="form-group">
+                    <label>Correo Electrónico</label>
+                    <input type="email" @bind="loginEmail" placeholder="admin@waylan.com" class="form-control-admin" />
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" @bind="loginPassword" placeholder="••••••••" class="form-control-admin" />
+                </div>
+                <button class="btn-admin-submit" @onclick="HandleLogin" type="button">INGRESAR AL PANEL</button>
+            </div>
+        </div>
+    }
+    else if (!ApiService.IsAdmin)
+    {
+        <div class="unauthorized-box">
+            <div class="unauthorized-card">
+                <h2>Acceso Denegado</h2>
+                <p>Tu cuenta no cuenta con permisos de administrador en el sistema.</p>
+                <button class="btn-admin-submit" @onclick='() => NavigationManager.NavigateTo("/")'>IR AL INICIO</button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- MAIN DASHBOARD CONTENT -->
+        <div class="dashboard-body">
+            
+            <!-- SIDE NAVIGATION TABS -->
+            <aside class="dashboard-sidebar">
+                <button class="sidebar-tab-btn @(activeTab == "productos" ? "active" : "")" @onclick='() => SetActiveTab("productos")'>
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="12,2 2,22 22,22" />
+                    </svg>
+                    Gestión Productos
+                </button>
+                <button class="sidebar-tab-btn @(activeTab == "categorias" ? "active" : "")" @onclick='() => SetActiveTab("categorias")'>
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="9" />
+                        <rect x="14" y="3" width="7" height="5" />
+                        <rect x="14" y="12" width="7" height="9" />
+                        <rect x="3" y="16" width="7" height="5" />
+                    </svg>
+                    Gestión Categorías
+                </button>
+                <button class="sidebar-tab-btn @(activeTab == "pedidos" ? "active" : "")" @onclick='() => SetActiveTab("pedidos")'>
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="21" r="1" />
+                        <circle cx="20" cy="21" r="1" />
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                    </svg>
+                    Pedidos de Clientes
+                </button>
+                <button class="sidebar-tab-btn @(activeTab == "usuarios" ? "active" : "")" @onclick='() => SetActiveTab("usuarios")'>
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                    Control Usuarios
+                </button>
+            </aside>
+
+            <!-- ACTION DISPLAY PANEL -->
+            <main class="dashboard-content-panel">
+                
+                @if (activeTab == "productos")
+                {
+                    <!-- TAB 1: PRODUCT MANAGEMENT -->
+                    <div class="panel-section">
+                        <div class="panel-header-row">
+                            <h2>Productos Registrados</h2>
+                            <button class="btn-create-new" @onclick="OpenCreateProductModal">NUEVO PRODUCTO</button>
+                        </div>
+
+                        <div class="table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Región</th>
+                                        <th>Formato</th>
+                                        <th>Precio</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var p in products)
+                                    {
+                                        <tr>
+                                            <td><strong>@p.Id</strong></td>
+                                            <td>@p.Nombre</td>
+                                            <td>@p.Region</td>
+                                            <td>@p.Formato</td>
+                                            <td>$@p.Precio.ToString("N0") COP</td>
+                                            <td>
+                                                <span class="status-badge @(p.Activo ? "active" : "inactive")">
+                                                    @(p.Activo ? "Activo" : "Inactivo")
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <button class="btn-action-edit" @onclick="() => OpenEditProductModal(p)">Editar</button>
+                                                <button class="btn-action-status" @onclick="() => ToggleProductStatus(p)">
+                                                    @(p.Activo ? "Desactivar" : "Activar")
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+                else if (activeTab == "categorias")
+                {
+                    <!-- TAB 2: CATEGORIES MANAGEMENT -->
+                    <div class="panel-section">
+                        <div class="panel-header-row">
+                            <h2>Categorías de Productos</h2>
+                            <div class="add-category-inline">
+                                <input type="text" @bind="newCategoryName" placeholder="Nueva Categoría" class="form-control-inline" />
+                                <button class="btn-create-new" @onclick="CreateCategory">AGREGAR</button>
+                            </div>
+                        </div>
+
+                        <div class="table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var c in categories)
+                                    {
+                                        <tr>
+                                            <td><strong>#@c.Id</strong></td>
+                                            <td>
+                                                @if (editingCategoryId == c.Id)
+                                                {
+                                                    <input type="text" @bind="editingCategoryName" class="form-control-table" />
+                                                }
+                                                else
+                                                {
+                                                    @c.Nombre
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="status-badge @(c.Activo ? "active" : "inactive")">
+                                                    @(c.Activo ? "Activo" : "Inactivo")
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if (editingCategoryId == c.Id)
+                                                {
+                                                    <button class="btn-action-save" @onclick="() => SaveCategoryEdit(c)">Guardar</button>
+                                                    <button class="btn-action-cancel" @onclick="CancelCategoryEdit">Cancelar</button>
+                                                }
+                                                else
+                                                {
+                                                    <button class="btn-action-edit" @onclick="() => StartCategoryEdit(c)">Editar</button>
+                                                    <button class="btn-action-status" @onclick="() => ToggleCategoryStatus(c)">
+                                                        @(c.Activo ? "Desactivar" : "Activar")
+                                                    </button>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+                else if (activeTab == "pedidos")
+                {
+                    <!-- TAB 3: ORDERS MANAGEMENT -->
+                    <div class="panel-section">
+                        <h2>Pedidos Recibidos</h2>
+
+                        <div class="table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Fecha</th>
+                                        <th>Cliente</th>
+                                        <th>Total</th>
+                                        <th>Estado</th>
+                                        <th>Cambiar Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var o in orders)
+                                    {
+                                        <tr>
+                                            <td><strong>@o.Codigo</strong></td>
+                                            <td>@o.Fecha.ToLocalTime().ToString("g")</td>
+                                            <td>@o.EmailCliente</td>
+                                            <td>$@o.Total.ToString("N0") COP</td>
+                                            <td>
+                                                <span class="status-badge @(o.Estado == "Enviado" ? "active" : o.Estado == "Cancelado" ? "inactive" : "pending")">
+                                                    @o.Estado
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <select class="select-order-state" value="@o.Estado" @onchange='(e) => UpdateOrderState(o, e.Value?.ToString() ?? "")'>
+                                                    <option value="Pendiente">Pendiente</option>
+                                                    <option value="Enviado">Enviado</option>
+                                                    <option value="Cancelado">Cancelado</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+                else if (activeTab == "usuarios")
+                {
+                    <!-- TAB 4: USER CONTROL -->
+                    <div class="panel-section">
+                        <h2>Usuarios Registrados</h2>
+
+                        <div class="table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Correo Electrónico</th>
+                                        <th>Rol de Acceso</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var u in users)
+                                    {
+                                        <tr>
+                                            <td>@u.Nombre</td>
+                                            <td>@u.Email</td>
+                                            <td>
+                                                <span class="role-badge @(u.Rol == "Admin" ? "admin" : "client")">
+                                                    @u.Rol
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="status-badge @(u.Activo ? "active" : "inactive")">
+                                                    @(u.Activo ? "Activo" : "Inactivo")
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if (u.Email != ApiService.CurrentUser?.Email)
+                                                {
+                                                    <button class="btn-action-status" @onclick="() => ToggleUserStatus(u)">
+                                                        @(u.Activo ? "Desactivar" : "Activar")
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <span class="self-label">Cuenta Actual</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+
+            </main>
+        </div>
+    }
+
+    <!-- POPUP MODAL FOR PRODUCT CREATE/EDIT -->
+    @if (showProductModal)
+    {
+        <div class="modal-backdrop">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <h3>@(isEditingProduct ? "Editar Producto" : "Nuevo Producto")</h3>
+                    <button class="btn-close-modal" @onclick="CloseProductModal">×</button>
+                </div>
+                <div class="modal-body">
+                    
+                    @if (!string.IsNullOrEmpty(formErrorMessage))
+                    {
+                        <div class="error-alert">@formErrorMessage</div>
+                    }
+
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label>ID del Producto</label>
+                            <input type="text" @bind="productFormId" placeholder="WAY-XXX" disabled="@isEditingProduct" class="form-control-admin" />
+                        </div>
+                        <div class="form-group">
+                            <label>Nombre Comercial</label>
+                            <input type="text" @bind="productFormNombre" placeholder="Waylan Classic" class="form-control-admin" />
+                        </div>
+                    </div>
+
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label>Región de Origen</label>
+                            <input type="text" @bind="productFormRegion" placeholder="Tolima, Colombia" class="form-control-admin" />
+                        </div>
+                        <div class="form-group">
+                            <label>Precio Unitario (COP)</label>
+                            <input type="number" @bind="productFormPrecio" class="form-control-admin" />
+                        </div>
+                    </div>
+
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label>Formato</label>
+                            <select @bind="productFormFormato" class="form-control-admin">
+                                <option value="Grano">En Grano</option>
+                                <option value="Molido">Molido</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Perfil de Sabor</label>
+                            <select @bind="productFormPerfilSabor" class="form-control-admin">
+                                <option value="Dulce">Dulce</option>
+                                <option value="Balanceado">Balanceado</option>
+                                <option value="Ácido">Ácido</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label>Método Recomendado</label>
+                            <select @bind="productFormMetodoRecomendado" class="form-control-admin">
+                                <option value="Filtrado">Filtrado</option>
+                                <option value="Espresso">Espresso</option>
+                                <option value="Prensa francesa">Prensa francesa</option>
+                                <option value="Cold brew">Cold brew</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Intensidad (1 a 5)</label>
+                            <input type="number" min="1" max="5" @bind="productFormIntensidad" class="form-control-admin" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Etiqueta Especial (Opcional)</label>
+                        <input type="text" @bind="productFormEtiqueta" placeholder="NUEVO / MÁS VENDIDO / EDICIÓN LIMITADA" class="form-control-admin" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Imagen del Empaque (Archivo Físico)</label>
+                        <InputFile OnChange="HandleFileSelected" class="form-control-file" />
+                        @if (isEditingProduct && !string.IsNullOrEmpty(editingProductImageUrl))
+                        {
+                            <span class="file-help">Actualmente tiene: <strong>@editingProductImageUrl</strong> (déjalo vacío si no deseas cambiarla).</span>
+                        }
+                    </div>
+
+                    <!-- Notes selection Many-To-Many -->
+                    <div class="form-group">
+                        <label>Notas de Sabor Seleccionadas</label>
+                        <div class="notes-selection-grid">
+                            @foreach (var n in availableNotes)
+                            {
+                                <label class="checkbox-note-container">
+                                    <input type="checkbox" checked="@productFormSelectedNoteIds.Contains(n.Id)" @onchange='() => ToggleFormNoteSelection(n.Id)' />
+                                    <span class="note-label">@n.Nombre</span>
+                                </label>
+                            }
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-cancel" @onclick="CloseProductModal">CANCELAR</button>
+                    <button class="btn-save" @onclick="SaveProduct" type="button">GUARDAR PRODUCTO</button>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+@code {
+    private string activeTab = "productos";
+
+    // Authentication States
+    private string loginEmail = "";
+    private string loginPassword = "";
+    private string loginErrorMessage = "";
+
+    // Entities lists
+    private List<Product> products = new();
+    private List<Category> categories = new();
+    private List<Order> orders = new();
+    private List<User> users = new();
+    private List<Note> availableNotes = new();
+
+    // Modals & Form variables
+    private bool showProductModal = false;
+    private bool isEditingProduct = false;
+    private string formErrorMessage = "";
+
+    private string productFormId = "";
+    private string productFormNombre = "";
+    private string productFormRegion = "";
+    private int productFormPrecio = 30000;
+    private string productFormFormato = "Grano";
+    private string productFormPerfilSabor = "Dulce";
+    private string productFormMetodoRecomendado = "Filtrado";
+    private int productFormIntensidad = 3;
+    private string productFormEtiqueta = "";
+    private string editingProductImageUrl = "";
+    private List<int> productFormSelectedNoteIds = new();
+    private Microsoft.AspNetCore.Components.Forms.IBrowserFile? selectedImageFile;
+
+    // Categories Inline edit
+    private string newCategoryName = "";
+    private int editingCategoryId = 0;
+    private string editingCategoryName = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (ApiService.IsLoggedIn)
+        {
+            await LoadActiveTabData();
+        }
+    }
+
+    private async Task HandleLogin()
+    {
+        loginErrorMessage = "";
+        if (string.IsNullOrEmpty(loginEmail) || string.IsNullOrEmpty(loginPassword))
+        {
+            loginErrorMessage = "Por favor ingresa todos los campos.";
+            return;
+        }
+
+        var success = await ApiService.LoginAsync(loginEmail, loginPassword);
+        if (success)
+        {
+            if (ApiService.IsAdmin)
+            {
+                await LoadActiveTabData();
+            }
+            else
+            {
+                ApiService.Logout();
+                loginErrorMessage = "Acceso denegado. No eres administrador.";
+            }
+        }
+        else
+        {
+            loginErrorMessage = "Credenciales incorrectas o usuario inactivo.";
+        }
+    }
+
+    private void HandleLogout()
+    {
+        ApiService.Logout();
+        NavigationManager.NavigateTo("/admin", forceLoad: true);
+    }
+
+    private async Task SetActiveTab(string tabName)
+    {
+        activeTab = tabName;
+        await LoadActiveTabData();
+    }
+
+    private async Task LoadActiveTabData()
+    {
+        try
+        {
+            if (activeTab == "productos")
+            {
+                products = await ApiService.GetTodosProductosAsync();
+                availableNotes = await ApiService.GetNotasAsync();
+            }
+            else if (activeTab == "categorias")
+            {
+                categories = await ApiService.GetTodasCategoriasAsync();
+            }
+            else if (activeTab == "pedidos")
+            {
+                orders = await ApiService.GetTodosPedidosAsync();
+            }
+            else if (activeTab == "usuarios")
+            {
+                users = await ApiService.GetUsuariosAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando datos: {ex.Message}");
+        }
+    }
+
+    // --- PRODUCTS OPERATIONS ---
+    private void OpenCreateProductModal()
+    {
+        isEditingProduct = false;
+        formErrorMessage = "";
+        productFormId = "";
+        productFormNombre = "";
+        productFormRegion = "";
+        productFormPrecio = 35000;
+        productFormFormato = "Grano";
+        productFormPerfilSabor = "Dulce";
+        productFormMetodoRecomendado = "Filtrado";
+        productFormIntensidad = 3;
+        productFormEtiqueta = "";
+        productFormSelectedNoteIds.Clear();
+        selectedImageFile = null;
+        showProductModal = true;
+    }
+
+    private void OpenEditProductModal(Product p)
+    {
+        isEditingProduct = true;
+        formErrorMessage = "";
+        productFormId = p.Id;
+        productFormNombre = p.Nombre;
+        productFormRegion = p.Region;
+        productFormPrecio = p.Precio;
+        productFormFormato = p.Formato;
+        productFormPerfilSabor = p.PerfilSabor;
+        productFormMetodoRecomendado = p.MetodoRecomendado;
+        productFormIntensidad = p.Intensidad;
+        productFormEtiqueta = p.Etiqueta;
+        editingProductImageUrl = p.ImagenUrl;
+        productFormSelectedNoteIds = p.Notas.Select(n => n.Id).ToList();
+        selectedImageFile = null;
+        showProductModal = true;
+    }
+
+    private void CloseProductModal()
+    {
+        showProductModal = false;
+    }
+
+    private void HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        selectedImageFile = e.File;
+    }
+
+    private void ToggleFormNoteSelection(int noteId)
+    {
+        if (productFormSelectedNoteIds.Contains(noteId))
+            productFormSelectedNoteIds.Remove(noteId);
+        else
+            productFormSelectedNoteIds.Add(noteId);
+    }
+
+    private async Task SaveProduct()
+    {
+        formErrorMessage = "";
+        if (string.IsNullOrEmpty(productFormId) || string.IsNullOrEmpty(productFormNombre) || string.IsNullOrEmpty(productFormRegion))
+        {
+            formErrorMessage = "Por favor, completa los campos requeridos (ID, Nombre y Región).";
+            return;
+        }
+
+        if (!isEditingProduct && selectedImageFile == null)
+        {
+            formErrorMessage = "La imagen es obligatoria al crear un nuevo producto.";
+            return;
+        }
+
+        var content = new MultipartFormDataContent();
+        content.Add(new StringContent(productFormNombre), "Nombre");
+        content.Add(new StringContent(productFormRegion), "Region");
+        content.Add(new StringContent(productFormFormato), "Formato");
+        content.Add(new StringContent(productFormPerfilSabor), "PerfilSabor");
+        content.Add(new StringContent(productFormMetodoRecomendado), "MetodoRecomendado");
+        content.Add(new StringContent(productFormIntensidad.ToString()), "Intensidad");
+        content.Add(new StringContent(productFormPrecio.ToString()), "Precio");
+        content.Add(new StringContent(productFormEtiqueta ?? ""), "Etiqueta");
+
+        if (selectedImageFile != null)
+        {
+            var fileContent = new StreamContent(selectedImageFile.OpenReadStream(maxAllowedSize: 15 * 1024 * 1024)); // 15MB max
+            fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(selectedImageFile.ContentType);
+            content.Add(fileContent, "Imagen", selectedImageFile.Name);
+        }
+
+        if (productFormSelectedNoteIds.Any())
+        {
+            foreach (var nid in productFormSelectedNoteIds)
+            {
+                content.Add(new StringContent(nid.ToString()), "IdNotas");
+            }
+        }
+
+        bool success;
+        if (isEditingProduct)
+        {
+            success = await ApiService.ActualizarProductoAsync(productFormId, content);
+        }
+        else
+        {
+            content.Add(new StringContent(productFormId), "Id");
+            success = await ApiService.CrearProductoAsync(content);
+        }
+
+        if (success)
+        {
+            showProductModal = false;
+            await LoadActiveTabData();
+        }
+        else
+        {
+            formErrorMessage = "Ocurrió un error en el servidor. Verifica las reglas de notas e imágenes.";
+        }
+    }
+
+    private async Task ToggleProductStatus(Product p)
+    {
+        var success = await ApiService.CambiarEstadoProductoAsync(p.Id);
+        if (success)
+        {
+            await LoadActiveTabData();
+        }
+    }
+
+    // --- CATEGORIES OPERATIONS ---
+    private async Task CreateCategory()
+    {
+        if (string.IsNullOrEmpty(newCategoryName)) return;
+        var success = await ApiService.CrearCategoriaAsync(newCategoryName);
+        if (success)
+        {
+            newCategoryName = "";
+            await LoadActiveTabData();
+        }
+    }
+
+    private void StartCategoryEdit(Category c)
+    {
+        editingCategoryId = c.Id;
+        editingCategoryName = c.Nombre;
+    }
+
+    private void CancelCategoryEdit()
+    {
+        editingCategoryId = 0;
+        editingCategoryName = "";
+    }
+
+    private async Task SaveCategoryEdit(Category c)
+    {
+        if (string.IsNullOrEmpty(editingCategoryName)) return;
+        var success = await ApiService.ActualizarCategoriaAsync(c.Id, editingCategoryName);
+        if (success)
+        {
+            editingCategoryId = 0;
+            editingCategoryName = "";
+            await LoadActiveTabData();
+        }
+    }
+
+    private async Task ToggleCategoryStatus(Category c)
+    {
+        var success = await ApiService.CambiarEstadoCategoriaAsync(c.Id);
+        if (success)
+        {
+            await LoadActiveTabData();
+        }
+    }
+
+    // --- ORDERS OPERATIONS ---
+    private async Task UpdateOrderState(Order o, string newState)
+    {
+        var success = await ApiService.CambiarEstadoPedidoAsync(o.Codigo, newState);
+        if (success)
+        {
+            await LoadActiveTabData();
+        }
+    }
+
+    // --- USERS OPERATIONS ---
+    private async Task ToggleUserStatus(User u)
+    {
+        var success = await ApiService.CambiarEstadoUsuarioAsync(u.Id);
+        if (success)
+        {
+            await LoadActiveTabData();
+        }
+    }
+}
+
+<!-- GLASSMORPHIC LUXURY ADMIN STYLES -->
+<style>
+    .admin-dashboard-page {
+        --admin-brown: #1A100A;
+        --admin-dark-card: #281A12;
+        --admin-gold: #B89A5E;
+        --admin-gold-hover: #D1B894;
+        --admin-cream: #FAF6F0;
+        --admin-red: #8C2424;
+        --admin-red-hover: #A83636;
+        --admin-white: #FFFFFF;
+        
+        font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+        background-color: var(--admin-cream);
+        color: var(--admin-brown);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* HEADER */
+    .admin-header {
+        background-color: var(--admin-brown);
+        border-bottom: 2.5px solid var(--admin-gold);
+        padding: 18px 40px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+
+    .admin-header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .admin-logo {
+        height: 38px;
+        vertical-align: middle;
+        margin-right: 15px;
+    }
+
+    .admin-badge {
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        color: var(--admin-gold);
+        border: 1px solid var(--admin-gold);
+        padding: 4px 10px;
+        border-radius: 4px;
+    }
+
+    .user-info-bar {
+        color: var(--admin-white);
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .btn-logout {
+        background: transparent;
+        border: 1px solid var(--admin-gold);
+        color: var(--admin-gold);
+        padding: 6px 14px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+        outline: none;
+    }
+
+    .btn-logout:hover {
+        background-color: var(--admin-gold);
+        color: var(--admin-brown);
+    }
+
+    /* LOGIN & UNAUTHORIZED BOXES */
+    .admin-login-box, .unauthorized-box {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 24px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M0,50 Q25,25 50,50 T100,50' fill='none' stroke='%23B89A5E' stroke-opacity='0.05'/%3E%3C/svg%3E");
+    }
+
+    .login-card, .unauthorized-card {
+        background-color: var(--admin-white);
+        border: 1px solid rgba(40, 26, 18, 0.12);
+        padding: 45px;
+        border-radius: 12px;
+        width: 100%;
+        max-width: 440px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.06);
+    }
+
+    .login-card h2, .unauthorized-card h2 {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 1.6rem;
+        margin: 0 0 10px 0;
+        color: var(--admin-brown);
+    }
+
+    .login-card p, .unauthorized-card p {
+        font-size: 0.85rem;
+        color: #706B64;
+        margin: 0 0 30px 0;
+        line-height: 1.5;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--admin-brown);
+        letter-spacing: 0.5px;
+    }
+
+    .form-control-admin {
+        width: 100%;
+        padding: 11px 15px;
+        font-size: 0.85rem;
+        border: 1px solid #D2CFC9;
+        border-radius: 5px;
+        background-color: var(--admin-cream);
+        color: var(--admin-brown);
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+    .form-control-admin:focus {
+        border-color: var(--admin-gold);
+    }
+
+    .btn-admin-submit {
+        width: 100%;
+        background-color: var(--admin-brown);
+        color: var(--admin-white) !important;
+        border: none;
+        padding: 13px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        margin-top: 10px;
+        outline: none;
+    }
+
+    .btn-admin-submit:hover {
+        background-color: #2F1E14;
+    }
+
+    .error-alert {
+        background-color: #FCE8E6;
+        color: var(--admin-red);
+        border-left: 4px solid var(--admin-red);
+        padding: 12px 16px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 24px;
+    }
+
+    /* DASHBOARD BODY */
+    .dashboard-body {
+        flex: 1;
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        max-width: 1400px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 40px 24px;
+        gap: 30px;
+    }
+
+    @@media (max-width: 900px) {
+        .dashboard-body {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* SIDEBAR */
+    .dashboard-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .sidebar-tab-btn {
+        background: transparent;
+        border: 1px solid transparent;
+        color: #706B64;
+        text-align: left;
+        padding: 14px 20px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.2s;
+        outline: none;
+    }
+
+    .sidebar-tab-btn .icon {
+        width: 18px;
+        height: 18px;
+        color: #706B64;
+        transition: color 0.2s;
+    }
+
+    .sidebar-tab-btn:hover {
+        background-color: rgba(184, 154, 94, 0.1);
+        color: var(--admin-brown);
+    }
+
+    .sidebar-tab-btn.active {
+        background-color: var(--admin-brown);
+        color: var(--admin-gold);
+    }
+
+    .sidebar-tab-btn.active .icon {
+        color: var(--admin-gold);
+    }
+
+    /* CONTENT DISPLAY PANEL */
+    .dashboard-content-panel {
+        background-color: var(--admin-white);
+        border: 1px solid rgba(40, 26, 18, 0.1);
+        border-radius: 8px;
+        padding: 35px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        min-height: 500px;
+    }
+
+    .panel-section h2 {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 1.5rem;
+        margin: 0 0 25px 0;
+        color: var(--admin-brown);
+    }
+
+    .panel-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .panel-header-row h2 {
+        margin: 0;
+    }
+
+    /* BUTTONS */
+    .btn-create-new {
+        background-color: var(--admin-gold);
+        color: var(--admin-brown);
+        border: none;
+        padding: 10px 20px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        outline: none;
+    }
+
+    .btn-create-new:hover {
+        background-color: var(--admin-gold-hover);
+    }
+
+    /* TABLES */
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        font-size: 0.85rem;
+    }
+
+    .admin-table th {
+        background-color: #FAF6F0;
+        color: #706B64;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.7rem;
+        letter-spacing: 1px;
+        padding: 14px 18px;
+        border-bottom: 1.5px solid var(--admin-gold);
+    }
+
+    .admin-table td {
+        padding: 16px 18px;
+        border-bottom: 1px solid #FAF6F0;
+        color: var(--admin-brown);
+        vertical-align: middle;
+    }
+
+    .admin-table tr:hover td {
+        background-color: #FCFBF9;
+    }
+
+    /* BADGES */
+    .status-badge {
+        font-size: 0.7rem;
+        font-weight: 800;
+        padding: 3px 8px;
+        border-radius: 4px;
+        display: inline-block;
+    }
+
+    .status-badge.active {
+        background-color: #E2F3E7;
+        color: #2F6F4C;
+    }
+
+    .status-badge.inactive {
+        background-color: #FCE8E6;
+        color: var(--admin-red);
+    }
+
+    .status-badge.pending {
+        background-color: #FEF3D6;
+        color: #C47A2B;
+    }
+
+    .role-badge {
+        font-size: 0.7rem;
+        font-weight: 800;
+        padding: 3px 8px;
+        border-radius: 4px;
+    }
+
+    .role-badge.admin {
+        background-color: #ECE7FF;
+        color: #5848C2;
+    }
+
+    .role-badge.client {
+        background-color: #E2F0FE;
+        color: #1F69C2;
+    }
+
+    /* TABLE ACTIONS BUTTONS */
+    .btn-action-edit, .btn-action-save {
+        background: transparent;
+        border: none;
+        color: var(--admin-gold);
+        font-weight: 700;
+        font-size: 0.8rem;
+        cursor: pointer;
+        padding: 0;
+        margin-right: 12px;
+        outline: none;
+    }
+
+    .btn-action-edit:hover, .btn-action-save:hover {
+        color: var(--admin-gold-hover);
+        text-decoration: underline;
+    }
+
+    .btn-action-status, .btn-action-cancel {
+        background: transparent;
+        border: none;
+        color: var(--admin-red);
+        font-weight: 700;
+        font-size: 0.8rem;
+        cursor: pointer;
+        padding: 0;
+        outline: none;
+    }
+
+    .btn-action-status:hover, .btn-action-cancel:hover {
+        color: var(--admin-red-hover);
+        text-decoration: underline;
+    }
+
+    /* INLINE EDIT */
+    .add-category-inline {
+        display: flex;
+        gap: 10px;
+    }
+
+    .form-control-inline {
+        padding: 9px 12px;
+        font-size: 0.8rem;
+        border: 1px solid #D2CFC9;
+        border-radius: 4px;
+        outline: none;
+        width: 180px;
+    }
+
+    .form-control-table {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+        border: 1px solid #D2CFC9;
+        border-radius: 4px;
+        outline: none;
+        width: 150px;
+    }
+
+    .select-order-state {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+        border: 1px solid #D2CFC9;
+        border-radius: 4px;
+        background-color: var(--admin-white);
+        outline: none;
+    }
+
+    .self-label {
+        font-size: 0.75rem;
+        color: #706B64;
+        font-style: italic;
+    }
+
+    /* POPUP MODAL */
+    .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(26, 16, 10, 0.45);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 20px;
+    }
+
+    .modal-box {
+        background-color: var(--admin-white);
+        border-radius: 10px;
+        width: 100%;
+        max-width: 650px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.18);
+        border: 1px solid rgba(40, 26, 18, 0.15);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 30px;
+        border-bottom: 1px solid rgba(40, 26, 18, 0.08);
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 1.35rem;
+    }
+
+    .btn-close-modal {
+        background: transparent;
+        border: none;
+        font-size: 1.8rem;
+        cursor: pointer;
+        color: #706B64;
+        outline: none;
+        line-height: 1;
+    }
+
+    .modal-body {
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .form-row-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    @@media (max-width: 600px) {
+        .form-row-2 {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .form-control-file {
+        font-size: 0.8rem;
+    }
+
+    .file-help {
+        font-size: 0.75rem;
+        color: #706B64;
+        margin-top: 4px;
+    }
+
+    /* NOTES SELECTION IN MODAL */
+    .notes-selection-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 8px;
+        border: 1px solid #D2CFC9;
+        padding: 12px;
+        border-radius: 5px;
+        background-color: var(--admin-cream);
+        max-height: 120px;
+        overflow-y: auto;
+    }
+
+    .checkbox-note-container {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .note-label {
+        font-weight: 600;
+        color: var(--admin-brown);
+    }
+
+    .modal-footer {
+        padding: 20px 30px;
+        border-top: 1px solid rgba(40, 26, 18, 0.08);
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+    }
+
+    .btn-cancel {
+        background: transparent;
+        border: 1px solid #D2CFC9;
+        color: #706B64;
+        padding: 10px 20px;
+        font-weight: 700;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+        outline: none;
+    }
+
+    .btn-cancel:hover {
+        background-color: var(--admin-cream);
+    }
+
+    .btn-save {
+        background-color: var(--admin-brown);
+        color: var(--admin-white) !important;
+        border: none;
+        padding: 10px 22px;
+        font-weight: 700;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        outline: none;
+    }
+
+    .btn-save:hover {
+        background-color: #2F1E14;
+    }
+</style>
