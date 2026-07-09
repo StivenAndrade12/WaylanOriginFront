@@ -1,4 +1,5 @@
 @page "/Productores"
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Nuestros Productores | Waylan Origin</PageTitle>
 
@@ -11,7 +12,7 @@
                 <span class="prod-subtitle">NUESTROS PRODUCTORES</span>
                 <h1>Detrás de cada taza, <br><span class="serif-italic">hay una historia real</span></h1>
                 
-                @* El divisor nativo con sus dos líneas y la hoja de oro chiquita *@
+                @* El divisor nativo *@
                 <div class="prod-divider-native">
                     <div class="divider-line"></div>
                     <div class="divider-icon-center">
@@ -20,13 +21,13 @@
                     <div class="divider-line"></div>
                 </div>
 
-                @* Párrafo descriptivo intermedio *@
+                @* Párrafo descriptivo *@
                 <p class="prod-description">
                     Trabajamos de la mano con familias caficultoras que cultivan con pasión,
                     tradición y respeto por la tierra. Conoce a quienes hacen posible nuestro café.
                 </p>
 
-                @* Pilares con sus contenedores circulares e imágenes controladas *@
+                @* Pilares con los círculos elegantes *@
                 <div class="prod-pillars">
                     <div class="pillar-item">
                         <div class="pillar-icon-circle">
@@ -58,111 +59,225 @@
         </div>
     </section>
 
+    @* --- SECCIÓN 2: GRILLA DE TARJETAS PREMIUM CON CARRUSEL INTERNO --- *@
+   <section class="seccion-productores">
     
-    @* --- SECCIÓN 2: GRILLA DE TARJETAS (REEMPLAZA ESTE BLOQUE) --- *@
-    <section class="prod-grid-section">
-        <div class="prod-grid-title">
-            <div class="premium-title-row">
-                <span class="title-line-left"></span>
-                <h2>Conoce a nuestros productores</h2>
-                <span class="title-line-right"></span>
+    @* ==========================================
+       1. ENCABEZADO PRINCIPAL (Estilo Premium)
+       ========================================== *@
+    <div class="prod-grid-title">
+        <div class="prod-title-badge">
+            <span class="linea-badge"></span>
+            <span class="texto-badge">🍃 NUESTROS PRODUCTORES</span>
+            <span class="linea-badge"></span>
+        </div>
+        <h2 class="prod-main-heading">Historias que dan vida a nuestro café</h2>
+        <p class="grid-main-desc">
+            Trabajamos de la mano con familias caficultoras que cultivan con pasión, tradición y respeto por la tierra.
+        </p>
+        <div class="prod-title-line-divider"></div>
+    </div>
+
+    @* ==========================================
+       2. NUEVA BANDA DE LOS 4 PILARES
+       (Contenedores listos para tus logos)
+       ========================================== *@
+    <div class="prod-features-grid">
+
+        <!-- Pilar 1 -->
+        <div class="feature-item">
+            <div class="feature-icon-container">
+                <img src="/logotipo/k1.png" alt="Comercio justo">
             </div>
-            <p>Historias que reflejan el amor por el café y el compromiso con la excelencia.</p>
+            <div class="feature-text">
+                <h3>Comercio justo</h3>
+                <p>Relaciones basadas en confianza y transparencia.</p>
+            </div>
         </div>
 
-        <div class="prod-cards-container">
+        <!-- Pilar 2 -->
+        <div class="feature-item">
+            <div class="feature-icon-container">
+                <img src="/logotipo/k2.png" alt="Calidad excepcional">
+            </div>
+            <div class="feature-text">
+                <h3>Calidad excepcional</h3>
+                <p>Cafés cultivados con dedicación y procesos cuidadosos.</p>
+            </div>
+        </div>
+
+        <!-- Pilar 3 -->
+        <div class="feature-item">
+            <div class="feature-icon-container">
+                <img src="/logotipo/k3.png" alt="Impacto positivo">
+            </div>
+            <div class="feature-text">
+                <h3>Impacto positivo</h3>
+                <p>Apoyamos comunidades y cuidamos nuestro planeta.</p>
+            </div>
+        </div>
+
+        <!-- Pilar 4 -->
+        <div class="feature-item">
+            <div class="feature-icon-container">
+                <img src="/logotipo/k4.png" alt="Apoyo comunitario">
+            </div>
+            <div class="feature-text">
+                <h3>Apoyo comunitario</h3>
+                <p>Invertimos en educación, salud y bienestar de las familias.</p>
+            </div>
+        </div>
+
+    </div>
+
+    @* ==========================================
+       3. CONTENEDOR DEL CARRUSEL (Tus tarjetas intactas)
+       ========================================== *@
+    <div class="prod-slider-wrapper">
+        <button class="slider-arrow arrow-left" @onclick="MoverSliderIzquierda">‹</button>
+
+        <div class="prod-cards-container" id="prodSliderContainer">
+
+            @* Tarjeta 1 *@
             <div class="prod-card">
                 <div class="prod-card-img">
-                    <img src="/imagenes/ñ1.png" alt="Juan Carlos Restrepo" />
+                    <div class="card-badge">
+                        <span class="badge-years">25+</span>
+                        <span class="badge-txt">AÑOS EXP.</span>
+                    </div>
+                    <img src="/imagenes/ñ1.png" alt="Juan Carlos Restrepo">
                 </div>
                 <div class="prod-card-body">
                     <h3>Juan Carlos Restrepo</h3>
-                    <span class="prod-location"><i class="bi bi-geo-alt-fill"></i> Huila, Colombia </span>
+                    <span class="prod-location">📍 Huila, Colombia</span>
                     <p>Más de 25 años cultivando café con prácticas sostenibles y un profundo respeto por la tierra.</p>
-                    <a href="#" class="btn-story"> VER SU HISTORIA<i class="bi bi-arrow-right"></i></a>
+                    <a href="#" class="btn-story">VER SU HISTORIA<span class="btn-arrow">→</span></a>
                 </div>
             </div>
 
+            @* Tarjeta 2 *@
             <div class="prod-card">
                 <div class="prod-card-img">
-                    <img src="/imagenes/ñ2.png" alt="María Elvira Gómez" />
+                    <div class="card-badge">
+                        <span class="badge-years">15+</span>
+                        <span class="badge-txt">AÑOS EXP.</span>
+                    </div>
+                    <img src="/imagenes/ñ2.png" alt="María Elvira Gómez">
                 </div>
                 <div class="prod-card-body">
                     <h3>María Elvira Gómez</h3>
-                    <span class="prod-location"><i class="bi bi-geo-alt-fill"></i> Antioquia, Colombia </span>
+                    <span class="prod-location">📍 Antioquia, Colombia</span>
                     <p>Su dedicación y conocimiento han convertido su finca en un referente de calidad y tradición.</p>
-                    <a href="#" class="btn-story"> VER SU HISTORIA<i class="bi bi-arrow-right"></i></a>
+                    <a href="#" class="btn-story">VER SU HISTORIA<span class="btn-arrow">→</span></a>
                 </div>
             </div>
 
+            @* Tarjeta 3 *@
             <div class="prod-card">
                 <div class="prod-card-img">
-                    <img src="/imagenes/ñ3.png" alt="Carlos Alberto Ruiz" />
+                    <div class="card-badge">
+                        <span class="badge-years">20+</span>
+                        <span class="badge-txt">AÑOS EXP.</span>
+                    </div>
+                    <img src="/imagenes/ñ3.png" alt="Carlos Alberto Ruiz">
                 </div>
                 <div class="prod-card-body">
                     <h3>Carlos Alberto Ruiz</h3>
-                    <span class="prod-location"><i class="bi bi-geo-alt-fill"></i> Cauca, Colombia </span>
-                    <p>Café de origen único, cultivado en armonía con la naturaleza y las comunidades.</p>
-                    <a href="#" class="btn-story"> VER SU HISTORIA<i class="bi bi-arrow-right"></i></a>
+                    <span class="prod-location">📍 Cauca, Colombia</span>
+                    <p>Café de origen único, cultivado en armonía con la naturaleza y las comunidades locales.</p>
+                    <a href="#" class="btn-story">VER SU HISTORIA<span class="btn-arrow">→</span></a>
+                </div>
+            </div>
+
+            @* Tarjeta 4 *@
+            <div class="prod-card">
+                <div class="prod-card-img">
+                    <div class="card-badge">
+                        <span class="badge-years">12+</span>
+                        <span class="badge-txt">AÑOS EXP.</span>
+                    </div>
+                    <img src="/imagenes/ñ4.png" alt="Elena Mendoza">
+                </div>
+                <div class="prod-card-body">
+                    <h3>Elena Mendoza</h3>
+                    <span class="prod-location">📍 Sierra Nevada, Colombia</span>
+                    <p>Preservando el microclima de la montaña para lograr notas cítricas y un balance excepcional.</p>
+                    <a href="#" class="btn-story">VER SU HISTORIA<span class="btn-arrow">→</span></a>
+                </div>
+            </div>
+
+        </div>
+
+        <button class="slider-arrow arrow-left" @onclick="MoverSliderIzquierda">‹</button>
+
+       <button class="slider-arrow arrow-right" @onclick="MoverSliderDerecha">›</button>
+
+    </div>
+
+</section>
+    @* --- SECCIÓN 3: BANNER OSCURO --- *@
+    <section class="prod-banner-dark">
+        <div class="banner-content-fader">
+            <div class="banner-dark-content">
+                <div class="banner-dark-left">
+                    <div class="banner-leaf-icon">
+                        <img src="/logotipo/t1.png" alt="Icono" style="width: 32px; height: auto;" />
+                    </div>
+                    <h2>Más que café, <br><span class="gold-italic">son historias que transforman vidas</span></h2>
+                </div>
+                
+                <span class="banner-vertical-divider"></span>
+
+                <div class="banner-dark-right">
+                    <p>Cada compra impulsa el desarrollo de comunidades cafeteras y contribuye a un futuro más sostenible para todos.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    @* --- SECCIÓN 3: BANNER OSCURO --- *@
-    <section class="prod-banner-dark">
-    <div class="banner-content-fader">
-        
-        <div class="banner-dark-content">
-            <div class="banner-dark-left">
-                <div class="banner-leaf-icon">
-                    <img src="/logotipo/t1.png" alt="Icono" style="width: 32px; height: auto;" />
-                </div>
-                <h2>Más que café, <br><span class="gold-italic">son historias que transforman vidas</span></h2>
-            </div>
-            
-            <span class="banner-vertical-divider"></span>
-            
-            <div class="banner-dark-right">
-                <p>Cada compra impulsa el desarrollo de comunidades cafeteras y contribuye a un futuro más sostenible para todos.</p>
-            </div>
-        </div>
-
-    </div>
-</section>
-
     @* --- SECCIÓN 4: ICONOS INFERIORES DE VALORES --- *@
     <section class="prod-values-footer">
-        <div class="values-footer-container">
-            <div class="value-footer-item">
-                <div class="vf-icon"><i class="bi bi-handshake"></i></div>
-                <div class="vf-text">
-                    <h4>Comercio justo</h4>
-                    <p>Precios justos que valoran el esfuerzo de cada familia.</p>
+        <div class="values-premium-wrapper">
+            <div class="values-footer-container">
+
+                
+
+                <div class="value-footer-item">
+                    <div class="vf-icon-circle">
+                        <i class="bi bi-flower1"></i>
+                    </div>
+                    <div class="vf-text">
+                        <h4>Sostenibilidad</h4>
+                        <p>Prácticas responsables que cuidan nuestro planeta.</p>
+                    </div>
                 </div>
-            </div>
-            <div class="value-footer-item">
-                <div class="vf-icon"><i class="bi bi-flower1"></i></div>
-                <div class="vf-text">
-                    <h4>Sostenibilidad</h4>
-                    <p>Prácticas responsables que cuidan nuestro planeta.</p>
+
+                
+
+                <div class="value-footer-item">
+                    <div class="vf-icon-circle">
+                        <i class="bi bi-heart"></i>
+                    </div>
+                    <div class="vf-text">
+                        <h4>Pasión por el café</h4>
+                        <p>Amamos lo que hacemos y se refleja en cada grano.</p>
+                    </div>
                 </div>
-            </div>
-            <div class="value-footer-item">
-                <div class="vf-icon"><i class="bi bi-people"></i></div>
-                <div class="vf-text">
-                    <h4>Apoyo comunitario</h4>
-                    <p>Invertimos en educación, salud y bienestar.</p>
-                </div>
-            </div>
-            <div class="value-footer-item">
-                <div class="vf-icon"><i class="bi bi-heart"></i></div>
-                <div class="vf-text">
-                    <h4>Pasión por el café</h4>
-                    <p>Amamos lo que hacemos y se refleja en cada grano.</p>
-                </div>
+
             </div>
         </div>
     </section>
 
 </div>
+
+@code {
+    private async Task MoverSliderIzquierda()
+    {
+        await JSRuntime.InvokeVoidAsync("eval", "document.getElementById('prodSliderContainer').scrollBy({ left: -350, behavior: 'smooth' })");
+    }
+
+    private async Task MoverSliderDerecha()
+    {
+        await JSRuntime.InvokeVoidAsync("eval", "document.getElementById('prodSliderContainer').scrollBy({ left: 350, behavior: 'smooth' })");
+    }
+}
