@@ -1,0 +1,510 @@
+@page "/auth"
+@inject ApiService ApiService
+@inject NavigationManager NavigationManager
+
+<div class="auth-page-container">
+    <div class="auth-card-wrapper">
+        
+        <!-- CARD HEADER BRAND -->
+        <div class="auth-card-header">
+            <a href="/">
+                <img src="/logotipo/Logotipo Waylan Origin-Photoroom.png" alt="Waylan Logo" class="auth-logo" />
+            </a>
+            <h2>@pageTitle</h2>
+            <p>@pageSubtitle</p>
+        </div>
+
+        @if (!string.IsNullOrEmpty(successMessage))
+        {
+            <div class="alert alert-success-lux">
+                <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                    <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+                <span>@successMessage</span>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger-lux">
+                <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+                <span>@errorMessage</span>
+            </div>
+        }
+
+        <!-- AUTH MODES -->
+        @if (authMode == AuthMode.Login)
+        {
+            <!-- 1. LOGIN FORM -->
+            <form @onsubmit="HandleLogin" class="auth-form">
+                <div class="form-group-lux">
+                    <label>Correo Electrónico</label>
+                    <div class="input-wrapper">
+                        <input type="email" @bind="loginEmail" placeholder="tu@correo.com (o admin@waylan.com)" required class="form-control-lux" />
+                    </div>
+                </div>
+
+                <div class="form-group-lux">
+                    <label>Contraseña</label>
+                    <div class="input-wrapper">
+                        <input type="password" @bind="loginPassword" placeholder="••••••••" required class="form-control-lux" />
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit-lux" disabled="@isSubmitting">
+                    @if (isSubmitting)
+                    {
+                        <span class="spinner"></span>
+                    }
+                    else
+                    {
+                        <span>INICIAR SESIÓN</span>
+                    }
+                </button>
+
+                <div class="auth-switch-links">
+                    <button type="button" class="btn-link-lux" @onclick='() => ChangeMode(AuthMode.Register)'>¿No tienes cuenta? Regístrate</button>
+                    <button type="button" class="btn-link-lux" @onclick='() => ChangeMode(AuthMode.Verify)'>Tengo un código de verificación</button>
+                </div>
+            </form>
+        }
+        else if (authMode == AuthMode.Register)
+        {
+            <!-- 2. REGISTRATION FORM -->
+            <form @onsubmit="HandleRegister" class="auth-form">
+                <div class="form-group-lux">
+                    <label>Nombre Completo</label>
+                    <div class="input-wrapper">
+                        <input type="text" @bind="registerNombre" placeholder="Tu Nombre" required class="form-control-lux" />
+                    </div>
+                </div>
+
+                <div class="form-group-lux">
+                    <label>Correo Electrónico</label>
+                    <div class="input-wrapper">
+                        <input type="email" @bind="registerEmail" placeholder="ejemplo@correo.com" required class="form-control-lux" />
+                    </div>
+                </div>
+
+                <div class="form-group-lux">
+                    <label>Contraseña (Mínimo 8 caracteres)</label>
+                    <div class="input-wrapper">
+                        <input type="password" @bind="registerPassword" placeholder="••••••••" required class="form-control-lux" />
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit-lux" disabled="@isSubmitting">
+                    @if (isSubmitting)
+                    {
+                        <span class="spinner"></span>
+                    }
+                    else
+                    {
+                        <span>CREAR CUENTA</span>
+                    }
+                </button>
+
+                <div class="auth-switch-links">
+                    <button type="button" class="btn-link-lux" @onclick='() => ChangeMode(AuthMode.Login)'>¿Ya tienes cuenta? Inicia Sesión</button>
+                </div>
+            </form>
+        }
+        else if (authMode == AuthMode.Verify)
+        {
+            <!-- 3. EMAIL VERIFICATION FORM -->
+            <form @onsubmit="HandleVerify" class="auth-form">
+                <div class="demo-info-badge">
+                    <span>💡 <strong>Modo Demo:</strong> Si el backend está apagado, cualquier código de 6 letras activará tu cuenta ficticia localmente.</span>
+                </div>
+
+                <div class="form-group-lux">
+                    <label>Correo Electrónico Registrado</label>
+                    <div class="input-wrapper">
+                        <input type="email" @bind="verifyEmail" placeholder="ejemplo@correo.com" required class="form-control-lux" />
+                    </div>
+                </div>
+
+                <div class="form-group-lux">
+                    <label>Código de Verificación (6 Caracteres)</label>
+                    <div class="input-wrapper">
+                        <input type="text" @bind="verifyCodigo" placeholder="E.g. A3F89C" maxlength="10" required class="form-control-lux code-input" />
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit-lux" disabled="@isSubmitting">
+                    @if (isSubmitting)
+                    {
+                        <span class="spinner"></span>
+                    }
+                    else
+                    {
+                        <span>ACTIVAR CUENTA</span>
+                    }
+                </button>
+
+                <div class="auth-switch-links">
+                    <button type="button" class="btn-link-lux" @onclick='() => ChangeMode(AuthMode.Login)'>Volver al Login</button>
+                </div>
+            </form>
+        }
+
+    </div>
+</div>
+
+@code {
+    private enum AuthMode { Login, Register, Verify }
+    private AuthMode authMode = AuthMode.Login;
+
+    // Headings
+    private string pageTitle = "Iniciar Sesión";
+    private string pageSubtitle = "Bienvenido de vuelta a la experiencia Waylan Origin.";
+
+    // Alerts
+    private string successMessage = "";
+    private string errorMessage = "";
+    private bool isSubmitting = false;
+
+    // Login inputs
+    private string loginEmail = "";
+    private string loginPassword = "";
+
+    // Register inputs
+    private string registerNombre = "";
+    private string registerEmail = "";
+    private string registerPassword = "";
+
+    // Verify inputs
+    private string verifyEmail = "";
+    private string verifyCodigo = "";
+
+    private void ChangeMode(AuthMode mode)
+    {
+        authMode = mode;
+        successMessage = "";
+        errorMessage = "";
+        
+        switch (mode)
+        {
+            case AuthMode.Login:
+                pageTitle = "Iniciar Sesión";
+                pageSubtitle = "Bienvenido de vuelta a la experiencia Waylan Origin.";
+                break;
+            case AuthMode.Register:
+                pageTitle = "Crear Cuenta";
+                pageSubtitle = "Únete a nuestro club selecto de amantes del buen café.";
+                break;
+            case AuthMode.Verify:
+                pageTitle = "Verificación de Cuenta";
+                pageSubtitle = "Ingresa el código enviado a tu correo electrónico.";
+                break;
+        }
+    }
+
+    private async Task HandleLogin()
+    {
+        errorMessage = "";
+        successMessage = "";
+        isSubmitting = true;
+
+        var success = await ApiService.LoginAsync(loginEmail, loginPassword);
+        isSubmitting = false;
+
+        if (success)
+        {
+            successMessage = "¡Sesión iniciada con éxito! Redireccionando...";
+            await Task.Delay(1200);
+            
+            if (ApiService.IsAdmin)
+                NavigationManager.NavigateTo("/admin");
+            else
+                NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            errorMessage = "Correo o contraseña incorrectos, o cuenta no activada aún.";
+        }
+    }
+
+    private async Task HandleRegister()
+    {
+        errorMessage = "";
+        successMessage = "";
+
+        if (registerPassword.Length < 8)
+        {
+            errorMessage = "La contraseña debe tener al menos 8 caracteres.";
+            return;
+        }
+
+        isSubmitting = true;
+        var success = await ApiService.RegistroAsync(registerNombre, registerEmail, registerPassword);
+        isSubmitting = false;
+
+        if (success)
+        {
+            successMessage = "¡Registro exitoso! Un correo de activación ha sido enviado.";
+            verifyEmail = registerEmail;
+            
+            // Wait brief moment and redirect to verification tab
+            await Task.Delay(1800);
+            ChangeMode(AuthMode.Verify);
+        }
+        else
+        {
+            errorMessage = "Error en el registro. Es posible que el correo electrónico ya esté en uso.";
+        }
+    }
+
+    private async Task HandleVerify()
+    {
+        errorMessage = "";
+        successMessage = "";
+
+        if (string.IsNullOrWhiteSpace(verifyCodigo))
+        {
+            errorMessage = "Ingresa un código de activación válido.";
+            return;
+        }
+
+        isSubmitting = true;
+        var success = await ApiService.VerificarEmailAsync(verifyEmail, verifyCodigo);
+        isSubmitting = false;
+
+        if (success)
+        {
+            successMessage = "¡Tu cuenta ha sido activada correctamente! Ya puedes ingresar.";
+            loginEmail = verifyEmail;
+            
+            await Task.Delay(1800);
+            ChangeMode(AuthMode.Login);
+        }
+        else
+        {
+            errorMessage = "El código ingresado es incorrecto o ha expirado.";
+        }
+    }
+}
+
+<!-- STYLES FOR AUTHENTICATION BOARD -->
+<style>
+    .auth-page-container {
+        --lux-brown: #231610;
+        --lux-gold: #B89A5E;
+        --lux-gold-hover: #D1B894;
+        --lux-cream: #FAF6F0;
+        --lux-white: #FFFFFF;
+        --lux-red: #A83636;
+        --lux-green: #2B6F43;
+
+        min-height: calc(100vh - 100px);
+        background-color: var(--lux-cream);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cpath d='M9,0 C40,40 40,80 9,120 M111,0 C80,40 80,80 111,120' fill='none' stroke='%23B89A5E' stroke-opacity='0.04' stroke-width='1.5'/%3E%3C/svg%3E");
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 24px;
+        font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    }
+
+    .auth-card-wrapper {
+        background-color: var(--lux-white);
+        border: 1px solid rgba(35, 22, 16, 0.1);
+        border-radius: 12px;
+        width: 100%;
+        max-width: 480px;
+        padding: 45px;
+        box-shadow: 0 15px 45px rgba(35, 22, 16, 0.05);
+        display: flex;
+        flex-direction: column;
+        animation: cardFadeIn 0.4s ease-out;
+    }
+
+    @@keyframes cardFadeIn {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .auth-card-header {
+        text-align: center;
+        margin-bottom: 35px;
+    }
+
+    .auth-logo {
+        height: 44px;
+        margin-bottom: 20px;
+    }
+
+    .auth-card-header h2 {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 1.7rem;
+        color: var(--lux-brown);
+        margin: 0 0 8px 0;
+        font-weight: 500;
+    }
+
+    .auth-card-header p {
+        font-size: 0.85rem;
+        color: #706B64;
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    .auth-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .form-group-lux {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .form-group-lux label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        color: var(--lux-brown);
+    }
+
+    .form-control-lux {
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 0.85rem;
+        color: var(--lux-brown);
+        border: 1px solid #D2CFC9;
+        border-radius: 6px;
+        background-color: #FAF9F6;
+        outline: none;
+        transition: all 0.2s;
+    }
+
+    .form-control-lux:focus {
+        border-color: var(--lux-gold);
+        background-color: var(--lux-white);
+        box-shadow: 0 0 0 3px rgba(184, 154, 94, 0.15);
+    }
+
+    .code-input {
+        letter-spacing: 4px;
+        font-weight: 700;
+        text-align: center;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+    }
+
+    .btn-submit-lux {
+        background-color: var(--lux-brown);
+        color: var(--lux-white);
+        border: none;
+        border-radius: 6px;
+        padding: 14px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s;
+        margin-top: 10px;
+        outline: none;
+    }
+
+    .btn-submit-lux:hover:not(:disabled) {
+        background-color: #38251B;
+    }
+
+    .btn-submit-lux:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    /* SWITCH LINKS */
+    .auth-switch-links {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        margin-top: 15px;
+    }
+
+    .btn-link-lux {
+        background: transparent;
+        border: none;
+        color: var(--lux-gold);
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+        outline: none;
+        padding: 4px;
+    }
+
+    .btn-link-lux:hover {
+        color: var(--lux-gold-hover);
+        text-decoration: underline;
+    }
+
+    /* ALERTS */
+    .alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 16px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        line-height: 1.4;
+        margin-bottom: 24px;
+    }
+
+    .alert-icon {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
+
+    .alert-success-lux {
+        background-color: #E6F4EA;
+        color: var(--lux-green);
+        border-left: 4px solid var(--lux-green);
+    }
+
+    .alert-danger-lux {
+        background-color: #FCE8E6;
+        color: var(--lux-red);
+        border-left: 4px solid var(--lux-red);
+    }
+
+    .demo-info-badge {
+        background-color: rgba(184, 154, 94, 0.1);
+        border: 1px solid rgba(184, 154, 94, 0.25);
+        color: #7A6237;
+        padding: 10px 14px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        line-height: 1.4;
+        margin-bottom: 5px;
+    }
+
+    /* SPINNER */
+    .spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.25);
+        border-top-color: var(--lux-white);
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+    }
+
+    @@keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>

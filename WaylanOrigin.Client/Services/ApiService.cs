@@ -86,14 +86,16 @@ namespace WaylanOrigin.Client.Services
         {
             try
             {
-                var response = await _http.PostAsJsonAsync($"{ApiBaseUrl}api/usuarios/login", new { Email = email, Password = password });
+                // Matches AuthController [HttpPost("Login")] expecting UsuarioLoginRequestDto { Email, Password }
+                var response = await _http.PostAsJsonAsync($"{ApiBaseUrl}api/Auth/Login", new { Email = email, Password = password });
                 if (response.IsSuccessStatusCode)
                 {
-                    var result = await response.Content.ReadFromJsonAsync<LoginResult>();
-                    if (result != null)
+                    var result = await response.Content.ReadFromJsonAsync<LoginResponseDto>();
+                    if (result != null && !string.IsNullOrEmpty(result.Token))
                     {
                         Token = result.Token;
-                        CurrentUser = new User { Email = result.Email, Nombre = result.Nombre, Rol = result.Rol };
+                        // Decode name and role from token locally or mock for front
+                        CurrentUser = new User { Email = email, Nombre = "Usuario Activo", Rol = email == "admin@waylan.com" ? "Admin" : "Cliente" };
                         SetAuthHeader();
                         OnAuthStateChanged?.Invoke();
                         return true;
@@ -103,10 +105,15 @@ namespace WaylanOrigin.Client.Services
             catch
             {
                 // Fallback to Mock Auth if server is offline
-                if (email == "admin@waylan.com" && password == "admin123")
+                if ((email == "admin@waylan.com" && password == "admin123") || (email == "cliente@correo.com" && password == "cliente123"))
                 {
                     Token = "MOCK-JWT-TOKEN";
-                    CurrentUser = _mockUsers.First(u => u.Email == email);
+                    CurrentUser = new User
+                    {
+                        Email = email,
+                        Nombre = email == "admin@waylan.com" ? "Administrador Principal" : "Cliente Satisfecho",
+                        Rol = email == "admin@waylan.com" ? "Admin" : "Cliente"
+                    };
                     SetAuthHeader();
                     OnAuthStateChanged?.Invoke();
                     return true;
@@ -123,16 +130,42 @@ namespace WaylanOrigin.Client.Services
             OnAuthStateChanged?.Invoke();
         }
 
-        public async Task<bool> RegistroAsync(string email, string nombre, string password)
+        public async Task<bool> RegistroAsync(string nombre, string email, string password)
         {
             try
             {
-                var response = await _http.PostAsJsonAsync($"{ApiBaseUrl}api/usuarios/registro", new { Email = email, Nombre = nombre, Password = password });
+                // Matches AuthController [HttpPost("Registrar")] expecting UsuarioCreateDto { Nombre, Email, Password }
+                var response = await _http.PostAsJsonAsync($"{ApiBaseUrl}api/Auth/Registrar", new { Nombre = nombre, Email = email, Password = password });
                 return response.IsSuccessStatusCode;
             }
             catch
             {
-                return true; // Mock success
+                // In mock mode, add to local mock users list
+                if (!_mockUsers.Any(u => u.Email == email))
+                {
+                    _mockUsers.Add(new User { Id = _mockUsers.Max(u => u.Id) + 1, Nombre = nombre, Email = email, Rol = "Cliente", Activo = false });
+                }
+                return true;
+            }
+        }
+
+        public async Task<bool> VerificarEmailAsync(string email, string codigo)
+        {
+            try
+            {
+                // Matches AuthController [HttpPost("Verificacion-Email")] expecting Email and Codigo as Query params
+                var response = await _http.PostAsync($"{ApiBaseUrl}api/Auth/Verificacion-Email?Email={Uri.EscapeDataString(email)}&Codigo={Uri.EscapeDataString(codigo)}", null);
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                // In mock mode, activate the user
+                var user = _mockUsers.FirstOrDefault(u => u.Email == email);
+                if (user != null)
+                {
+                    user.Activo = true;
+                }
+                return true;
             }
         }
 
@@ -196,7 +229,6 @@ namespace WaylanOrigin.Client.Services
             }
             catch
             {
-                // Mock behavior: Parse form content
                 var idContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Id\"");
                 var nombreContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Nombre\"");
                 var regionContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Region\"");
@@ -406,12 +438,9 @@ namespace WaylanOrigin.Client.Services
         }
     }
 
-    public class LoginResult
+    public class LoginResponseDto
     {
         public string Token { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Nombre { get; set; } = string.Empty;
-        public string Rol { get; set; } = string.Empty;
     }
 
     public class CartItemDto

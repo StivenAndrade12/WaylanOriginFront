@@ -79,47 +79,21 @@
                         </svg>
                     </button>
 
-                    @if(isDropdownOpen)
+                    @if(isDropdownOpen && ApiService.IsLoggedIn)
                     {
                         <div class="user-dropdown-menu login-form-dropdown">
-                            @if (ApiService.IsLoggedIn)
+                            <h4 class="dropdown-form-title">Mi Cuenta</h4>
+                            <p class="dropdown-text">Hola, <strong>@ApiService.CurrentUser?.Nombre</strong></p>
+                            <p class="dropdown-text" style="font-size: 0.7rem; margin-bottom: 10px;">Rol: @ApiService.CurrentUser?.Rol</p>
+                            
+                            @if (ApiService.IsAdmin)
                             {
-                                <h4 class="dropdown-form-title">Mi Cuenta</h4>
-                                <p class="dropdown-text">Hola, <strong>@ApiService.CurrentUser?.Nombre</strong></p>
-                                <p class="dropdown-text" style="font-size: 0.7rem; margin-bottom: 10px;">Rol: @ApiService.CurrentUser?.Rol</p>
-                                
-                                @if (ApiService.IsAdmin)
-                                {
-                                    <a href="/admin" @onclick="CloseDropdown" class="btn-submit-login" style="text-decoration:none; text-align:center; display:block; margin-bottom:8px;">Panel de Control</a>
-                                }
-                                
-                                <button type="button" class="btn-submit-login" style="background-color:#8C2424;" @onclick="ProcesarLogout">
-                                    Cerrar Sesión
-                                </button>
+                                <a href="/admin" @onclick="CloseDropdown" class="btn-submit-login" style="text-decoration:none; text-align:center; display:block; margin-bottom:8px;">Panel de Control</a>
                             }
-                            else
-                            {
-                                <h4 class="dropdown-form-title">Ingresar a mi Cuenta</h4>
-
-                                @if (!string.IsNullOrEmpty(loginError))
-                                {
-                                    <p style="color:#8C2424; font-size:0.75rem; text-align:center; margin-bottom:8px;">@loginError</p>
-                                }
-
-                                <div class="form-group-waylan">
-                                    <label for="login-user">Correo</label>
-                                    <input type="text" id="login-user" @bind="userInput" placeholder="admin@waylan.com" />
-                                </div>
-
-                                <div class="form-group-waylan">
-                                    <label for="login-pass">Contraseña</label>
-                                    <input type="password" id="login-pass" @bind="passwordInput" placeholder="••••••••" />
-                                </div>
-
-                                <button type="button" class="btn-submit-login" @onclick="ProcesarLogin">
-                                    Iniciar Sesión
-                                </button>
-                            }
+                            
+                            <button type="button" class="btn-submit-login" style="background-color:#8C2424;" @onclick="ProcesarLogout">
+                                Cerrar Sesión
+                            </button>
                         </div>
                     }
                 </div>
@@ -145,10 +119,7 @@
     private bool isDropdownOpen = false;
     private bool isNosotrosOpen = false;
     private bool isMenuMobileOpen = false;
-    private string userInput = "";
-    private string passwordInput = "";
     private int cancelacionToken = 0;
-    private string loginError = "";
 
     protected override void OnInitialized()
     {
@@ -234,11 +205,18 @@
 
     private void ToggleDropdown()
     {
-        isDropdownOpen = !isDropdownOpen;
-        if (isDropdownOpen)
+        if (!ApiService.IsLoggedIn)
         {
-            isNosotrosOpen = false;
-            isMenuMobileOpen = false;
+            NavigationManager.NavigateTo("/auth");
+        }
+        else
+        {
+            isDropdownOpen = !isDropdownOpen;
+            if (isDropdownOpen)
+            {
+                isNosotrosOpen = false;
+                isMenuMobileOpen = false;
+            }
         }
     }
 
@@ -252,27 +230,6 @@
         isNosotrosOpen = false;
     }
 
-    private async Task ProcesarLogin()
-    {
-        loginError = "";
-        if (string.IsNullOrEmpty(userInput) || string.IsNullOrEmpty(passwordInput))
-        {
-            loginError = "Ingresa correo y contraseña.";
-            return;
-        }
-
-        var success = await ApiService.LoginAsync(userInput, passwordInput);
-        if (success)
-        {
-            userInput = "";
-            passwordInput = "";
-            CloseDropdown();
-        }
-        else
-        {
-            loginError = "Credenciales incorrectas o inactivo.";
-        }
-    }
 
     private void ProcesarLogout()
     {
