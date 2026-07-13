@@ -1,37 +1,46 @@
 /* Paleta de Colores Café del Diseño */
+:root {
+    /* 1. Fondos principales */
+    --fc-bg-main: #EFE6DC;         /* El fondo beige general de toda la página */
+    --fc-bg-container: #F6EEE5;    /* Un tono sutilmente más claro para el contenedor principal */
+    
+    /* 2. Bloques y Tarjetas (Sección Estadísticas y Productores) */
+    --fc-card-bg: #EAE0D3;         /* El tono arena/beige medio de las tarjetas y el panel de iconos */
+    --fc-card-hover: #DFD2C2;      /* Un color un poco más oscuro para cuando pasen el mouse (Hover) */
+    
+    /* 3. Textos y Tipografías */
+    --fc-text-title: #2A190E;      /* Café oscuro profundo para títulos principales */
+    --fc-text-body: #4A3B32;       /* Café medio para las descripciones y textos largos */
+    --fc-text-muted: #7A695D;      /* Café claro opaco para subtítulos */
+    
+    /* 4. Detalles de Acento */
+    --fc-accent-gold: #966946;     /* El color marrón/dorado icónico de los iconos y detalles */
+    --fc-border-light: #DDD0C1;    /* Líneas divisorias sutiles */
+}
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
+
 body {
-    background-color: var(--fc-bg); /* Cambiado para usar su variable #EFE6DC */
+    background-color: var(--fc-bg-main); /* Corregido: Ahora usa la variable correcta */
     margin: 0;
     padding: 0;
     width: 100%;
-    min-height: 100vh; /* Obliga al fondo a cubrir el 100% del alto de la pantalla */
+    min-height: 100vh; 
 }
 
-
-/* Modifiquen sus variables para usarlas en el código */
-:root {
-    --fc-bg: #EFE6DC;
-    --fc-card-bg: #FAF3EB;
-    --fc-text-dark: #231912;
-    --fc-text-light: #594A3F;
-    --fc-accent: #8B5E3C;
-}
-/* Aplicar el color beige de fondo al contenedor principal */
+/* Contenedor principal */
 .famycafe-container {
-    background-color: #EFE6D9; /* Este es el código HEX exacto del beige de tu imagen */
-    color: #2B1810; /* Un tono café oscuro para que los textos contrasten y se lean perfecto */
+    color: var(--fc-text-body); /* Corregido para usar la variable de texto base */
     padding: 20px;
-    padding-left: 100px;
-    padding-right: 100px;
+    padding-left: 150px;
+    padding-right: 150px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color:#F3EAE0; #EADCC9;
 }
-
 /* Breadcrumb */
 .fc-breadcrumb {
     font-size: 0.9rem;
@@ -42,17 +51,17 @@ body {
 }
 
 .fc-breadcrumb a {
-    color: #594A3F;
+    color: var(--fc-text-muted); /* Integrado a la paleta */
     text-decoration: none;
     font-weight: 500;
 }
 
 .fc-breadcrumb .separator {
-    color: #594A3F;
+    color: var(--fc-text-muted);
 }
 
 .fc-breadcrumb .active {
-    color: #231912;
+    color: var(--fc-text-title); /* Integrado a la paleta */
     font-weight: bold;
 }
 
@@ -73,6 +82,7 @@ body {
     font-family: 'Playfair Display', Georgia, serif;
     font-size: 3.5rem;
     font-weight: 700;
+    color: var(--fc-text-title); /* Asegura el color del título de la marca */
     margin: 0 0 5px 0;
     letter-spacing: 1px;
 }
@@ -85,13 +95,13 @@ body {
     font-size: 1.3rem;
     font-weight: 600;
     line-height: 1.4;
-    color: #231912;
+    color: var(--fc-text-title);
     margin-bottom: 20px;
 }
 
 .fc-body-text {
     font-size: 1rem;
-    color: #594A3F;
+    color: var(--fc-text-body);
     line-height: 1.6;
 }
 
@@ -110,11 +120,13 @@ body {
 /* Panel de Estadísticas */
 .fc-stats-panel {
     display: flex;
-    background-color: #FAF3EB;
+    background-color: #EADCC9; /* Color sólido y opaco que tapa el fondo texturizado */
+    border: 1px solid var(--fc-border-light);
     border-radius: 16px;
-    padding: 30px 10px;
+    padding: 25px 10px;
     margin-bottom: 50px;
     justify-content: space-around;
+    box-shadow: 0 4px 12px rgba(74, 59, 50, 0.05); /* Sombra suave para dar relieve */
 }
 
 .fc-stat-item {
@@ -122,7 +134,10 @@ body {
     text-align: center;
     position: relative;
 }
-
+/* Aplica la línea divisoria a todos los bloques MENOS al último */
+.fc-stat-item:not(:last-child) {
+    border-right: 1px solid rgba(74, 59, 50, 0.15); /* Línea sutil usando el tono de su sombra */
+}
 .fc-stat-item:not(:last-child)::after {
     content: "";
     position: absolute;
@@ -130,25 +145,20 @@ body {
     top: 15%;
     height: 70%;
     width: 1px;
-    background-color: rgba(139, 94, 60, 0.2);
-}
-
-.fc-stat-icon {
-    font-size: 1.8rem;
-    margin-bottom: 8px;
+    background-color: var(--fc-border-light); /* Usa la variable de bordes del diseño */
 }
 
 .fc-stat-number {
     font-family: 'Playfair Display', Georgia, serif;
     font-size: 1.6rem;
     font-weight: 700;
-    color: #231912;
+    color: var(--fc-text-title);
     margin: 0 0 4px 0;
 }
 
 .fc-stat-label {
     font-size: 0.85rem;
-    color: #594A3F;
+    color: var(--fc-text-body);
     margin: 0;
 }
 
@@ -164,18 +174,18 @@ body {
     font-family: 'Playfair Display', Georgia, serif;
     font-size: 1.8rem;
     font-weight: 700;
-    margin: 0;
+    color: var(--fc-text-title);
 }
 
 .fc-view-all {
-    color: #8B5E3C;
+    color: var(--fc-accent-gold); /* Cambiado al dorado/marrón de acento */
     text-decoration: none;
     font-weight: 700;
     font-size: 0.85rem;
     letter-spacing: 0.5px;
 }
 
-/* Grid de Productores de 5 Columnas */
+/* Grid de Productores */
 .fc-productores-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -184,51 +194,64 @@ body {
 
 /* Estilo Base de las Tarjetas */
 .fc-producer-card {
-    background-color: #FAF3EB;
+    background-color: #EADCC9; /* Color arena bien clarito y sólido para que resalte la info */
+    border: 1px solid rgba(150, 105, 70, 0.15); /* Borde sutil corporativo */
     border-radius: 16px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    padding: 12px;
     box-sizing: border-box;
+    padding: 12px; /* Añade espacio interno para que el contenido no toque los bordes */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Asegura que las fotos de los productores mantengan su proporción */
+/* Efecto Hover para darle dinamismo a las tarjetas */
+.fc-producer-card:hover {
+    background-color: #F4EBE0; 
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(74, 59, 50, 0.1);
+}
+
 .fc-card-img {
     width: 100%;
-    height: 200px; /* Altura fija para que todas las tarjetas midan lo mismo */
+    height: 200px; 
     overflow: hidden;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
 }
 
 .fc-card-img img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Recorta la imagen mágicamente para que llene el espacio sin deformarse */
+    object-fit: cover;
     object-position: center;
+    display: block;
 }
 
 .fc-card-content {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    padding: 12px 4px 4px 4px; /* Espaciado limpio */
 }
 
 .fc-card-content h3 {
     font-size: 1rem;
     font-weight: 700;
     margin: 0 0 6px 0;
-    color: #231912;
+    color: var(--fc-text-title);
 }
 
 .fc-finca {
     font-size: 0.85rem;
-    color: #594A3F;
+    color: var(--fc-text-body);
     margin: 0 0 2px 0;
 }
 
 .fc-location {
     font-size: 0.85rem;
-    color: #a4968a;
+    color: var(--fc-text-muted);
     margin: 0 0 16px 0;
 }
 
@@ -236,44 +259,64 @@ body {
 .fc-btn-profile {
     display: block;
     text-align: center;
-    background-color: #EFE6DC;
-    color: #8B5E3C;
+    background-color: #EADFCF; /* Color café con leche clarito del mockup */
+    color: var(--fc-text-title);
     text-decoration: none;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     padding: 10px;
-    border-radius: 8px;
-    margin-top: auto;
+    border-radius: 10px;
+    margin-top: auto; /* Empuja el botón siempre al fondo de la tarjeta */
     transition: background-color 0.2s;
 }
 
+.fc-btn-profile:hover {
+    background-color: var(--fc-accent-gold);
+    color: #ffffff;
+}
+
+/* Separadores */
 .separador-contenedor {
     display: flex;
-    align-items: center; /* Alinea verticalmente el icono y la línea */
-    gap: 15px;           /* Espacio de separación entre la hoja y la línea */
-    margin-top: 10px;    /* Espacio respecto al título principal */
-    margin-bottom: 25px; /* Espacio respecto al texto de abajo */
-    max-width: 450px;    /* Hace que la línea no se extienda infinitamente */
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
+    margin-bottom: 25px;
+    max-width: 450px;
 }
 
 .icono-hoja {
-    width: 24px;         /* Ajusta el tamaño de la hoja según vean necesario */
+    width: 80px;
     height: auto;
 }
 
 .linea-dorada {
-    flex-grow: 1;        /* Hace que la línea ocupe todo el espacio disponible a la derecha */
-    height: 1.5px;       /* Grosor de la línea */
-    /* Este degradado va desde el color dorado (#C4A484) hasta volverse transparente */
-    background: linear-gradient(to right, #C4A484, rgba(196, 164, 132, 0)); 
+    flex-grow: 1;
+    height: 1.5px;
+    /* Cambiado para usar el color de acento dorado de las variables en el degradado */
+    background: linear-gradient(to right, var(--fc-accent-gold), rgba(150, 105, 70, 0)); 
 }
 
 /* Tarjeta especial "Más productores" */
 .fc-more-card {
-    background-color: rgba(218, 204, 188, 0.4);
-    border: 1px dashed rgba(139, 94, 60, 0.3);
+    background-color: #EADFCF; /* Fondo más oscuro como el del diseño */
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    text-align: center;
+}
+
+.linea-dorada {
+    width: 300px;        /* Qué tan larga quieren que sea la línea antes de desaparecer */
+    height: 2px;         /* Grosor fino, tal como se ve en la imagen */
+    
+    /* El truco: Va desde el dorado hasta transparente (rgba con opacidad 0) */
+    background: linear-gradient(to right, #c1923f, rgba(193, 146, 63, 0)); 
 }
 
 .fc-more-content {
@@ -293,7 +336,7 @@ body {
 .fc-more-content p {
     font-size: 0.95rem;
     font-weight: 600;
-    color: #594A3F;
+    color: var(--fc-text-body);
     margin: 0 0 20px 0;
 }
 
@@ -302,25 +345,49 @@ body {
 }
 
 .contenido-texto {
-    max-width: 450px; /* Mantiene el ancho controlado para que rompa líneas igual */
+    max-width: 450px;
 }
 
 .texto-descripcion {
-    font-size: 16px;      /* Tamaño unificado */
-    font-weight: normal;  /* Adiós a la negrita de título */
-    line-height: 1.6;     /* Espaciado cómodo entre líneas */
-    color: #666666;       /* El color gris suave que querían */
-    margin-bottom: 20px;  /* Espacio de separación entre los dos párrafos */
+    font-size: 16px;
+    font-weight: normal;
+    line-height: 1.6;
+    color: var(--fc-text-body); /* Ahora usa el color corporativo en vez de un gris genérico */
+    margin-bottom: 20px;
+}
+
+/* Iconos de Estadísticas */
+.fc-stat-icon {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+}
+
+.fc-icon-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 /* Responsive para pantallas medianas y pequeñas */
 @media (max-width: 1100px) {
+    .famycafe-container {
+        padding-left: 40px;  /* Evita que se vea muy estrujado en pantallas medianas */
+        padding-right: 40px;
+    }
     .fc-productores-grid {
         grid-template-columns: repeat(3, 1fr);
     }
 }
 
 @media (max-width: 768px) {
+    .famycafe-container {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
     .fc-hero {
         flex-direction: column;
     }

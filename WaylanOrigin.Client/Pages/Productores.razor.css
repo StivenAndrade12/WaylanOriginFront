@@ -9,12 +9,12 @@
     padding: 80px 0;
     display: flex;
     align-items: center;
-    background-color: #f1eae1; /* Mantenemos el color crema original */
-    /* DESCOMENTAR SI VAN A USAR IMAGEN DE FONDO:
-    background-image: url('ruta-de-tu-imagen.jpg');
+   
+    
+    background-image: url('/fondos/blanco.png');
     background-size: cover;
     background-position: center;
-    */
+    
 }
 
 /* CONTENEDORES */
@@ -24,7 +24,16 @@
     padding: 0 5%;     /* Simplificado: 0 arriba/abajo, 5% a los lados */
     width: 100%;
 }
+.stat-item {
+    flex: 1; /* Distribuye el espacio por igual si usas Flexbox */
+    text-align: center;
+    padding: 10px 20px; /* Espaciado interno para que respire el contenido */
+}
 
+/* Aplica la línea divisoria a todas las columnas MENOS a la última */
+.stat-item:not(:last-child) {
+    border-right: 1px solid rgba(139, 90, 43, 0.25); /* Un tono café sutil con transparencia */
+}
 .container-fluido {
     width: 100%;
     padding: 0 5%;
