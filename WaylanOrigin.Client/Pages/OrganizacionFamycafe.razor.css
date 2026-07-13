@@ -43,7 +43,6 @@ body {
     /* 🌟 CAMBIO AQUÍ: Quitamos la imagen y ponemos el color exacto de la foto 🌟 */
     background-color: #E8DCC8;
 }
-
 /* Breadcrumb */
 .fc-breadcrumb {
     font-size: 0.9rem;
@@ -137,7 +136,10 @@ body {
     text-align: center;
     position: relative;
 }
-
+/* Aplica la línea divisoria a todos los bloques MENOS al último */
+.fc-stat-item:not(:last-child) {
+    border-right: 1px solid rgba(74, 59, 50, 0.15); /* Línea sutil usando el tono de su sombra */
+}
 .fc-stat-item:not(:last-child)::after {
     content: "";
     position: absolute;

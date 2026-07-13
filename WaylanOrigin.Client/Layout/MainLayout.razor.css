@@ -40,6 +40,7 @@ header {
     transition: transform 0.35s ease-in-out;
     margin: 0 !important;
     padding: 0 !important;
+    background-color: #3A120D !important;
 }
 
 .header-waylan-oculto {
@@ -49,16 +50,17 @@ header {
 /* --- BARRA DE NAVEGACIÓN --- */
 .navbar-waylan {
     width: 100%;
-    background-color: rgba(58, 18, 13, 0.88) !important;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background-color: #3A120D !important; /* rojo/cereza sólido */
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
     border-bottom: 1px solid rgba(250, 250, 249, 0.1);
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
     padding: 14px 0 !important;
-    position: sticky;
+    position: fixed !important;
     top: 0;
     z-index: 999;
 }
+
 
 .nav-container {
     max-width: 1400px;

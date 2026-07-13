@@ -9,12 +9,12 @@
     padding: 80px 0;
     display: flex;
     align-items: center;
-    background-color: #f1eae1; /* Mantenemos el color crema original */
-    /* DESCOMENTAR SI VAN A USAR IMAGEN DE FONDO:
-    background-image: url('ruta-de-tu-imagen.jpg');
+   
+    
+    background-image: url('/fondos/blanco.png');
     background-size: cover;
     background-position: center;
-    */
+    
 }
 
 /* CONTENEDORES */
