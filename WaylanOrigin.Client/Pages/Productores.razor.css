@@ -1,811 +1,211 @@
-/* ==================================================================
-   PÁGINA DE PRODUCTORES - CSS LIMPIO Y CORREGIDO
-================================================================= */
+/* ==========================================================================
+   SECCIÓN PRODUCTORES ALIADOS
+   ========================================================================== */
 
-.prod-page-wrapper {
-    background-color: #F5EFE6 !important; /* Fondo crema global */
-    font-family: 'Montserrat', sans-serif;
-    color: #2E2520;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* Contenedor Principal con fondo de café/montaña */
+.productores-section {
     width: 100%;
-    overflow-x: hidden;
-}
-
-/* Fuentes elegantes Serif */
-.serif-italic, .serif-italic-gold, .gold-italic {
-    font-family: 'Playfair Display', 'Georgia', serif !important;
-    font-style: italic !important;
-    font-weight: 400 !important;
-}
-.serif-italic-gold, .gold-italic {
-    color: #C5A880 !important;
-}
-
-/* ==========================================
-   --- SECCIÓN 1: HERO / HISTORIA PRINCIPAL --- 
-   ========================================== */
-.prod-hero-section {
-    padding: 80px 10% 60px 10%;
-}
-
-.prod-hero-container {
+    min-height: 100vh;
+    padding: 80px 0;
     display: flex;
     align-items: center;
-    gap: 60px;
-    max-width: 1300px;
-    margin: 0 auto;
-}
-
-.prod-hero-text {
-    flex: 1;
-}
-
-.prod-subtitle {
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    color: #C5A880;
-    display: block;
-    margin-bottom: 15px;
-}
-
-.prod-hero-text h1 {
-    font-family: 'Playfair Display', 'Georgia', serif !important;
-    font-size: 48px !important;
-    font-weight: 700 !important;
-    color: #1A1310 !important;
-    line-height: 1.2;
-    margin-bottom: 20px;
-}
-
-/* Divisor nativo con líneas doradas */
-.prod-divider-native {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    margin: 20px 0 25px 0;
-    width: 100%;
-    max-width: 480px;
-}
-
-.divider-line {
-    flex: 1;
-    height: 1px;
-    background-color: #C5A880 !important;
-    opacity: 0.7;
-}
-
-.divider-icon-center .divider-leaf-img {
-    width: 50px !important;
-    height: auto !important;
-    display: block;
-}
-
-.prod-description {
-    font-size: 16px;
-    line-height: 1.6;
-    color: #554A42;
-    margin-bottom: 45px;
-    max-width: 520px;
-}
-
-/* Pilares */
-.prod-pillars {
-    display: flex;
-    gap: 30px;
-    max-width: 550px;
-}
-
-.pillar-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-}
-
-.pillar-icon-circle {
-    width: 60px;
-    height: 60px;
-    border: 1px solid #C5A880; 
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 15px;
-    padding: 10px;
-    box-sizing: border-box;
-}
-
-.pillar-img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-
-.pillar-item h3 {
-    font-family: 'Playfair Display', serif !important;
-    font-size: 15px !important;
-    font-weight: 600 !important;
-    color: #1A1310 !important;
-    margin-bottom: 8px;
-}
-
-.pillar-item p {
-    font-size: 12px;
-    line-height: 1.5;
-    color: #776B61;
-    margin: 0;
-}
-
-.prod-hero-image img {
-    width: 100%;
-    max-width: 500px;
-    border-radius: 12px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.05);
-}
-
-
-/* ==========================================
-   --- SECCIÓN 1 Y 2: ENCABEZADO Y PILARES --- 
-   ========================================== */
-
-.prod-grid-section {
-    padding: 60px 5% 80px 5%;
-    max-width: 1440px;
-    margin: 0 auto;
-}
-
-.prod-grid-title {
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 35px;
-}
-
-.prod-title-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 12px;
-}
-
-.linea-badge {
-    width: 40px;
-    height: 1px;
-    background-color: #C5A880;
-}
-
-.texto-badge {
-    font-size: 11px;
-    font-weight: 700;
-    color: #A3855C;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-}
-
-.prod-grid-title h2.prod-main-heading {
-    font-family: 'Playfair Display', serif;
-    font-size: 38px;
-    font-weight: 600;
-    color: #1A1310;
-    margin: 0 0 14px 0;
-}
-
-.grid-main-desc {
-    font-size: 15px;
-    color: #776B61;
-    max-width: 600px;
-    margin: 0 auto 24px auto;
-    line-height: 1.5;
-}
-
-.prod-title-line-divider {
-    width: 50px;
-    height: 2px;
-    background-color: #C5A880;
-    border-radius: 2px;
-    margin-top: 4px;
-}
-
-.prod-features-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 25px;
-    max-width: 1200px;
-    margin: 0 auto 55px auto;
-    padding: 0 10px;
-}
-
-.feature-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 15px;
-}
-
-.feature-icon-container {
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-    border: 1px solid #C5A880;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    background-color: transparent;
-}
-
-.feature-icon-container img {
-    width: 26px;
-    height: 26px;
-    object-fit: contain;
-}
-
-.feature-text h3 {
-    font-size: 15px;
-    color: #1A1310;
-    margin: 0 0 4px 0;
-    font-weight: 600;
-}
-
-.feature-text p {
-    font-size: 13px;
-    color: #776B61;
-    margin: 0;
-    line-height: 1.4;
-}
-
-/* ==========================================
-   --- SECCIÓN 3: CARRUSEL / SLIDER (Calibrado) --- 
-   ========================================== */
-
-/* Contenedor relativo con colchón lateral para que quepan las flechas */
-.prod-slider-wrapper {
-    position: relative !important;
-    display: flex;
-    align-items: center;
-    width: 100%;
-    max-width: 1240px; /* Evita que se estire al infinito en pantallas gigantes */
-    margin: 0 auto;
-    padding: 0 30px;  /* Espacio interno para que las flechas floten cómodas */
-    box-sizing: border-box;
-}
-
-/* Contenedor con Scroll Horizontal oculto */
-.prod-cards-container {
-    display: flex !important;
-    gap: 30px;
-    overflow-x: auto;
-    scroll-behavior: smooth;
-    width: 100%;
-    padding: 20px 0;
-    scrollbar-width: none; /* Firefox */
-}
-
-.prod-cards-container::-webkit-scrollbar {
-    display: none; /* Chrome/Safari */
-}
-
-/* Tarjetas */
-.prod-card {
-    min-width: 320px;
-    max-width: 320px;
-    background: #FFFFFF;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.3s ease;
-}
-
-.prod-card:hover {
-    transform: translateY(-5px);
-}
-
-.prod-card-img {
-    position: relative;
-    height: 240px;
-    width: 100%;
-}
-
-.prod-card-img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.card-badge {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    background: rgba(26, 19, 16, 0.9);
-    backdrop-filter: blur(4px);
-    color: #FFF;
-    padding: 8px 12px;
-    border-radius: 6px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    border: 1px solid rgba(197, 168, 128, 0.3);
-}
-
-.badge-years {
-    font-size: 16px;
-    font-weight: 700;
-    color: #C5A880;
-}
-
-.badge-txt {
-    font-size: 8px;
-    letter-spacing: 1px;
-}
-
-.prod-card-body {
-    padding: 25px;
-}
-
-.prod-card-body h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 20px;
-    color: #1A1310;
-    margin: 0 0 5px 0;
-}
-
-.prod-location {
-    font-size: 13px;
-    color: #C5A880;
-    display: block;
-    margin-bottom: 15px;
-}
-
-.prod-card-body p {
-    font-size: 14px;
-    line-height: 1.6;
-    color: #554A42;
-    margin-bottom: 20px;
-}
-
-.btn-story {
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    color: #1A1310;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    border-bottom: 1px solid #C5A880;
-    padding-bottom: 2px;
-}
-
-/* ==========================================
-   --- REGLAS RE-DISEÑADAS PARA LAS FLECHAS --- 
-   ========================================== */
-.slider-arrow {
-    position: absolute !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    width: 45px !important;
-    height: 45px !important;
-    border-radius: 50% !important;
-    background-color: #1A1310 !important; /* Tu café oscuro premium */
-    color: #C5A880 !important;           /* Tu dorado de marca */
-    border: none !important;
-    font-size: 26px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    cursor: pointer !important;
-    z-index: 99 !important;               /* Por encima de las fotos de los productores */
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
-    transition: all 0.2s ease !important;
-}
-
-.slider-arrow:hover {
-    background-color: #C5A880 !important;
-    color: #1A1310 !important;
-}
-
-/* Ubicación exacta en los costados */
-.arrow-left { 
-    left: -5px !important; 
-}
-
-.arrow-right { 
-    right: -5px !important; 
-}
-
-/* ==========================================
-   --- NUEVA BANDA DE LOS 4 PILARES --- 
-   ========================================== */
-.prod-features-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 25px;
-    max-width: 1200px;
-    margin: 0 auto 55px auto; /* Deja espacio perfecto antes de las tarjetas */
-    padding: 0 10px;
-}
-
-.feature-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 15px;
-}
-
-/* Contenedor del círculo elegante (vacío para tus futuros logos) */
-.feature-icon-container {
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-    border: 1px solid #C5A880;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    background-color: transparent;
-}
-
-/* Estilo para cuando agregues las imágenes de tus logos más adelante */
-.feature-icon-container img {
-    width: 60px;
-    height: 60px;
-    object-fit: contain;
-}
-
-.feature-text h3 {
-    font-size: 15px;
-    color: #1A1310;
-    margin: 0 0 4px 0;
-    font-weight: 600;
-}
-
-.feature-text p {
-    font-size: 13px;
-    color: #776B61;
-    margin: 0;
-    line-height: 1.4;
-}
-
-/* ==========================================
-   --- SECCIÓN 3: CARRUSEL / SLIDER --- 
-   ========================================== */
-
-/* Envoltura del carrusel y posicionamiento de flechas */
-.prod-slider-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    width: 100%;
-}
-
-/* Contenedor con Scroll Horizontal oculto */
-.prod-cards-container {
-    display: flex !important;
-    gap: 30px;
-    overflow-x: auto;
-    scroll-behavior: smooth;
-    width: 100%;
-    padding: 20px 0;
-    scrollbar-width: none; /* Firefox */
-}
-
-.prod-cards-container::-webkit-scrollbar {
-    display: none; /* Chrome/Safari */
-}
-
-/* Tarjetas individuales dentro del carrusel */
-.prod-card {
-    min-width: 320px;
-    max-width: 320px;
-    background: #FFFFFF;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.3s ease;
-}
-
-.prod-card:hover {
-    transform: translateY(-5px);
-}
-
-.prod-card-img {
-    position: relative;
-    height: 240px;
-    width: 100%;
-}
-
-.prod-card-img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* Badge interno de años de experiencia */
-.card-badge {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    background: rgba(26, 19, 16, 0.9);
-    backdrop-filter: blur(4px);
-    color: #FFF;
-    padding: 8px 12px;
-    border-radius: 6px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    border: 1px solid rgba(197, 168, 128, 0.3);
-}
-
-.badge-years {
-    font-size: 16px;
-    font-weight: 700;
-    color: #C5A880;
-}
-
-.badge-txt {
-    font-size: 8px;
-    letter-spacing: 1px;
-}
-
-.prod-card-body {
-    padding: 25px;
-}
-
-.prod-card-body h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 20px;
-    color: #1A1310;
-    margin: 0 0 5px 0;
-}
-
-.prod-location {
-    font-size: 13px;
-    color: #C5A880;
-    display: block;
-    margin-bottom: 15px;
-}
-
-.prod-card-body p {
-    font-size: 14px;
-    line-height: 1.6;
-    color: #554A42;
-    margin-bottom: 20px;
-}
-
-.btn-story {
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    color: #1A1310;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    border-bottom: 1px solid #C5A880;
-    padding-bottom: 2px;
-}
-
-/* Flechas de navegación flotantes */
-.slider-arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background: #1A1310;
-    color: #C5A880;
-    border: none;
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 10;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    transition: all 0.2s ease;
-}
-
-.slider-arrow:hover {
-    background: #C5A880;
-    color: #1A1310;
-}
-
-.arrow-left { left: -25px; }
-.arrow-right { right: -25px; }
-
-
-
-/* ==========================================
-   --- SECCIÓN 3: BANNER OSCURO (MANOS) --- 
-   ========================================== */
-.prod-banner-dark {
-    background-color: #1A1310;
-    /* Mantiene el degradado y la imagen de fondo sin pisar el texto */
-    background-image: linear-gradient(to right, #1A1310 50%, rgba(26, 19, 16, 0.4) 75%), url('/imagenes/manos-cafe.jpg');
+    background-color: #f1eae1; /* Mantenemos el color crema original */
+    /* DESCOMENTAR SI VAN A USAR IMAGEN DE FONDO:
+    background-image: url('ruta-de-tu-imagen.jpg');
     background-size: cover;
-    background-position: right center;
-    background-repeat: no-repeat;
+    background-position: center;
+    */
+}
+
+/* CONTENEDORES */
+.container {
+    max-width: 1400px; /* Espacio total óptimo para pantallas grandes */
+    margin: 0 auto;    /* Centrado perfecto */
+    padding: 0 5%;     /* Simplificado: 0 arriba/abajo, 5% a los lados */
     width: 100%;
-    min-height: 160px;
+}
+
+.container-fluido {
+    width: 100%;
+    padding: 0 5%;
+    position: relative;
+    z-index: 2;
+}
+
+/* ENCABEZADO (Optimizado para reducir espacios verticales excesivos) */
+.header-content {
+    text-align: left;
+    max-width: 650px;       /* Un poco más angosto para un quiebre de texto elegante */
+    margin-bottom: 25px;    /* REDUCIDO: Antes 40px. Sube las tarjetas para que queden más cerca */
+}
+
+.subtitle {
+    font-size: 0.85rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: #8c6239;
+    margin-top: 0;
+    margin-bottom: 5px;     /* Reducido para pegar más al título principal */
+    display: block; 
+}
+
+.title {
+    font-size: 2.3rem;
+    font-family: Georgia, serif;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-top: 5px;        
+    margin-bottom: 0px;     /* Eliminado para controlar el flujo con la línea decorativa */
+}
+
+/* DECORACIÓN DEL TÍTULO (LÍNEA Y HOJA) */
+.decoracion-titulo {
     display: flex;
     align-items: center;
-    margin-top: 50px;
-}
-
-.banner-content-fader {
+    gap: 15px;              /* Un poco más compacto */
     width: 100%;
-    padding: 30px 6%;
+    max-width: 480px;       /* Ajustado para que se vea más estético */
+    margin: 12px 0;         /* REDUCIDO: Antes 25px. Junta el título con la descripción */
 }
 
-.banner-dark-content {
+.decoracion-titulo .linea {
+    flex-grow: 1;
+    height: 1px;
+    background-color: #8c6239;
+    opacity: 0.6;
+}
+
+.icono-hoja {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 30px;
+    color: #8c6239;
+    flex-shrink: 0;
 }
 
-.banner-dark-left {
+/* DESCRIPCIÓN */
+.description {
+    font-size: 0.95rem;
+    line-height: 1.4;
+    color: #4a3b32;
+    margin-top: 0;          /* Evita márgenes heredados del navegador */
+    margin-bottom: 0;       /* Evita empujar las tarjetas hacia abajo */
+}
+
+/* GRID DE TARJETAS */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    width: 100%;
+    margin-top: 10px;       /* Pequeña holgura controlada desde la descripción */
+}
+
+/* TARJETAS */
+.org-card {
+    background-color: #ede6dc;
+    border: 1px solid rgba(35, 19, 13, 0.12);
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 8px 24px rgba(35, 19, 13, 0.05);
     display: flex;
     align-items: center;
     gap: 20px;
-    flex: 1.2;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.banner-leaf-icon {
-    width: 55px;
-    height: 55px;
-    border: 1px solid rgba(197, 168, 128, 0.4);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+/* Efecto Hover Moderno */
+.org-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(35, 19, 13, 0.1);
 }
 
-.banner-dark-left h2 {
-    color: #FFFFFF;
-    font-family: 'Playfair Display', serif;
-    font-size: 24px;
-    line-height: 1.2;
-    margin: 0;
-    font-weight: 500;
+.card-image-placeholder img {
+    width: 110px;
+    height: auto;
+    object-fit: contain;
 }
 
-.banner-dark-left .gold-italic {
-    color: #C5A880;
-    font-style: italic;
+.card-body h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
 }
 
-.banner-vertical-divider {
-    width: 1px;
-    height: 70px;
-    background-color: rgba(197, 168, 128, 0.25);
-}
-
-.banner-dark-right {
-    flex: 1.5;
-    max-width: 550px;
-}
-
-.banner-dark-right p {
-    color: #CBC3BB;
-    font-size: 14px;
-    line-height: 1.6;
-    margin: 0;
-}
-
-/* ==========================================
-   --- SECCIÓN 4: ICONOS INFERIORES --- 
-   ========================================== */
-.prod-values-footer {
-    padding: 40px 6% 60px 6%;
-    background-color: #F5EFE6; /* Mantiene el fondo crema exterior */
-}
-
-.values-premium-wrapper {
-    width: 100%;
-}
-
-.values-footer-container {
-    background-color: #EFE7DC; /* Fondo almendra interior redondeado */
-    border-radius: 12px;
-    padding: 35px 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 24px;
-}
-
-.value-footer-item {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex: 1;
-}
-
-.vf-icon-circle {
-    width: 52px;
-    height: 52px;
-    border: 1px solid #C5A880;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    background-color: transparent;
-}
-
-.vf-icon-circle i {
-    font-size: 22px;
-    color: #8C6D4A;
-}
-
-.vf-text h4 {
-    font-family: 'Playfair Display', serif;
-    font-size: 15px;
-    font-weight: 600;
-    color: #1A1310;
-    margin: 0 0 4px 0;
-}
-
-.vf-text p {
-    font-size: 12.5px;
+.card-body p {
+    font-size: 0.9rem;
+    color: #5a4b41;
     line-height: 1.4;
-    color: #6E6156;
-    margin: 0;
+    margin-bottom: 15px;
+    min-height: 55px;
 }
 
-/* ==========================================
-   --- RESPONSIVE DESIGN --- 
-========================================== */
-@media (max-width: 992px) {
-    .banner-dark-content {
+/* BOTÓN */
+.btn-ver {
+    background-color: #23130d;
+    color: #f4eee3;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600; 
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-ver:hover {
+    background-color: #4a2e1b;
+    transform: scale(1.02); 
+}
+
+/* ==========================================================================
+   RESPONSIVE (Tablets y Celulares)
+   ========================================================================== */
+
+/* Tablets (Medianas) */
+@media (max-width: 1024px) {
+    .cards-grid {
+        grid-template-columns: repeat(2, 1fr); 
+    }
+    .container {
+        padding: 0 40px; 
+    }
+}
+
+/* Celulares (Pequeñas) */
+@media (max-width: 768px) {
+    .productores-section {
+        background-image: none; 
+        padding: 40px 0;
+    }
+
+    .container {
+        padding: 0 20px; 
+    }
+
+    .header-content {
+        margin-bottom: 20px;
+    }
+
+    .decoracion-titulo {
+        max-width: 100%;
+    }
+
+    .cards-grid {
+        grid-template-columns: 1fr; 
+    }
+
+    .org-card {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-    }
-    .banner-vertical-divider {
-        display: none;
-    }
-    .values-footer-container {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 30px;
-    }
-    .prod-hero-container {
-        flex-direction: column-reverse;
-        gap: 40px;
+        align-items: center;
         text-align: center;
     }
-    .prod-divider-native {
-        margin: 20px auto;
-    }
-    .prod-description {
-        margin: 0 auto 35px auto;
-    }
-    .prod-pillars {
-        margin: 0 auto;
-        gap: 15px;
-    }
-    .prod-hero-text h1 {
-        font-size: 36px !important;
-    }
-    .arrow-left { left: 5px; }
-    .arrow-right { right: 5px; }
-}
 
-@media (max-width: 576px) {
-    .prod-pillars {
-        flex-direction: column;
+    .card-body p {
+        min-height: auto; 
     }
 }

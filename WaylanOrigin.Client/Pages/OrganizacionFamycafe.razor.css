@@ -1,0 +1,343 @@
+/* Paleta de Colores Café del Diseño */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    background-color: var(--fc-bg); /* Cambiado para usar su variable #EFE6DC */
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100vh; /* Obliga al fondo a cubrir el 100% del alto de la pantalla */
+}
+
+
+/* Modifiquen sus variables para usarlas en el código */
+:root {
+    --fc-bg: #EFE6DC;
+    --fc-card-bg: #FAF3EB;
+    --fc-text-dark: #231912;
+    --fc-text-light: #594A3F;
+    --fc-accent: #8B5E3C;
+}
+/* Aplicar el color beige de fondo al contenedor principal */
+.famycafe-container {
+    background-color: #EFE6D9; /* Este es el código HEX exacto del beige de tu imagen */
+    color: #2B1810; /* Un tono café oscuro para que los textos contrasten y se lean perfecto */
+    padding: 20px;
+    padding-left: 100px;
+    padding-right: 100px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Breadcrumb */
+.fc-breadcrumb {
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.fc-breadcrumb a {
+    color: #594A3F;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.fc-breadcrumb .separator {
+    color: #594A3F;
+}
+
+.fc-breadcrumb .active {
+    color: #231912;
+    font-weight: bold;
+}
+
+/* Hero Section */
+.fc-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.fc-hero-info {
+    flex: 1;
+}
+
+.fc-main-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin: 0 0 5px 0;
+    letter-spacing: 1px;
+}
+
+.fc-leaf-icon {
+    margin-bottom: 20px;
+}
+
+.fc-lead {
+    font-size: 1.3rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #231912;
+    margin-bottom: 20px;
+}
+
+.fc-body-text {
+    font-size: 1rem;
+    color: #594A3F;
+    line-height: 1.6;
+}
+
+.fc-hero-image {
+    flex: 1;
+    height: 380px;
+}
+
+.fc-hero-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 20px;
+}
+
+/* Panel de Estadísticas */
+.fc-stats-panel {
+    display: flex;
+    background-color: #FAF3EB;
+    border-radius: 16px;
+    padding: 30px 10px;
+    margin-bottom: 50px;
+    justify-content: space-around;
+}
+
+.fc-stat-item {
+    flex: 1;
+    text-align: center;
+    position: relative;
+}
+
+.fc-stat-item:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 15%;
+    height: 70%;
+    width: 1px;
+    background-color: rgba(139, 94, 60, 0.2);
+}
+
+.fc-stat-icon {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+}
+
+.fc-stat-number {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #231912;
+    margin: 0 0 4px 0;
+}
+
+.fc-stat-label {
+    font-size: 0.85rem;
+    color: #594A3F;
+    margin: 0;
+}
+
+/* Título de la Sección de Productores */
+.fc-section-title-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.fc-section-title-bar h2 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.fc-view-all {
+    color: #8B5E3C;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+/* Grid de Productores de 5 Columnas */
+.fc-productores-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+}
+
+/* Estilo Base de las Tarjetas */
+.fc-producer-card {
+    background-color: #FAF3EB;
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    box-sizing: border-box;
+}
+
+/* Asegura que las fotos de los productores mantengan su proporción */
+.fc-card-img {
+    width: 100%;
+    height: 200px; /* Altura fija para que todas las tarjetas midan lo mismo */
+    overflow: hidden;
+}
+
+.fc-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Recorta la imagen mágicamente para que llene el espacio sin deformarse */
+    object-position: center;
+}
+
+.fc-card-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.fc-card-content h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 6px 0;
+    color: #231912;
+}
+
+.fc-finca {
+    font-size: 0.85rem;
+    color: #594A3F;
+    margin: 0 0 2px 0;
+}
+
+.fc-location {
+    font-size: 0.85rem;
+    color: #a4968a;
+    margin: 0 0 16px 0;
+}
+
+/* Botones dentro de las Tarjetas */
+.fc-btn-profile {
+    display: block;
+    text-align: center;
+    background-color: #EFE6DC;
+    color: #8B5E3C;
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: auto;
+    transition: background-color 0.2s;
+}
+
+.separador-contenedor {
+    display: flex;
+    align-items: center; /* Alinea verticalmente el icono y la línea */
+    gap: 15px;           /* Espacio de separación entre la hoja y la línea */
+    margin-top: 10px;    /* Espacio respecto al título principal */
+    margin-bottom: 25px; /* Espacio respecto al texto de abajo */
+    max-width: 450px;    /* Hace que la línea no se extienda infinitamente */
+}
+
+.icono-hoja {
+    width: 24px;         /* Ajusta el tamaño de la hoja según vean necesario */
+    height: auto;
+}
+
+.linea-dorada {
+    flex-grow: 1;        /* Hace que la línea ocupe todo el espacio disponible a la derecha */
+    height: 1.5px;       /* Grosor de la línea */
+    /* Este degradado va desde el color dorado (#C4A484) hasta volverse transparente */
+    background: linear-gradient(to right, #C4A484, rgba(196, 164, 132, 0)); 
+}
+
+/* Tarjeta especial "Más productores" */
+.fc-more-card {
+    background-color: rgba(218, 204, 188, 0.4);
+    border: 1px dashed rgba(139, 94, 60, 0.3);
+    justify-content: center;
+    align-items: center;
+}
+
+.fc-more-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    text-align: center;
+}
+
+.fc-user-icon {
+    margin-bottom: 10px;
+}
+
+.fc-more-content p {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #594A3F;
+    margin: 0 0 20px 0;
+}
+
+.fc-btn-all {
+    width: 90%;
+}
+
+.contenido-texto {
+    max-width: 450px; /* Mantiene el ancho controlado para que rompa líneas igual */
+}
+
+.texto-descripcion {
+    font-size: 16px;      /* Tamaño unificado */
+    font-weight: normal;  /* Adiós a la negrita de título */
+    line-height: 1.6;     /* Espaciado cómodo entre líneas */
+    color: #666666;       /* El color gris suave que querían */
+    margin-bottom: 20px;  /* Espacio de separación entre los dos párrafos */
+}
+
+/* Responsive para pantallas medianas y pequeñas */
+@media (max-width: 1100px) {
+    .fc-productores-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .fc-hero {
+        flex-direction: column;
+    }
+    .fc-stats-panel {
+        flex-direction: column;
+        gap: 20px;
+    }
+    .fc-stat-item:not(:last-child)::after {
+        display: none;
+    }
+    .fc-productores-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .fc-productores-grid {
+        grid-template-columns: 1fr;
+    }
+}

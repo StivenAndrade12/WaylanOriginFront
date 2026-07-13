@@ -1,0 +1,134 @@
+@page "/organizacion/famycafe"
+
+<div class="famycafe-container">
+    <!-- Breadcrumb -->
+    <div class="fc-breadcrumb">
+        <a href="/productores"><span class="arrow">←</span> Productores Aliados</a>
+        <span class="separator">&gt;</span>
+        <span class="active">FAMYCAFE</span>
+    </div>
+
+    <!-- Hero Section -->
+    <div class="fc-hero">
+        <div class="fc-hero-info">
+            <h1 class="fc-main-title">FAMYCAFE</h1>
+            
+            <div class="separador-contenedor">
+                <!-- Reemplaza "hoja.png" por la ruta real de tu imagen -->
+                <img src="hoja.png" alt="Icono Hoja" class="icono-hoja" />
+                <div class="linea-dorada"></div>
+            </div> <!-- CORREGIDO: Se cerró el separador-contenedor -->
+
+            <div class="contenido-texto">
+                <p class="texto-descripcion">
+                    Asociación de familias cafeteras comprometidas con la calidad y la sostenibilidad.
+                </p>
+                <p class="texto-descripcion">
+                    Desde 1995 trabajamos por el bienestar de nuestros caficultores, promoviendo prácticas responsables y cafés de alta calidad.
+                </p>
+            </div> <!-- CORREGIDO: Se cerró el contenido-texto -->
+        </div> <!-- CORREGIDO: Se cerró el fc-hero-info -->
+
+        <div class="fc-hero-image">
+            <img src="images/famycafe-hero.jpg" alt="Familias cafeteras" />
+        </div>
+    </div>
+
+    <!-- Stats Panel -->
+    <div class="fc-stats-panel">
+        <div class="fc-stat-item">
+            <div class="fc-stat-icon">📅</div>
+            <h3 class="fc-stat-number">1995</h3>
+            <p class="fc-stat-label">Año de fundación</p>
+        </div>
+        <div class="fc-stat-item">
+            <div class="fc-stat-icon">👥</div>
+            <h3 class="fc-stat-number">120+</h3>
+            <p class="fc-stat-label">Familias caficultores</p>
+        </div>
+        <div class="fc-stat-item">
+            <div class="fc-stat-icon">🌱</div>
+            <h3 class="fc-stat-number">3.500+</h3>
+            <p class="fc-stat-label">Hectáreas cultivadas</p>
+        </div>
+        <div class="fc-stat-item">
+            <div class="fc-stat-icon">🌐</div>
+            <h3 class="fc-stat-number">Sostenibilidad</h3>
+            <p class="fc-stat-label">Nuestro compromiso</p>
+        </div>
+    </div>
+
+    <!-- Productores Grid Section -->
+    <div class="fc-section-title-bar">
+        <h2>Productores que hacen parte de FAMYCAFE</h2>
+        <a href="/todos-los-productores" class="fc-view-all">VER TODOS ➔</a>
+    </div>
+
+    <div class="fc-productores-grid">
+        <!-- Tarjeta 1 -->
+        <div class="fc-producer-card">
+            <div class="fc-card-img">
+                <img src="/imagenes/ñ1.png" alt="Juan Carlos Restrepo" />
+            </div>
+            <div class="fc-card-content">
+                <h3>Juan Carlos Restrepo</h3>
+                <p class="fc-finca">Finca El Paraíso</p>
+                <p class="fc-location">Caldas, Colombia</p>
+                <a href="/perfil/juan" class="fc-btn-profile">VER PERFIL ➔</a>
+            </div>
+        </div>
+
+        <!-- Tarjeta 2 -->
+        <div class="fc-producer-card">
+            <div class="fc-card-img">
+                <img src="/imagenes/ñ2.png" alt="María Elvira Gómez" />
+            </div>
+            <div class="fc-card-content">
+                <h3>María Elvira Gómez</h3>
+                <p class="fc-finca">Finca La Esperanza</p>
+                <p class="fc-location">Antioquia, Colombia</p>
+                <a href="/perfil/maria" class="fc-btn-profile">VER PERFIL ➔</a>
+            </div>
+        </div>
+
+        <!-- Tarjeta 3 -->
+        <div class="fc-producer-card">
+            <div class="fc-card-img">
+                <img src="/imagenes/ñ3.png" alt="Carlos Alberto Ruiz" />
+            </div>
+            <div class="fc-card-content">
+                <h3>Carlos Alberto Ruiz</h3>
+                <p class="fc-finca">Finca La Montaña</p>
+                <p class="fc-location">Cauca, Colombia</p>
+                <a href="/perfil/carlos" class="fc-btn-profile">VER PERFIL ➔</a>
+            </div>
+        </div>
+
+        <!-- Tarjeta 4 -->
+        <div class="fc-producer-card">
+            <div class="fc-card-img">
+                <img src="/imagenes/ñ4.png" alt="Elena Mendoza" />
+            </div>
+            <div class="fc-card-content">
+                <h3>Elena Mendoza</h3>
+                <p class="fc-finca">Finca Vista Hermosa</p>
+                <p class="fc-location">Tolima, Colombia</p>
+                <a href="/perfil/elena" class="fc-btn-profile">VER PERFIL ➔</a>
+            </div>
+        </div>
+
+        <!-- Tarjeta Especial: Más Productores -->
+        <div class="fc-producer-card fc-more-card">
+            <div class="fc-more-content">
+                <div class="fc-user-icon">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#8B5E3C" stroke-width="1.5">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </div>
+                <p>Más productores</p>
+                <a href="/todos-los-productores" class="fc-btn-profile fc-btn-all">VER TODOS ➔</a>
+            </div>
+        </div>
+    </div>
+</div>
