@@ -75,44 +75,84 @@
         }
         else if (authMode == AuthMode.Register)
         {
-            <!-- 2. REGISTRATION FORM -->
-            <form @onsubmit="HandleRegister" class="auth-form">
-                <div class="form-group-lux">
-                    <label>Nombre Completo</label>
-                    <div class="input-wrapper">
-                        <input type="text" @bind="registerNombre" placeholder="Tu Nombre" required class="form-control-lux" />
+            <!-- 2. REGISTRATION FORM (STEPPED) -->
+            @if (registerStep == 1)
+            {
+                <form @onsubmit="HandleRegister" class="auth-form">
+                    <div class="form-group-lux">
+                        <label>Nombre Completo</label>
+                        <div class="input-wrapper">
+                            <input type="text" @bind="registerNombre" placeholder="Tu Nombre" required class="form-control-lux" />
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-group-lux">
-                    <label>Correo Electrónico</label>
-                    <div class="input-wrapper">
-                        <input type="email" @bind="registerEmail" placeholder="ejemplo@correo.com" required class="form-control-lux" />
+                    <div class="form-group-lux">
+                        <label>Correo Electrónico</label>
+                        <div class="input-wrapper">
+                            <input type="email" @bind="registerEmail" placeholder="ejemplo@correo.com" required class="form-control-lux" />
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-group-lux">
-                    <label>Contraseña (Mínimo 8 caracteres)</label>
-                    <div class="input-wrapper">
-                        <input type="password" @bind="registerPassword" placeholder="••••••••" required class="form-control-lux" />
+                    <div class="form-group-lux">
+                        <label>Contraseña (Mínimo 8 caracteres)</label>
+                        <div class="input-wrapper">
+                            <input type="password" @bind="registerPassword" placeholder="••••••••" required class="form-control-lux" />
+                        </div>
                     </div>
-                </div>
 
-                <button type="submit" class="btn-submit-lux" disabled="@isSubmitting">
-                    @if (isSubmitting)
-                    {
-                        <span class="spinner"></span>
-                    }
-                    else
-                    {
-                        <span>CREAR CUENTA</span>
-                    }
-                </button>
+                    <button type="submit" class="btn-submit-lux" disabled="@isSubmitting">
+                        @if (isSubmitting)
+                        {
+                            <span class="spinner"></span>
+                        }
+                        else
+                        {
+                            <span>CREAR CUENTA</span>
+                        }
+                    </button>
 
-                <div class="auth-switch-links">
-                    <button type="button" class="btn-link-lux" @onclick='() => ChangeMode(AuthMode.Login)'>¿Ya tienes cuenta? Inicia Sesión</button>
-                </div>
-            </form>
+                    <div class="auth-switch-links">
+                        <button type="button" class="btn-link-lux" @onclick='() => ChangeMode(AuthMode.Login)'>¿Ya tienes cuenta? Inicia Sesión</button>
+                    </div>
+                </form>
+            }
+            else if (registerStep == 2)
+            {
+                <form @onsubmit="HandleRegisterVerify" class="auth-form">
+                    <div class="demo-info-badge">
+                        <span>💡 <strong>Modo Demo:</strong> Si el backend está apagado, cualquier código de 6 letras activará tu cuenta ficticia localmente.</span>
+                    </div>
+
+                    <div class="form-group-lux">
+                        <label>Correo Electrónico Registrado</label>
+                        <div class="input-wrapper">
+                            <input type="email" value="@registerEmail" readonly class="form-control-lux" style="opacity: 0.7; cursor: not-allowed;" />
+                        </div>
+                    </div>
+
+                    <div class="form-group-lux">
+                        <label>Introduce el PIN enviado a tu correo</label>
+                        <div class="input-wrapper">
+                            <input type="text" @bind="verifyCodigo" placeholder="E.g. A3F89C" maxlength="10" required class="form-control-lux code-input" />
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit-lux" disabled="@isSubmitting">
+                        @if (isSubmitting)
+                        {
+                            <span class="spinner"></span>
+                        }
+                        else
+                        {
+                            <span>ACTIVAR CUENTA</span>
+                        }
+                    </button>
+
+                    <div class="auth-switch-links">
+                        <button type="button" class="btn-link-lux" @onclick='() => registerStep = 1'>← Volver a modificar datos</button>
+                    </div>
+                </form>
+            }
         }
         else if (authMode == AuthMode.Verify)
         {
@@ -169,6 +209,9 @@
     private string errorMessage = "";
     private bool isSubmitting = false;
 
+    // Stepped registration state
+    private int registerStep = 1;
+
     // Login inputs
     private string loginEmail = "";
     private string loginPassword = "";
@@ -187,6 +230,8 @@
         authMode = mode;
         successMessage = "";
         errorMessage = "";
+        registerStep = 1; // Reset step on mode change
+        verifyCodigo = "";
         
         switch (mode)
         {
@@ -247,16 +292,45 @@
 
         if (success)
         {
-            successMessage = "¡Registro exitoso! Un correo de activación ha sido enviado.";
+            successMessage = "¡Registro exitoso! Un código PIN de activación ha sido enviado a tu correo.";
             verifyEmail = registerEmail;
             
-            // Wait brief moment and redirect to verification tab
-            await Task.Delay(1800);
-            ChangeMode(AuthMode.Verify);
+            // Advance to PIN step on the same card immediately
+            registerStep = 2;
         }
         else
         {
             errorMessage = "Error en el registro. Es posible que el correo electrónico ya esté en uso.";
+        }
+    }
+
+    private async Task HandleRegisterVerify()
+    {
+        errorMessage = "";
+        successMessage = "";
+
+        if (string.IsNullOrWhiteSpace(verifyCodigo))
+        {
+            errorMessage = "Ingresa el código de activación enviado a tu correo.";
+            return;
+        }
+
+        isSubmitting = true;
+        var success = await ApiService.VerificarEmailAsync(registerEmail, verifyCodigo);
+        isSubmitting = false;
+
+        if (success)
+        {
+            successMessage = "¡Tu cuenta ha sido activada correctamente! Redirigiendo al login...";
+            loginEmail = registerEmail;
+            loginPassword = registerPassword; // Autofill for convenience
+            
+            await Task.Delay(1800);
+            ChangeMode(AuthMode.Login);
+        }
+        else
+        {
+            errorMessage = "El código PIN ingresado es incorrecto o ha expirado.";
         }
     }
 

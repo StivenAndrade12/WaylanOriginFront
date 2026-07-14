@@ -329,63 +329,53 @@
 
                     <div class="form-row-2">
                         <div class="form-group">
-                            <label>ID del Producto</label>
-                            <input type="text" @bind="productFormId" placeholder="WAY-XXX" disabled="@isEditingProduct" class="form-control-admin" />
-                        </div>
-                        <div class="form-group">
                             <label>Nombre Comercial</label>
                             <input type="text" @bind="productFormNombre" placeholder="Waylan Classic" class="form-control-admin" />
+                        </div>
+                        <div class="form-group">
+                            <label>Categoría</label>
+                            <select @bind="productFormIdCategoria" class="form-control-admin">
+                                @foreach (var cat in categories)
+                                {
+                                    <option value="@cat.Id">@cat.Nombre</option>
+                                }
+                            </select>
                         </div>
                     </div>
 
                     <div class="form-row-2">
                         <div class="form-group">
-                            <label>Región de Origen</label>
-                            <input type="text" @bind="productFormRegion" placeholder="Tolima, Colombia" class="form-control-admin" />
+                            <label>Tipo de Tueste</label>
+                            <select @bind="productFormTueste" class="form-control-admin">
+                                <option value="1">Claro</option>
+                                <option value="2">Medio</option>
+                                <option value="3">Oscuro</option>
+                            </select>
                         </div>
+                        <div class="form-group">
+                            <label>Proceso de Café</label>
+                            <select @bind="productFormProceso" class="form-control-admin">
+                                <option value="1">Lavado</option>
+                                <option value="2">Natural</option>
+                                <option value="3">Honey</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row-2">
                         <div class="form-group">
                             <label>Precio Unitario (COP)</label>
                             <input type="number" @bind="productFormPrecio" class="form-control-admin" />
                         </div>
-                    </div>
-
-                    <div class="form-row-2">
                         <div class="form-group">
-                            <label>Formato</label>
-                            <select @bind="productFormFormato" class="form-control-admin">
-                                <option value="Grano">En Grano</option>
-                                <option value="Molido">Molido</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Perfil de Sabor</label>
-                            <select @bind="productFormPerfilSabor" class="form-control-admin">
-                                <option value="Dulce">Dulce</option>
-                                <option value="Balanceado">Balanceado</option>
-                                <option value="Ácido">Ácido</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-row-2">
-                        <div class="form-group">
-                            <label>Método Recomendado</label>
-                            <select @bind="productFormMetodoRecomendado" class="form-control-admin">
-                                <option value="Filtrado">Filtrado</option>
-                                <option value="Espresso">Espresso</option>
-                                <option value="Prensa francesa">Prensa francesa</option>
-                                <option value="Cold brew">Cold brew</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Intensidad (1 a 5)</label>
-                            <input type="number" min="1" max="5" @bind="productFormIntensidad" class="form-control-admin" />
+                            <label>Stock Disponible</label>
+                            <input type="number" min="0" @bind="productFormStock" class="form-control-admin" />
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label>Etiqueta Especial (Opcional)</label>
-                        <input type="text" @bind="productFormEtiqueta" placeholder="NUEVO / MÁS VENDIDO / EDICIÓN LIMITADA" class="form-control-admin" />
+                        <label>Descripción del Producto</label>
+                        <textarea @bind="productFormDescripcion" placeholder="Escribe una breve descripción del café..." rows="3" class="form-control-admin" style="resize: vertical;"></textarea>
                     </div>
 
                     <div class="form-group">
@@ -444,14 +434,22 @@
 
     private string productFormId = "";
     private string productFormNombre = "";
-    private string productFormRegion = "";
-    private int productFormPrecio = 30000;
+    private string productFormRegion = "Tolima, Colombia";
+    private int productFormPrecio = 35000;
     private string productFormFormato = "Grano";
     private string productFormPerfilSabor = "Dulce";
     private string productFormMetodoRecomendado = "Filtrado";
     private int productFormIntensidad = 3;
     private string productFormEtiqueta = "";
     private string editingProductImageUrl = "";
+    
+    // New backend bindings
+    private int productFormIdCategoria = 1;
+    private int productFormTueste = 2; // Default Medio
+    private int productFormProceso = 1; // Default Lavado
+    private int productFormStock = 20;
+    private string productFormDescripcion = "";
+
     private List<int> productFormSelectedNoteIds = new();
     private Microsoft.AspNetCore.Components.Forms.IBrowserFile? selectedImageFile;
 
@@ -516,6 +514,7 @@
             {
                 products = await ApiService.GetTodosProductosAsync();
                 availableNotes = await ApiService.GetNotasAsync();
+                categories = await ApiService.GetTodasCategoriasAsync(); // Needed for dropdown
             }
             else if (activeTab == "categorias")
             {
@@ -543,13 +542,20 @@
         formErrorMessage = "";
         productFormId = "";
         productFormNombre = "";
-        productFormRegion = "";
+        productFormRegion = "Tolima, Colombia";
         productFormPrecio = 35000;
         productFormFormato = "Grano";
         productFormPerfilSabor = "Dulce";
         productFormMetodoRecomendado = "Filtrado";
         productFormIntensidad = 3;
         productFormEtiqueta = "";
+        
+        productFormIdCategoria = categories.FirstOrDefault()?.Id ?? 1;
+        productFormTueste = 2;
+        productFormProceso = 1;
+        productFormStock = 20;
+        productFormDescripcion = "";
+        
         productFormSelectedNoteIds.Clear();
         selectedImageFile = null;
         showProductModal = true;
@@ -562,13 +568,20 @@
         productFormId = p.Id;
         productFormNombre = p.Nombre;
         productFormRegion = p.Region;
-        productFormPrecio = p.Precio;
+        productFormPrecio = (int)p.Precio;
         productFormFormato = p.Formato;
         productFormPerfilSabor = p.PerfilSabor;
         productFormMetodoRecomendado = p.MetodoRecomendado;
         productFormIntensidad = p.Intensidad;
         productFormEtiqueta = p.Etiqueta;
         editingProductImageUrl = p.ImagenUrl;
+        
+        productFormIdCategoria = p.IdCategoria > 0 ? p.IdCategoria : (categories.FirstOrDefault(c => c.Nombre == p.Formato)?.Id ?? 1);
+        productFormTueste = p.Tueste == "Claro" ? 1 : p.Tueste == "Oscuro" ? 3 : 2;
+        productFormProceso = p.Proceso == "Natural" ? 2 : p.Proceso == "Honey" ? 3 : 1;
+        productFormStock = p.Stock;
+        productFormDescripcion = p.Descripcion ?? "";
+        
         productFormSelectedNoteIds = p.Notas.Select(n => n.Id).ToList();
         selectedImageFile = null;
         showProductModal = true;
@@ -595,9 +608,9 @@
     private async Task SaveProduct()
     {
         formErrorMessage = "";
-        if (string.IsNullOrEmpty(productFormId) || string.IsNullOrEmpty(productFormNombre) || string.IsNullOrEmpty(productFormRegion))
+        if (string.IsNullOrEmpty(productFormNombre))
         {
-            formErrorMessage = "Por favor, completa los campos requeridos (ID, Nombre y Región).";
+            formErrorMessage = "Por favor, completa los campos requeridos (Nombre).";
             return;
         }
 
@@ -609,12 +622,19 @@
 
         var content = new MultipartFormDataContent();
         content.Add(new StringContent(productFormNombre), "Nombre");
+        content.Add(new StringContent(productFormIdCategoria.ToString()), "IdCategoria");
+        content.Add(new StringContent(productFormTueste.ToString()), "tueste");
+        content.Add(new StringContent(productFormProceso.ToString()), "proceso");
+        content.Add(new StringContent(productFormDescripcion), "Descripcion");
+        content.Add(new StringContent(productFormPrecio.ToString()), "Precio");
+        content.Add(new StringContent(productFormStock.ToString()), "Stock");
+
+        // Legacy / Fallbacks
         content.Add(new StringContent(productFormRegion), "Region");
         content.Add(new StringContent(productFormFormato), "Formato");
         content.Add(new StringContent(productFormPerfilSabor), "PerfilSabor");
         content.Add(new StringContent(productFormMetodoRecomendado), "MetodoRecomendado");
         content.Add(new StringContent(productFormIntensidad.ToString()), "Intensidad");
-        content.Add(new StringContent(productFormPrecio.ToString()), "Precio");
         content.Add(new StringContent(productFormEtiqueta ?? ""), "Etiqueta");
 
         if (selectedImageFile != null)
@@ -639,7 +659,6 @@
         }
         else
         {
-            content.Add(new StringContent(productFormId), "Id");
             success = await ApiService.CrearProductoAsync(content);
         }
 
@@ -656,7 +675,7 @@
 
     private async Task ToggleProductStatus(Product p)
     {
-        var success = await ApiService.CambiarEstadoProductoAsync(p.Id);
+        var success = await ApiService.CambiarEstadoProductoAsync(p.Id, !p.Activo);
         if (success)
         {
             await LoadActiveTabData();

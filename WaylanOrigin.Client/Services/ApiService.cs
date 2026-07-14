@@ -170,11 +170,64 @@ namespace WaylanOrigin.Client.Services
         }
 
         // --- PRODUCTOS ---
+        private Product MapToProduct(ProductoReadDto dto)
+        {
+            return new Product
+            {
+                Id = dto.Id.ToString(),
+                Nombre = dto.Nombre,
+                CategoriaNombre = dto.CategoriaNombre,
+                IdCategoria = 0,
+                Tueste = dto.Tueste,
+                Proceso = dto.Proceso,
+                Descripcion = dto.Descripcion,
+                Precio = dto.Precio,
+                Stock = 0,
+                ImagenUrl = dto.ImagenUrl,
+                Activo = true,
+                Notas = dto.Notas ?? new List<Note>(),
+                
+                // Fallbacks/Legacies
+                Formato = dto.CategoriaNombre,
+                Region = "Tolima, Colombia",
+                PerfilSabor = dto.Tueste,
+                MetodoRecomendado = "Filtrado",
+                Intensidad = 3
+            };
+        }
+
+        private Product MapToProduct(ProductoReadAdminDto dto)
+        {
+            return new Product
+            {
+                Id = dto.Id.ToString(),
+                Nombre = dto.Nombre,
+                IdCategoria = dto.IdCategoria,
+                CategoriaNombre = dto.CategoriaNombre,
+                Tueste = dto.Tueste,
+                Proceso = dto.Proceso,
+                Descripcion = dto.Descripcion,
+                Precio = dto.Precio,
+                Stock = dto.Stock,
+                ImagenUrl = dto.ImagenUrl,
+                Activo = dto.Activo,
+                Notas = dto.Notas ?? new List<Note>(),
+                
+                // Fallbacks/Legacies
+                Formato = dto.CategoriaNombre,
+                Region = "Tolima, Colombia",
+                PerfilSabor = dto.Tueste,
+                MetodoRecomendado = "Filtrado",
+                Intensidad = 3
+            };
+        }
+
         public async Task<List<Product>> GetProductosActivosAsync()
         {
             try
             {
-                return await _http.GetFromJsonAsync<List<Product>>($"{ApiBaseUrl}api/productos/activos") ?? new List<Product>();
+                var dtos = await _http.GetFromJsonAsync<List<ProductoReadDto>>($"{ApiBaseUrl}api/Producto/Lista de productos");
+                return dtos?.Select(MapToProduct).ToList() ?? new List<Product>();
             }
             catch
             {
@@ -187,7 +240,8 @@ namespace WaylanOrigin.Client.Services
             try
             {
                 SetAuthHeader();
-                return await _http.GetFromJsonAsync<List<Product>>($"{ApiBaseUrl}api/productos") ?? new List<Product>();
+                var dtos = await _http.GetFromJsonAsync<List<ProductoReadAdminDto>>($"{ApiBaseUrl}api/Producto/Lista de productos Admin");
+                return dtos?.Select(MapToProduct).ToList() ?? new List<Product>();
             }
             catch
             {
@@ -199,7 +253,8 @@ namespace WaylanOrigin.Client.Services
         {
             try
             {
-                return await _http.GetFromJsonAsync<Product>($"{ApiBaseUrl}api/productos/{id}");
+                var dtos = await GetTodosProductosAsync();
+                return dtos.FirstOrDefault(p => p.Id == id);
             }
             catch
             {
@@ -211,7 +266,7 @@ namespace WaylanOrigin.Client.Services
         {
             try
             {
-                return await _http.GetFromJsonAsync<List<Note>>($"{ApiBaseUrl}api/productos/notas") ?? new List<Note>();
+                return await _http.GetFromJsonAsync<List<Note>>($"{ApiBaseUrl}api/Nota") ?? new List<Note>();
             }
             catch
             {
@@ -224,22 +279,44 @@ namespace WaylanOrigin.Client.Services
             try
             {
                 SetAuthHeader();
-                var response = await _http.PostAsync($"{ApiBaseUrl}api/productos", content);
-                return response.IsSuccessStatusCode;
+                var response = await _http.PostAsync($"{ApiBaseUrl}api/Producto", content);
+                if (response.IsSuccessStatusCode)
+                {
+                    var created = await response.Content.ReadFromJsonAsync<ProductoReadAdminDto>();
+                    if (created != null)
+                    {
+                        _mockProducts.Add(MapToProduct(created));
+                    }
+                    return true;
+                }
+                return false;
             }
             catch
             {
-                var idContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Id\"");
                 var nombreContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Nombre\"");
-                var regionContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Region\"");
+                var descContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Descripcion\"");
                 var precioContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Precio\"");
+                var stockContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Stock\"");
+                var catContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"IdCategoria\"");
                 
+                var mockCategoryName = "Grano";
+                if (catContent != null)
+                {
+                    var catId = int.Parse(await catContent.ReadAsStringAsync());
+                    var catObj = _mockCategories.FirstOrDefault(c => c.Id == catId);
+                    if (catObj != null) mockCategoryName = catObj.Nombre;
+                }
+
                 var newProduct = new Product
                 {
-                    Id = idContent != null ? await idContent.ReadAsStringAsync() : Guid.NewGuid().ToString(),
+                    Id = (_mockProducts.Count + 1).ToString(),
                     Nombre = nombreContent != null ? await nombreContent.ReadAsStringAsync() : "Café Premium Mock",
-                    Region = regionContent != null ? await regionContent.ReadAsStringAsync() : "Huila",
-                    Precio = precioContent != null ? int.Parse(await precioContent.ReadAsStringAsync()) : 45000,
+                    Descripcion = descContent != null ? await descContent.ReadAsStringAsync() : "Café Premium",
+                    Precio = precioContent != null ? decimal.Parse(await precioContent.ReadAsStringAsync()) : 45000,
+                    Stock = stockContent != null ? int.Parse(await stockContent.ReadAsStringAsync()) : 50,
+                    IdCategoria = catContent != null ? int.Parse(await catContent.ReadAsStringAsync()) : 1,
+                    CategoriaNombre = mockCategoryName,
+                    Formato = mockCategoryName,
                     ImagenUrl = "/images/coffee_bag_generic.png",
                     Activo = true
                 };
@@ -254,8 +331,21 @@ namespace WaylanOrigin.Client.Services
             try
             {
                 SetAuthHeader();
-                var response = await _http.PutAsync($"{ApiBaseUrl}api/productos/{id}", content);
-                return response.IsSuccessStatusCode;
+                var response = await _http.PutAsync($"{ApiBaseUrl}api/Producto/{id}", content);
+                if (response.IsSuccessStatusCode)
+                {
+                    var updated = await response.Content.ReadFromJsonAsync<ProductoReadAdminDto>();
+                    if (updated != null)
+                    {
+                        var idx = _mockProducts.FindIndex(p => p.Id == id);
+                        if (idx >= 0)
+                        {
+                            _mockProducts[idx] = MapToProduct(updated);
+                        }
+                    }
+                    return true;
+                }
+                return false;
             }
             catch
             {
@@ -263,29 +353,31 @@ namespace WaylanOrigin.Client.Services
                 if (prod != null)
                 {
                     var nombreContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Nombre\"");
-                    var regionContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Region\"");
+                    var descContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Descripcion\"");
                     var precioContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Precio\"");
+                    var stockContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Stock\"");
 
                     if (nombreContent != null) prod.Nombre = await nombreContent.ReadAsStringAsync();
-                    if (regionContent != null) prod.Region = await regionContent.ReadAsStringAsync();
-                    if (precioContent != null) prod.Precio = int.Parse(await precioContent.ReadAsStringAsync());
+                    if (descContent != null) prod.Descripcion = await descContent.ReadAsStringAsync();
+                    if (precioContent != null) prod.Precio = decimal.Parse(await precioContent.ReadAsStringAsync());
+                    if (stockContent != null) prod.Stock = int.Parse(await stockContent.ReadAsStringAsync());
                 }
                 return true;
             }
         }
 
-        public async Task<bool> CambiarEstadoProductoAsync(string id)
+        public async Task<bool> CambiarEstadoProductoAsync(string id, bool nuevoEstado)
         {
             try
             {
                 SetAuthHeader();
-                var response = await _http.PatchAsync($"{ApiBaseUrl}api/productos/{id}/cambiar-estado", null);
+                var response = await _http.PatchAsync($"{ApiBaseUrl}api/Producto/{id}/cambiar-estado?nuevoEstado={nuevoEstado}", null);
                 return response.IsSuccessStatusCode;
             }
             catch
             {
                 var prod = _mockProducts.FirstOrDefault(p => p.Id == id);
-                if (prod != null) prod.Activo = !prod.Activo;
+                if (prod != null) prod.Activo = nuevoEstado;
                 return true;
             }
         }
@@ -447,5 +539,34 @@ namespace WaylanOrigin.Client.Services
     {
         public string ProductoId { get; set; } = string.Empty;
         public int Cantidad { get; set; }
+    }
+
+    public class ProductoReadDto
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; } = string.Empty;
+        public string CategoriaNombre { get; set; } = string.Empty;
+        public string Tueste { get; set; } = string.Empty;
+        public string Proceso { get; set; } = string.Empty;
+        public string? Descripcion { get; set; }
+        public decimal Precio { get; set; }
+        public string ImagenUrl { get; set; } = string.Empty;
+        public List<Note>? Notas { get; set; } = new List<Note>();
+    }
+
+    public class ProductoReadAdminDto
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; } = string.Empty;
+        public int IdCategoria { get; set; }
+        public string CategoriaNombre { get; set; } = string.Empty;
+        public string Tueste { get; set; } = string.Empty;
+        public string Proceso { get; set; } = string.Empty;
+        public string? Descripcion { get; set; }
+        public decimal Precio { get; set; }
+        public int Stock { get; set; }
+        public string ImagenUrl { get; set; } = string.Empty;
+        public bool Activo { get; set; }
+        public List<Note>? Notas { get; set; } = new List<Note>();
     }
 }
