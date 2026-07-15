@@ -1,60 +1,149 @@
-<section class="productores-section">
-    <div class="container">
-        <!-- Encabezado de la sección -->
-        <div class="header-content">
-            <span class="subtitle">PRODUCTORES ALIADOS</span>
-            <h1 class="title">Trabajamos junto a organizaciones que impulsan el café de origen.</h1>
-            <div class="separator-icon">
-                <!-- Icono de la hoja (pueden usar un SVG o imagen) -->
-                <i class="icon-leaf"></i> 
-            </div>
-            <p class="description">
-                Conoce a nuestras organizaciones aliadas, comprometidas con la calidad, la sostenibilidad y el bienestar de los caficultores.
+@page "/perfil/{id}"
+@namespace WaylanOrigin.Client.Pages
+@using WaylanOrigin.Client.Models
+@using System.Linq
+
+<div class="perfil-container">
+
+    <!-- HERO SECTION (Imagen de fondo completa + degradado) -->
+    <div class="perfil-hero"
+         style="
+            background-image: 
+                linear-gradient(to right, rgba(28, 15, 8, 0.85) 35%, rgba(28, 15, 8, 0.2) 100%), 
+                url('@productor.ImagenPrincipal');
+            background-position: center center;   /* ← CORREGIDO */
+            background-size: cover;               /* ← CORREGIDO */
+         ">
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a href="/productores">← Productores Aliados</a>
+            <span class="separator">&gt;</span>
+            <a href="/famycafe">FAMYCAFE</a>
+            <span class="separator">&gt;</span>
+            <span class="active">@productor.Nombre</span>
+        </div>
+
+        <!-- Info del productor -->
+        <div class="perfil-hero-info">
+            <h1 class="perfil-nombre">@productor.Nombre</h1>
+
+            <p class="perfil-ubicacion">
+                📍 @productor.Finca — @productor.Ubicacion
+            </p>
+
+            <p class="perfil-frase">
+                “@productor.Frase”
             </p>
         </div>
 
-        <!-- Contenedor de Tarjetas (Cards) -->
-        <div class="cards-grid">
-            
-            <!-- Tarjeta 1: FAMYCAFE -->
-            <div class="org-card">
-                <div class="card-image-placeholder">
-                    <!-- Aquí irá el logo de FAMYCAFE -->
-                    <img src="images/famycafe-logo.png" alt="FAMYCAFE Logo" />
-                </div>
-                <div class="card-body">
-                    <h3>FAMYCAFE</h3>
-                    <p>Asociación de familias cafeteras comprometidas con la calidad y la sostenibilidad.</p>
-                    <button class="btn-ver">Ver organización <span class="arrow">→</span></button>
-                </div>
-            </div>
-
-            <!-- Tarjeta 2: TRES NEVADOS -->
-            <div class="org-card">
-                <div class="card-image-placeholder">
-                    <!-- Aquí irá el logo de Tres Nevados -->
-                    <img src="images/tres-nevados-logo.png" alt="Tres Nevados Logo" />
-                </div>
-                <div class="card-body">
-                    <h3>TRES NEVADOS</h3>
-                    <p>Trabajamos por el desarrollo del caficultor y la protección de nuestra región.</p>
-                    <button class="btn-ver">Ver organización <span class="arrow">→</span></button>
-                </div>
-            </div>
-
-            <!-- Tarjeta 3: OTRAS ORGANIZACIONES -->
-            <div class="org-card">
-                <div class="card-image-placeholder">
-                    <!-- Aquí irá el logo o icono de hojas -->
-                    <img src="images/otras-org-icon.png" alt="Otras Organizaciones" />
-                </div>
-                <div class="card-body">
-                    <h3>OTRAS ORGANIZACIONES</h3>
-                    <p>Conoce más aliados que hacen posible nuestro café de origen.</p>
-                    <button class="btn-ver">Ver organización <span class="arrow">→</span></button>
-                </div>
-            </div>
-
-        </div>
     </div>
-</section>
+
+    <!-- TABS -->
+    <div class="perfil-tabs">
+        <button class="perfil-tab perfil-tab-activo">Historia</button>
+        <button class="perfil-tab">Finca</button>
+        <button class="perfil-tab">Procesos</button>
+        <button class="perfil-tab">Variedades</button>
+        <button class="perfil-tab">Lotes</button>
+        <button class="perfil-tab">Reconocimientos</button>
+        <button class="perfil-tab">Galería</button>
+    </div>
+
+    <!-- CONTENIDO -->
+    <div class="perfil-contenido">
+
+        <div class="perfil-historia">
+            <h2>@productor.HistoriaTitulo</h2>
+            <p>@productor.HistoriaTexto</p>
+
+            <a href="#" class="btn-leer-mas">
+                Leer más <span class="flecha">&rarr;</span>
+            </a>
+        </div>
+
+        <div class="perfil-ficha">
+            <div class="ficha-grid">
+
+                <div class="ficha-item border-r border-b">
+                    <div class="icon-placeholder"></div>
+                    <div class="ficha-text">
+                        <span class="ficha-valor">@productor.Altitud</span>
+                        <span class="ficha-label">Altitud</span>
+                    </div>
+                </div>
+
+                <div class="ficha-item border-b">
+                    <div class="icon-placeholder"></div>
+                    <div class="ficha-text">
+                        <span class="ficha-valor">@productor.Variedades</span>
+                        <span class="ficha-label">Variedades</span>
+                    </div>
+                </div>
+
+                <div class="ficha-item border-r">
+                    <div class="icon-placeholder"></div>
+                    <div class="ficha-text">
+                        <span class="ficha-valor">@productor.Proceso</span>
+                        <span class="ficha-label">Proceso</span>
+                    </div>
+                </div>
+
+                <div class="ficha-item">
+                    <div class="icon-placeholder"></div>
+                    <div class="ficha-text">
+                        <span class="ficha-valor">@productor.Experiencia</span>
+                        <span class="ficha-label">Experiencia</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- GALERÍA -->
+    <div class="perfil-galeria">
+        @if (productor.Galeria != null && productor.Galeria.Any())
+        {
+            @foreach (var img in productor.Galeria)
+            {
+                <div class="perfil-galeria-item">
+                    <img src="@img" alt="Imagen de @productor.Nombre" />
+                </div>
+            }
+        }
+    </div>
+
+</div>
+
+@code {
+    [Parameter]
+    public string id { get; set; }
+
+    private ProductorModel productor;
+
+    protected override void OnInitialized()
+    {
+        productor = ProductoresData.Lista.FirstOrDefault(p => p.Id == id);
+
+        if (productor == null)
+        {
+            productor = new ProductorModel
+            {
+                Nombre = "Productor no encontrado",
+                Finca = "",
+                Ubicacion = "",
+                Frase = "",
+                HistoriaTitulo = "",
+                HistoriaTexto = "",
+                Altitud = "",
+                Proceso = "",
+                Variedades = "",
+                Experiencia = "",
+                ImagenPrincipal = "/imagenes/productores/default.png",
+                Galeria = new List<string>()
+            };
+        }
+    }
+}

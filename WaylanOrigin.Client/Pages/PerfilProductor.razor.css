@@ -1,0 +1,333 @@
+/* ==========================================================================
+   ESTILOS GENERALES
+   ========================================================================== */
+.perfil-container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #2b1a0d; /* Marrón oscuro casi negro */
+    background-color: #faf8f5; /* Crema muy claro */
+}
+
+/* ==========================================================================
+   1. HERO SECTION (Banner con Imagen Completa y Degradado)
+   ========================================================================== */
+.perfil-hero {
+    position: relative;
+    width: 100%;
+    height: 420px;
+    border-radius: 20px;
+
+    /* 🔥 Ajuste correcto de la imagen */
+    background-size: cover;            /* llena el contenedor */
+    background-position: center center; /* centra la imagen */
+    background-repeat: no-repeat;
+
+    /* 🔥 Quitar fondo café que dañaba todo */
+    background-color: transparent;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; 
+    padding: 40px;
+    box-sizing: border-box;
+    color: #ffffff;
+    margin-bottom: 30px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+
+
+/* Sistema de Navegación Superior (Breadcrumbs) */
+.breadcrumb {
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 2;
+}
+
+.breadcrumb a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.breadcrumb a:hover {
+    color: #dfba9d;
+}
+
+.breadcrumb .separator {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.breadcrumb .active {
+    color: #dfba9d;
+    font-weight: 500;
+}
+
+/* Info del Productor posicionada sobre el degradado */
+.perfil-hero-info {
+    max-width: 650px;
+    z-index: 2;
+    margin-top: auto; /* Empuja el contenido hacia la parte inferior del banner */
+}
+
+.perfil-nombre {
+    font-size: 3rem;
+    font-family: 'Georgia', serif;
+    margin: 0 0 15px 0;
+    font-weight: 700;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.perfil-ubicacion {
+    font-size: 1.1rem;
+    color: #dfba9d; /* Beige cálido */
+    margin-bottom: 20px;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+.perfil-frase {
+    font-size: 1.2rem;
+    font-style: italic;
+    color: #f3ece4;
+    border-left: 3px solid #d4a373;
+    padding-left: 15px;
+    line-height: 1.6;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* ==========================================================================
+   2. PESTAÑAS DE NAVEGACIÓN (Tabs)
+   ========================================================================== */
+.perfil-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    overflow-x: auto; /* Scroll horizontal en pantallas pequeñas */
+    padding-bottom: 5px;
+}
+
+.perfil-tabs::-webkit-scrollbar {
+    height: 5px;
+}
+
+.perfil-tabs::-webkit-scrollbar-thumb {
+    background-color: #ede5da;
+    border-radius: 10px;
+}
+
+.perfil-tab {
+    padding: 12px 24px;
+    border: none;
+    background-color: #ede5da;
+    color: #5c3d2e;
+    font-weight: 600;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.perfil-tab:hover {
+    background-color: #d8cca3;
+}
+
+.perfil-tab-activo {
+    background-color: #5c3d2e;
+    color: #ffffff;
+}
+
+/* ==========================================================================
+   3. SECCIÓN DE CONTENIDO (Historia + Ficha Técnica Integrada)
+   ========================================================================== */
+.perfil-contenido {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr; /* Divide la sección en dos */
+    gap: 40px;
+    margin-bottom: 40px;
+    align-items: start;
+}
+
+/* Columna Izquierda: Historia */
+.perfil-historia {
+    background: #ffffff;
+    padding: 35px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.perfil-historia h2 {
+    font-size: 2rem;
+    font-family: 'Georgia', serif;
+    color: #3d2514;
+    margin: 0;
+}
+
+.perfil-historia p {
+    line-height: 1.8;
+    color: #4a3b32;
+    font-size: 1.05rem;
+    margin: 0;
+}
+
+/* Botón "Leer más" */
+.btn-leer-mas {
+    align-self: flex-start;
+    background-color: #241103; /* Marrón casi negro */
+    color: #ffffff;
+    padding: 12px 28px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-leer-mas:hover {
+    background-color: #3d2314;
+}
+
+/* Columna Derecha: Tarjeta de Ficha Técnica */
+.perfil-ficha {
+    background-color: #decbb7; /* Fondo cálido característico */
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.ficha-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Rejilla de 2x2 */
+}
+
+/* Celdas individuales de la Ficha */
+.ficha-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 25px 15px;
+}
+
+.icon-placeholder {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Textos informativos de la Ficha */
+.ficha-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.ficha-valor {
+    font-weight: bold;
+    color: #2c1609;
+    font-size: 1.15rem;
+}
+
+.ficha-label {
+    color: #5c4a3c;
+    font-size: 0.85rem;
+    text-transform: capitalize;
+}
+
+/* Bordes Divisores de la Cuadrícula 2x2 */
+.border-r {
+    border-right: 1px solid rgba(44, 22, 9, 0.15);
+}
+
+.border-b {
+    border-bottom: 1px solid rgba(44, 22, 9, 0.15);
+}
+
+/* ==========================================================================
+   4. GALERÍA DE IMÁGENES
+   ========================================================================== */
+.perfil-galeria {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.perfil-galeria-item {
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    height: 180px;
+}
+
+.perfil-galeria-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.perfil-galeria-item img:hover {
+    transform: scale(1.08); /* Zoom interactivo al pasar el mouse */
+}
+
+/* ==========================================================================
+   5. DISEÑO RESPONSIVO (Móviles y Tablets)
+   ========================================================================== */
+@media (max-width: 992px) {
+    .perfil-contenido {
+        grid-template-columns: 1fr; /* Colapsa a una sola columna */
+        gap: 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    .perfil-hero {
+        min-height: 380px;
+        padding: 25px 20px;
+        /* Oscurece un poco más el fondo en móvil para garantizar contraste */
+        background-image: linear-gradient(to top, rgba(28, 15, 8, 0.95) 60%, rgba(28, 15, 8, 0.4) 100%) !important;
+    }
+
+    .perfil-hero-info {
+        max-width: 100%;
+    }
+
+    .perfil-nombre {
+        font-size: 2.2rem;
+    }
+
+    .perfil-frase {
+        border-left: none;
+        border-top: 2px solid #d4a373;
+        padding-left: 0;
+        padding-top: 15px;
+        font-size: 1.1rem;
+    }
+
+    /* Adaptación de la Ficha Técnica en móviles */
+    .ficha-grid {
+        grid-template-columns: 1fr; /* Apila los elementos verticalmente */
+    }
+
+    .border-r {
+        border-right: none; /* Remueve divisor lateral en móviles */
+    }
+
+    /* Genera líneas divisorias horizontales entre celdas colapsadas */
+    .ficha-item:not(:last-child) {
+        border-bottom: 1px solid rgba(44, 22, 9, 0.15);
+    }
+}
