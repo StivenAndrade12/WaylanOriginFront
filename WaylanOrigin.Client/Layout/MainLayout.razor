@@ -2,9 +2,11 @@
 @inject NavigationManager NavigationManager
 @inject CartState CartState
 @inject ApiService ApiService
+@inject IJSRuntime JS
 @implements IDisposable
 @using System.Threading.Tasks
 @using WaylanOrigin.Client.Services
+@using WaylanOrigin.Client.Models
 
 <header>
     <nav class="navbar-waylan">
@@ -98,12 +100,12 @@
                     }
                 </div>
 
-                <a href="#carrito" class="nav-icon-btn" title="Ver carrito de compras">
+                <button type="button" @onclick="OpenCart" class="nav-icon-btn" title="Ver carrito de compras" style="background:transparent; border:none; outline:none; cursor:pointer; position:relative; padding:0; display:inline-flex; align-items:center;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-bag" viewBox="0 0 16 16">
                         <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z" />
                     </svg>
                     <span class="cart-badge @(CartState.CartCount > 0 ? "cart-badge-bump" : "")">@CartState.CartCount</span>
-                </a>
+                </button>
 
                 <a href="#suscripciones" class="btn-nav-accent">COMPRAR ORIGEN</a>
             </div>
@@ -115,11 +117,160 @@
     @Body
 </main>
 
+<!-- SHOPPING CART DRAWER (SLIDE OVER) -->
+@if (isCartOpen)
+{
+    <div class="cart-backdrop" @onclick="CloseCart">
+        <div class="cart-drawer" @onclick:stopPropagation>
+            <div class="cart-header">
+                <h3>Mi Carrito</h3>
+                <button class="btn-close-cart" @onclick="CloseCart">×</button>
+            </div>
+            
+            <div class="cart-body">
+                @if (CartState.Items.Count == 0)
+                {
+                    <div class="empty-cart-view">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-bag-x" viewBox="0 0 16 16" style="opacity: 0.5;">
+                            <path fill-rule="evenodd" d="M6.146 8.146a.5.5 0 0 1 .708 0L8 9.293l1.146-1.147a.5.5 0 1 1 .708.708L8.707 10l1.147 1.146a.5.5 0 0 1-.708.708L8 10.707l-1.146 1.147a.5.5 0 0 1-.708-.708L7.293 10 6.146 8.854a.5.5 0 0 1 0-.708" />
+                            <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z" />
+                        </svg>
+                        <p class="empty-cart-message">Tu carrito de compras está vacío.</p>
+                        <button class="btn-continue-shopping" @onclick="CloseCart">VER CATÁLOGO</button>
+                    </div>
+                }
+                else
+                {
+                    <div class="cart-items-list">
+                        @foreach (var item in CartState.Items)
+                        {
+                            <div class="cart-item-row">
+                                <img src="@GetProductImage(item.Product)" alt="@item.Product.Nombre" class="cart-item-img" />
+                                <div class="cart-item-details">
+                                    <h4 class="cart-item-title">@item.Product.Nombre</h4>
+                                    <span class="cart-item-meta">@item.Product.Formato | @item.Product.Tueste</span>
+                                    <span class="cart-item-price">$@item.Product.Precio.ToString("N0") COP</span>
+                                </div>
+                                <div class="cart-item-actions">
+                                    <div class="quantity-selector">
+                                        <button class="btn-qty" @onclick="() => CartState.DecreaseProduct(item.Product.Id)">-</button>
+                                        <span class="qty-val">@item.Cantidad</span>
+                                        <button class="btn-qty" @onclick="() => CartState.AddProduct(item.Product)">+</button>
+                                    </div>
+                                    <button class="btn-remove-item" @onclick="() => CartState.RemoveProduct(item.Product.Id)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                                            <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5a.5.5 0 0 1 .5-.5m5.078.06a.5.5 0 0 1 .47.528l-.5 8.5a.5.5 0 0 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            @if (CartState.Items.Count > 0)
+            {
+                <div class="cart-footer">
+                    @if (!string.IsNullOrEmpty(checkoutErrorMessage))
+                    {
+                        <div class="error-alert" style="color:#8C2424; font-size:0.75rem; margin-bottom:8px; font-weight:700;">@checkoutErrorMessage</div>
+                    }
+                    
+                    <div class="cart-summary-row">
+                        <span>Total Compra:</span>
+                        <strong>$@CartState.TotalPrice.ToString("N0") COP</strong>
+                    </div>
+                    <p class="cart-disclaimer">Paga de forma 100% segura usando tu tarjeta, PSE o efectivo mediante Wompi.</p>
+                    
+                    @if (isProcessingCheckout)
+                    {
+                        <button class="btn-checkout-submit" disabled>
+                            <span class="spinner"></span> PROCESANDO...
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="btn-checkout-submit" @onclick="IniciarCheckout">
+                            PAGAR COMPRA CON WOMPI
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}
+
 @code {
     private bool isDropdownOpen = false;
     private bool isNosotrosOpen = false;
     private bool isMenuMobileOpen = false;
     private int cancelacionToken = 0;
+
+    // Shopping Cart state
+    private bool isCartOpen = false;
+    private bool isProcessingCheckout = false;
+    private string checkoutErrorMessage = "";
+
+    private void OpenCart()
+    {
+        isCartOpen = true;
+    }
+
+    private void CloseCart()
+    {
+        isCartOpen = false;
+        checkoutErrorMessage = "";
+    }
+
+    private string GetProductImage(Product p)
+    {
+        if (string.IsNullOrEmpty(p.ImagenUrl)) return "/images/coffee_bag_generic.png";
+        if (p.ImagenUrl.StartsWith("/uploads/")) return "http://localhost:5074" + p.ImagenUrl;
+        return p.ImagenUrl;
+    }
+
+    private async Task IniciarCheckout()
+    {
+        checkoutErrorMessage = "";
+        if (!ApiService.IsLoggedIn)
+        {
+            CloseCart();
+            NavigationManager.NavigateTo("/auth");
+            return;
+        }
+
+        isProcessingCheckout = true;
+        
+        // Convert to DTO
+        var items = CartState.Items.Select(i => new CartItemDto 
+        { 
+            ProductoId = i.Product.Id, 
+            Cantidad = i.Cantidad 
+        }).ToList();
+
+        var response = await ApiService.CrearPedidoAsync(items);
+        isProcessingCheckout = false;
+
+        if (response != null)
+        {
+            // Clear cart
+            CartState.Clear();
+            CloseCart();
+
+            string publicKey = "pub_test_Q5YtZgh76y9b1v1S0gR81Vn8Z6R8xQv8"; // Wompi Sandbox Public Key
+            string reference = response.Codigo;
+            long amountInCents = (long)(response.Total * 100);
+            string redirectUrl = NavigationManager.ToAbsoluteUri("/pago-exitoso").ToString();
+
+            // Trigger Wompi checkout modal
+            await JS.InvokeVoidAsync("abrirWidgetWompi", publicKey, reference, amountInCents, redirectUrl);
+        }
+        else
+        {
+            checkoutErrorMessage = "No se pudo registrar el pedido en el servidor. Inténtalo de nuevo.";
+        }
+    }
 
     protected override void OnInitialized()
     {

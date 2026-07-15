@@ -30,6 +30,24 @@
         <a class="dismiss">🗙</a>
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
+    <script type="text/javascript" src="https://checkout.wompi.co/widget.js"></script>
+    <script>
+        window.abrirWidgetWompi = function (publicKey, reference, amountInCents, redirectUrl) {
+            var checkout = new WidgetCheckout({
+                currency: 'COP',
+                amountInCents: amountInCents,
+                reference: reference,
+                publicKey: publicKey,
+                redirectUrl: redirectUrl
+            });
+            checkout.open(function (result) {
+                var transaction = result.transaction;
+                console.log('Transacción finalizada. ID: ', transaction.id, ' Estado: ', transaction.status);
+                // Redirect user to the callback page with status info
+                window.location.href = redirectUrl + '?status=' + transaction.status + '&ref=' + reference;
+            });
+        };
+    </script>
 </body>
 
 </html>

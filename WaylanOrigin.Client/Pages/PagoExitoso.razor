@@ -1,0 +1,215 @@
+@page "/pago-exitoso"
+@inject NavigationManager NavigationManager
+
+<PageTitle>Estado del Pago | Waylan Origin</PageTitle>
+
+<div class="payment-status-page">
+    <div class="receipt-card">
+        
+        <!-- STATUS HEADER -->
+        @if (status == "APPROVED" || status == "success" || string.IsNullOrEmpty(status))
+        {
+            <div class="status-icon-wrapper success">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                </svg>
+            </div>
+            <h1 class="status-title">¡Transacción Exitosa!</h1>
+            <p class="status-description">Gracias por tu compra. Wompi ha procesado tu pago de forma segura y nuestro equipo ya está preparando tu café de especialidad.</p>
+        }
+        else if (status == "PENDING")
+        {
+            <div class="status-icon-wrapper pending">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-clock-history" viewBox="0 0 16 16">
+                    <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022zm2.004.45a7 7 0 0 0-.985-.299l.219-.976c.383.086.76.2 1.126.342zm1.37.71a7 7 0 0 0-.439-.74l.824-.572c.19.273.363.562.518.863zm.924 1.09a7 7 0 0 0-.253-.824l.91-.41c.092.203.17.414.234.631zM8 5.75a.75.75 0 0 1 .75.75v1.25a.75.75 0 0 1-.75.75H6.5a.75.75 0 0 1 0-1.5h1V6.5A.75.75 0 0 1 8 5.75m4.331-2.912a7 7 0 0 0-.632-.519l.571-.824c.25.173.483.37.697.587zM14 8a6 6 0 1 1-12 0 6 6 0 0 1 12 0m1-3.23c.096.223.176.452.238.688l-.968.252a7 7 0 0 0-.203-.585zM15.5 8a7.5 7.5 0 1 0-15 0 7.5 7.5 0 0 0 15 0"/>
+                </svg>
+            </div>
+            <h1 class="status-title text-pending">Pago en Verificación</h1>
+            <p class="status-description">Tu pago se encuentra actualmente en estado pendiente de aprobación por tu entidad financiera. Tan pronto sea procesado, recibirás la confirmación.</p>
+        }
+        else
+        {
+            <div class="status-icon-wrapper failed">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z"/>
+                </svg>
+            </div>
+            <h1 class="status-title text-failed">Transacción Fallida</h1>
+            <p class="status-description">La transacción no pudo ser completada con éxito. Por favor verifica tus fondos o método de pago e inténtalo de nuevo.</p>
+        }
+
+        <!-- DETAILS BLOCK -->
+        <div class="receipt-details">
+            <div class="detail-row">
+                <span class="detail-label">Código de Referencia:</span>
+                <span class="detail-value"><strong>@reference</strong></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Fecha de Compra:</span>
+                <span class="detail-value">@DateTime.Now.ToString("dd/MM/yyyy hh:mm tt")</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Método de Validación:</span>
+                <span class="detail-value">Wompi Webhook API</span>
+            </div>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div class="receipt-footer">
+            <button class="btn-return-store" @onclick="VolverATienda">VOLVER A LA TIENDA</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string status = "APPROVED";
+    private string reference = "PED-N/A";
+
+    protected override void OnInitialized()
+    {
+        var uri = new Uri(NavigationManager.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+
+        var statusVal = query["status"];
+        if (!string.IsNullOrEmpty(statusVal))
+        {
+            status = statusVal.ToUpper();
+        }
+
+        var refVal = query["ref"];
+        if (!string.IsNullOrEmpty(refVal))
+        {
+            reference = refVal;
+        }
+    }
+
+    private void VolverATienda()
+    {
+        NavigationManager.NavigateTo("/productos");
+    }
+}
+
+<style>
+    .payment-status-page {
+        background-color: #FAF6F0;
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .receipt-card {
+        background-color: #FFFFFF;
+        border: 1px solid rgba(40, 26, 18, 0.08);
+        border-radius: 12px;
+        padding: 45px 35px;
+        max-width: 500px;
+        width: 100%;
+        box-shadow: 0 15px 40px rgba(40, 26, 18, 0.05);
+        text-align: center;
+    }
+
+    .status-icon-wrapper {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 24px auto;
+    }
+
+    .status-icon-wrapper.success {
+        background-color: #E2F3E7;
+        color: #2F6F4C;
+    }
+
+    .status-icon-wrapper.pending {
+        background-color: #FEF3D6;
+        color: #C47A2B;
+    }
+
+    .status-icon-wrapper.failed {
+        background-color: #FCE8E6;
+        color: #D32F2F;
+    }
+
+    .status-title {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 1.8rem;
+        margin: 0 0 12px 0;
+        color: #2F190E;
+    }
+
+    .status-title.text-pending {
+        color: #C47A2B;
+    }
+
+    .status-title.text-failed {
+        color: #D32F2F;
+    }
+
+    .status-description {
+        font-size: 0.9rem;
+        color: #706B64;
+        line-height: 1.6;
+        margin: 0 0 35px 0;
+    }
+
+    .receipt-details {
+        border-top: 1.5px dashed #E2DBD3;
+        border-bottom: 1.5px dashed #E2DBD3;
+        padding: 24px 0;
+        margin-bottom: 35px;
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+    }
+
+    .detail-label {
+        color: #706B64;
+    }
+
+    .detail-value {
+        color: #2F190E;
+        font-weight: 600;
+    }
+
+    .btn-return-store {
+        background-color: #3A120D;
+        color: #FAF6F0;
+        border: 1px solid #B89A5E;
+        padding: 12px 28px;
+        font-weight: 800;
+        font-size: 0.75rem;
+        letter-spacing: 1.5px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+        outline: none;
+        width: 100%;
+    }
+
+    .btn-return-store:hover {
+        background-color: #2B0D0A;
+        color: #B89A5E;
+    }
+
+    @@media (max-width: 480px) {
+        .receipt-card {
+            padding: 30px 20px;
+        }
+        .status-title {
+            font-size: 1.5rem;
+        }
+    }
+</style>

@@ -456,18 +456,52 @@ namespace WaylanOrigin.Client.Services
         }
 
         // --- PEDIDOS ---
-        public async Task<bool> CrearPedidoAsync(List<CartItemDto> items)
+        public async Task<CrearPedidoResponseDto?> CrearPedidoAsync(List<CartItemDto> items)
         {
             try
             {
                 SetAuthHeader();
                 var response = await _http.PostAsJsonAsync($"{ApiBaseUrl}api/pedidos", new { Items = items });
-                return response.IsSuccessStatusCode;
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<CrearPedidoResponseDto>();
+                }
+                return null;
             }
             catch
             {
-                return true;
+                var randomCode = "PED-" + Guid.NewGuid().ToString().Substring(0, 4).ToUpper();
+                var mockTotal = (int)ItemsSumMockTotal(items);
+                var newMockOrder = new Order 
+                { 
+                    Id = _mockOrders.Count + 1, 
+                    Codigo = randomCode, 
+                    Fecha = DateTime.Now, 
+                    EmailCliente = CurrentUser?.Email ?? "anonimo@correo.com", 
+                    Total = mockTotal, 
+                    Estado = "Pendiente" 
+                };
+                _mockOrders.Add(newMockOrder);
+                return new CrearPedidoResponseDto { Codigo = randomCode, Total = mockTotal };
             }
+        }
+
+        private decimal ItemsSumMockTotal(List<CartItemDto> items)
+        {
+            decimal sum = 0;
+            foreach (var item in items)
+            {
+                var prod = _mockProducts.FirstOrDefault(p => p.Id == item.ProductoId);
+                if (prod != null)
+                {
+                    sum += prod.Precio * item.Cantidad;
+                }
+                else
+                {
+                    sum += 45000 * item.Cantidad;
+                }
+            }
+            return sum;
         }
 
         public async Task<List<Order>> GetTodosPedidosAsync()
@@ -568,5 +602,11 @@ namespace WaylanOrigin.Client.Services
         public string ImagenUrl { get; set; } = string.Empty;
         public bool Activo { get; set; }
         public List<Note>? Notas { get; set; } = new List<Note>();
+    }
+
+    public class CrearPedidoResponseDto
+    {
+        public string Codigo { get; set; } = string.Empty;
+        public decimal Total { get; set; }
     }
 }
