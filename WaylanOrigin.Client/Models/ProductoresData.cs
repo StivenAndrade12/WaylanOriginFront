@@ -33,5 +33,35 @@ public static class ProductoresData
         },
 
         // Aquí luego agregas a María, Carlos, Elena, etc.
+
+        new ProductorModel
+{
+    Id = "jose",
+    Nombre = "José Ramírez",
+    Finca = "Finca Alto Nevado",
+    Ubicacion = "Tolima, Colombia",
+    Frase = "Café de altura cultivado con dedicación y respeto por la montaña.",
+
+    HistoriaTitulo = "Nuestra historia",
+    HistoriaTexto = "Desde joven he trabajado en las laderas del Nevado del Tolima, aprendiendo de mi familia las técnicas tradicionales de cultivo. Con el paso de los años, hemos incorporado prácticas sostenibles que protegen la tierra y mejoran la calidad de nuestro café. Hoy, seguimos comprometidos con producir granos de origen que reflejan la esencia de nuestra región.",
+
+    Altitud = "1.900 msnm",
+    Proceso = "Lavado",
+    Variedades = "Caturra, Colombia",
+    Experiencia = "20+ años de experiencia",
+
+    ImagenPrincipal = "/productores/jose-banner.png",
+
+    Galeria = new List<string>
+    {
+        "/imagenes/productores/jose-g1.png",
+        "/imagenes/productores/jose-g2.png",
+        "/imagenes/productores/jose-g3.png",
+        "/imagenes/productores/jose-g4.png"
+    }
+},
+
     };
+
+    
 }

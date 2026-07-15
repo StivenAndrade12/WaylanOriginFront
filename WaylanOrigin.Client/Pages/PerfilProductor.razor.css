@@ -2,12 +2,14 @@
    ESTILOS GENERALES
    ========================================================================== */
 .perfil-container {
-    max-width: 1300px;
+    max-width: none;
     margin: 0 auto;
     padding: 20px;
+    padding-left:80px;
+    padding-right: 80px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #2b1a0d; /* Marrón oscuro casi negro */
-    background-color: #faf8f5; /* Crema muy claro */
+    background-color: #e8dfd3; /* Crema muy claro */
 }
 
 /* ==========================================================================
@@ -199,7 +201,7 @@
 
 /* Columna Derecha: Tarjeta de Ficha Técnica */
 .perfil-ficha {
-    background-color: #decbb7; /* Fondo cálido característico */
+    background-color: #d9c7b3; /* Fondo cálido característico */
     border-radius: 16px;
     padding: 20px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
@@ -219,13 +221,19 @@
 }
 
 .icon-placeholder {
-    width: 45px;
-    height: 45px;
+    width: 70px;
+    height: 70px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
 }
+.icon-placeholder img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
 
 /* Textos informativos de la Ficha */
 .ficha-text {

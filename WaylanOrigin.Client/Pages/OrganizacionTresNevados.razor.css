@@ -1,0 +1,413 @@
+/* Paleta de Colores Café del Diseño */
+:root {
+    /* 1. Fondos principales */
+    --tn-bg-main: #EFE6DC;         /* El fondo beige general de toda la página */
+    --tn-bg-container: #F6EEE5;    /* Un tono sutilmente más claro para el contenedor principal */
+    
+    /* 2. Bloques y Tarjetas (Sección Estadísticas y Productores) */
+    --tn-card-bg: #EAE0D3;         /* El tono arena/beige medio de las tarjetas y el panel de iconos */
+    --tn-card-hover: #DFD2C2;      /* Un color un poco más oscuro para cuando pasen el mouse (Hover) */
+    
+    /* 3. Textos y Tipografías */
+    --tn-text-title: #2A190E;      /* Café oscuro profundo para títulos principales */
+    --tn-text-body: #4A3B32;       /* Café medio para las descripciones y textos largos */
+    --tn-text-muted: #7A695D;      /* Café claro opaco para subtítulos */
+    
+    /* 4. Detalles de Acento */
+    --tn-accent-gold: #966946;     /* El color marrón/dorado icónico de los iconos y detalles */
+    --tn-border-light: #DDD0C1;    /* Líneas divisorias sutiles */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--tn-bg-main); 
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100vh; 
+}
+
+/* Contenedor principal */
+.tresnevados-container {
+    color: var(--tn-text-body); 
+    padding: 20px;
+    padding-left: 150px;
+    padding-right: 150px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #F5EFE6;
+}
+
+/* Breadcrumb */
+.tn-breadcrumb {
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tn-breadcrumb a {
+    color: var(--tn-text-muted);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.tn-breadcrumb .separator {
+    color: var(--tn-text-muted);
+}
+
+.tn-breadcrumb .active {
+    color: var(--tn-text-title);
+    font-weight: bold;
+}
+
+/* Hero Section */
+.tn-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px;
+    margin-bottom: 40px;
+
+    position: relative;
+    overflow: visible;
+}
+
+.tn-hero::after {
+    content: "";
+    position: absolute;
+
+    top: -100px;
+    right: -200px;
+    
+    width: 650px;
+    height: 520px;
+
+    background: #3E4A36;
+
+    border-top-left-radius: 80px;
+    border-bottom-left-radius: 80px;
+
+    z-index: 0;
+}
+
+.tn-hero-info {
+    flex: 1;
+    z-index: 2;
+}
+
+.tn-main-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--tn-text-title);
+    margin: 0 0 5px 0;
+    letter-spacing: 1px;
+}
+
+.tn-leaf-icon {
+    margin-bottom: 20px;
+}
+
+.tn-lead {
+    font-size: 1.3rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--tn-text-title);
+    margin-bottom: 20px;
+}
+
+.tn-body-text {
+    font-size: 1rem;
+    color: var(--tn-text-body);
+    line-height: 1.6;
+}
+
+.tn-hero-image {
+    flex: 1;
+    height: 420px;
+    position: relative;
+    z-index: 2;
+    margin-right: 40px;
+}
+
+.tn-hero-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 24px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+}
+
+/* Panel de Estadísticas */
+.tn-stats-panel {
+    display: flex;
+    background-color: #3A120D;
+    border: 1px solid var(--tn-border-light);
+    border-radius: 16px;
+    padding: 25px 10px;
+    margin-bottom: 50px;
+    justify-content: space-around;
+    box-shadow: 0 4px 12px rgba(74, 59, 50, 0.05);
+}
+
+.tn-stat-item {
+    flex: 1;
+    text-align: center;
+    position: relative;
+}
+
+/* Línea divisoria */
+.tn-stat-item:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 15%;
+    height: 70%;
+    width: 5px;
+    border-right: 1px solid #966946; /* MÁS GRUESA */
+}
+
+.tn-stat-number {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 4px 0;
+}
+
+.tn-stat-label {
+    font-size: 0.85rem;
+    color: #ffffff;
+    margin: 0;
+}
+
+/* Iconos de Estadísticas */
+.tn-stat-icon {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+}
+
+.tn-icon-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Título de la Sección de Productores */
+.tn-section-title-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.tn-section-title-bar h2 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--tn-text-title);
+}
+
+.tn-view-all {
+    color: var(--tn-accent-gold);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+/* Grid de Productores */
+.tn-productores-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+}
+
+/* Estilo Base de las Tarjetas */
+.tn-producer-card {
+    background-color: #F2E9DA;
+    border: 1px solid rgba(150, 105, 70, 0.15);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    padding: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tn-producer-card:hover {
+    background-color: #F2E9DA;
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(74, 59, 50, 0.1);
+}
+
+.tn-card-img {
+    width: 100%;
+    height: 200px; 
+    overflow: hidden;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+}
+
+.tn-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+.tn-card-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    padding: 12px 4px 4px 4px;
+}
+
+.tn-card-content h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 6px 0;
+    color: var(--tn-text-title);
+}
+
+.tn-finca {
+    font-size: 0.85rem;
+    color: var(--tn-text-body);
+    margin: 0 0 2px 0;
+}
+
+.tn-location {
+    font-size: 0.85rem;
+    color: var(--tn-text-muted);
+    margin: 0 0 16px 0;
+}
+
+/* Botones dentro de las Tarjetas */
+.tn-btn-profile {
+    display: block;
+    text-align: center;
+    background-color: #0F0F0F;
+    color: #966946;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 10px;
+    border-radius: 10px;
+    margin-top: auto;
+    transition: background-color 0.2s;
+}
+
+.tn-btn-profile:hover {
+    background-color: var(--tn-accent-gold);
+    color: #ffffff;
+}
+
+/* Tarjeta especial "Más productores" */
+.tn-more-card {
+    background-color: #F2E9DA;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.tn-more-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    text-align: center;
+}
+
+.tn-user-icon {
+    margin-bottom: 10px;
+}
+
+.tn-more-content p {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--tn-text-body);
+    margin: 0 0 20px 0;
+}
+
+.tn-btn-all {
+    width: 90%;
+}
+
+/* Separadores */
+.separador-contenedor {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
+    margin-bottom: 25px;
+    max-width: 450px;
+}
+
+.icono-hoja {
+    width: 120px;
+    height: auto;
+}
+
+.linea-dorada {
+    width: 300px;
+    height: 2px;
+    background: linear-gradient(to right, #c1923f, rgba(193, 146, 63, 0)); 
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+    .tresnevados-container {
+        padding-left: 40px;
+        padding-right: 40px;
+    }
+    .tn-productores-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .tresnevados-container {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+    .tn-hero {
+        flex-direction: column;
+    }
+    .tn-stats-panel {
+        flex-direction: column;
+        gap: 20px;
+    }
+    .tn-stat-item:not(:last-child)::after {
+        display: none;
+    }
+    .tn-productores-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .tn-productores-grid {
+        grid-template-columns: 1fr;
+    }
+}
