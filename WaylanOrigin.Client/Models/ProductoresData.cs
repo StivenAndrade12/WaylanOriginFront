@@ -22,7 +22,7 @@ public static class ProductoresData
             Experiencia = "25+ años de experiencia",
 
             // Rutas de imágenes (luego tú las cambias)
-            ImagenPrincipal = "/productores/bannerj.png",
+            ImagenPrincipal = "/productores/ban.png",
             Galeria = new List<string>
             {
                 "/imagenes/productores/juan-g1.png",
