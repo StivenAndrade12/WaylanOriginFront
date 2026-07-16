@@ -5,110 +5,261 @@
 
 <div class="perfil-container">
 
-    <!-- HERO SECTION (Imagen de fondo completa + degradado) -->
+    <!-- HERO -->
     <div class="perfil-hero"
-         style="
-            background-image: 
-                linear-gradient(to right, rgba(28, 15, 8, 0.85) 35%, rgba(28, 15, 8, 0.2) 100%), 
-                url('@productor.ImagenPrincipal');
-            background-position: center center;   /* ← CORREGIDO */
-            background-size: cover;               /* ← CORREGIDO */
-         ">
+         style="background-image: url('@productor.ImagenPrincipal');
+                background-position: center center;
+                background-size: cover;">
 
-        <!-- Breadcrumb -->
         <div class="breadcrumb">
             <a href="/productores">← Productores Aliados</a>
-            <span class="separator">&gt;</span>
+            <span class="separator">></span>
             <a href="/famycafe">FAMYCAFE</a>
-            <span class="separator">&gt;</span>
+            <span class="separator">></span>
             <span class="active">@productor.Nombre</span>
         </div>
 
-        <!-- Info del productor -->
         <div class="perfil-hero-info">
             <h1 class="perfil-nombre">@productor.Nombre</h1>
-
-            <p class="perfil-ubicacion">
-                📍 @productor.Finca — @productor.Ubicacion
-            </p>
-
-            <p class="perfil-frase">
-                “@productor.Frase”
-            </p>
+            <p class="perfil-ubicacion">📍 @productor.Finca — @productor.Ubicacion</p>
+            <p class="perfil-frase">“@productor.Frase”</p>
         </div>
 
     </div>
 
     <!-- TABS -->
     <div class="perfil-tabs">
-        <button class="perfil-tab perfil-tab-activo">Historia</button>
-        <button class="perfil-tab">Finca</button>
-        <button class="perfil-tab">Procesos</button>
-        
+        <button class="perfil-tab @(tabActiva == "historia" ? "perfil-tab-activo" : "")"
+                @onclick='() => CambiarTab("historia")'>
+            Historia
+        </button>
+
+        <button class="perfil-tab @(tabActiva == "finca" ? "perfil-tab-activo" : "")"
+                @onclick='() => CambiarTab("finca")'>
+            Finca
+        </button>
+
+        <button class="perfil-tab @(tabActiva == "procesos" ? "perfil-tab-activo" : "")"
+                @onclick='() => CambiarTab("procesos")'>
+            Procesos
+        </button>
     </div>
 
     <!-- CONTENIDO -->
-    <div class="perfil-contenido">
+ <div class="perfil-contenido 
+    @(tabActiva == "finca" ? "finca-activa" : "") 
+    @(tabActiva == "procesos" ? "procesos-activa" : "")">
 
-        <div class="perfil-historia">
-            <h2>@productor.HistoriaTitulo</h2>
-            <p>@productor.HistoriaTexto</p>
+        <!-- HISTORIA -->
+        @if (tabActiva == "historia")
+        {
+            <div class="perfil-historia">
+                <h2>@productor.HistoriaTitulo</h2>
+                <p>@productor.HistoriaTexto</p>
 
-            <a href="#" class="btn-leer-mas">
-                Leer más <span class="flecha">&rarr;</span>
-            </a>
+                <a href="#" class="btn-leer-mas">Leer más →</a>
+            </div>
+
+            <!-- FICHA TÉCNICA SOLO EN HISTORIA -->
+            <div class="perfil-ficha">
+                <div class="ficha-grid">
+
+                    <div class="ficha-item border-r border-b">
+                        <img src="/logotipo/pr1.png" class="icon-placeholder" />
+                        <div class="ficha-text">
+                            <span class="ficha-valor">@productor.Altitud</span>
+                            <span class="ficha-label">Altitud</span>
+                        </div>
+                    </div>
+
+                    <div class="ficha-item border-b">
+                        <img src="/logotipo/pr2.png" class="icon-placeholder" />
+                        <div class="ficha-text">
+                            <span class="ficha-valor">@productor.Variedades</span>
+                            <span class="ficha-label">Variedades</span>
+                        </div>
+                    </div>
+
+                    <div class="ficha-item border-r">
+                        <img src="/logotipo/pr3.png" class="icon-placeholder" />
+                        <div class="ficha-text">
+                            <span class="ficha-valor">@productor.Proceso</span>
+                            <span class="ficha-label">Proceso</span>
+                        </div>
+                    </div>
+
+                    <div class="ficha-item">
+                        <img src="/logotipo/pr4.png" class="icon-placeholder" />
+                        <div class="ficha-text">
+                            <span class="ficha-valor">@productor.Experiencia</span>
+                            <span class="ficha-label">Experiencia</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        }
+
+        <!-- FINCA REESTRUCTURADA PARA EL DISEÑO -->
+        @if (tabActiva == "finca")
+        {
+            <div class="perfil-finca">
+
+                <!-- PARTE SUPERIOR (Grid de 2 columnas) -->
+                <div class="finca-top-grid">
+
+                    <div class="finca-texto">
+                        <h2>Nuestra finca</h2>
+                        <p>@productor.FincaDescripcion</p>
+
+                        <!-- Datos organizados en Fila Horizontal -->
+                        <div class="finca-datos">
+                            
+                            <!-- Ítems con SVG integrados como en el diseño -->
+                            <div class="dato-item">
+                                <div class="dato-icono">
+                                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#7a5c43" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="m8 3 4 8 5-5 5 15H2L8 3z"/>
+                                    </svg>
+                                </div>
+                                <div class="dato-textos">
+                                    <span class="dato-valor">@productor.Altitud</span>
+                                    <span class="dato-label">Altitud</span>
+                                </div>
+                            </div>
+
+                            <div class="dato-item">
+                                <div class="dato-icono">
+                                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#7a5c43" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242M9.01 14v4M12.01 16v4M15.01 14v4"/>
+                                    </svg>
+                                </div>
+                                <div class="dato-textos">
+                                    <span class="dato-valor">Clima ideal</span>
+                                    <span class="dato-label">Para el café</span>
+                                </div>
+                            </div>
+
+                            <div class="dato-item">
+                                <div class="dato-icono">
+                                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#7a5c43" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c0 2-2 7.5-7 11.5M19 2c-2.5 2-7.5 4-11.5 9"/>
+                                    </svg>
+                                </div>
+                                <div class="dato-textos">
+                                    <span class="dato-valor">Producción</span>
+                                    <span class="dato-label">Sostenible</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Columna derecha con la Imagen -->
+                    <div class="finca-imagen">
+                        <img src="@productor.FincaImagen" alt="Finca @productor.Nombre">
+                    </div>
+
+                </div>
+
+                <!-- PARTE INFERIOR (Banner crema completo horizontal) -->
+                <div class="finca-bottom-banner">
+                    
+                    <div class="banner-izq">
+                        <div class="banner-icono">
+                            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#7a5c43" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 10V22M12 10a4 4 0 0 0-4-4H4v4a4 4 0 0 0 4 4h4M12 10a4 4 0 0 1 4-4h4v4a4 4 0 0 1-4 4h-4"/>
+                            </svg>
+                        </div>
+                        <p class="finca-extra">
+                            Cuidamos cada detalle de nuestra finca para entregar un café que refleje nuestro compromiso con la calidad y la sostenibilidad.
+                        </p>
+                    </div>
+
+                    <a href="#" class="btn-leer-mas">Conocer nuestros procesos →</a>
+
+                </div>
+
+            </div>
+        }
+
+        <!-- PROCESOS -->
+        @if (tabActiva == "procesos")
+{
+    <div class="perfil-procesos">
+
+        <!-- GRID SUPERIOR -->
+        <div class="procesos-top-grid">
+
+            <!-- INTRO -->
+            <div class="procesos-intro">
+                <h2>Procesos</h2>
+                <p>@productor.ProcesosDescripcion</p>
+
+                <!-- TARJETA DE SOSTENIBILIDAD -->
+                <div class="procesos-sostenibilidad">
+                    <div class="sost-icono">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="#7a5c43" fill="none">
+                            <path d="M12 2C8 6 6 10 6 14a6 6 0 0 0 12 0c0-4-2-8-6-12z"/>
+                        </svg>
+                    </div>
+                    <p>@productor.SostenibilidadDescripcion</p>
+                </div>
+            </div>
+
+            <!-- FLUJO DE PASOS -->
+            <div class="procesos-flujo">
+
+                @foreach (var paso in productor.Procesos)
+                {
+                    <div class="proceso-card">
+                        <div class="proceso-card-img">
+                            <img src="@paso.Imagen" alt="@paso.Titulo">
+                        </div>
+
+                        <div class="proceso-card-body">
+                            <div class="proceso-badge">
+                                <span class="badge-num">@paso.Numero</span>
+                            </div>
+
+                            <h3>@paso.Titulo</h3>
+                            <p>@paso.Descripcion</p>
+                        </div>
+                    </div>
+
+                    @if (paso != productor.Procesos.Last())
+                    {
+                        <span class="proceso-flecha">→</span>
+                    }
+                }
+
+            </div>
         </div>
 
-        <div class="perfil-ficha">
-    <div class="ficha-grid">
+        <!-- FOOTER -->
+        <div class="procesos-footer-banner">
+            <div class="banner-izq">
+                <div class="banner-icono">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="#7a5c43" fill="none">
+                        <path d="M12 10V22"/>
+                    </svg>
+                </div>
+                <p>@productor.ProcesosFooterTexto</p>
+            </div>
 
-        <div class="ficha-item border-r border-b">
-            <div class="icon-placeholder">
-                <img src="/logotipo/pr1.png" alt="Altitud" />
-            </div>
-            <div class="ficha-text">
-                <span class="ficha-valor">@productor.Altitud</span>
-                <span class="ficha-label">Altitud</span>
-            </div>
-        </div>
-
-        <div class="ficha-item border-b">
-            <div class="icon-placeholder">
-                <img src="/logotipo/pr2.png" alt="Variedades" />
-            </div>
-            <div class="ficha-text">
-                <span class="ficha-valor">@productor.Variedades</span>
-                <span class="ficha-label">Variedades</span>
-            </div>
-        </div>
-
-        <div class="ficha-item border-r">
-            <div class="icon-placeholder">
-                <img src="/logotipo/pr3.png" alt="Proceso" />
-            </div>
-            <div class="ficha-text">
-                <span class="ficha-valor">@productor.Proceso</span>
-                <span class="ficha-label">Proceso</span>
-            </div>
-        </div>
-
-        <div class="ficha-item">
-            <div class="icon-placeholder">
-                <img src="/logotipo/pr4.png" alt="Experiencia" />
-            </div>
-            <div class="ficha-text">
-                <span class="ficha-valor">@productor.Experiencia</span>
-                <span class="ficha-label">Experiencia</span>
-            </div>
+            <a href="#" class="btn-leer-mas">Ver más detalles →</a>
         </div>
 
     </div>
-</div>
+}
 
 
     </div>
 
-    <!-- GALERÍA -->
+    <!-- GALERÍA (NO SE MUESTRA EN FINCA) -->
+    <!-- GALERÍA (NO SE MUESTRA EN FINCA) -->
+@if (tabActiva == "historia")
+{
     <div class="perfil-galeria">
         @if (productor.Galeria != null && productor.Galeria.Any())
         {
@@ -120,6 +271,8 @@
             }
         }
     </div>
+}
+
 
 </div>
 
@@ -128,6 +281,13 @@
     public string id { get; set; }
 
     private ProductorModel productor;
+
+    private string tabActiva = "historia";
+
+    void CambiarTab(string tab)
+    {
+        tabActiva = tab;
+    }
 
     protected override void OnInitialized()
     {

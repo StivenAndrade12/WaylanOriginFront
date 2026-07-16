@@ -13,104 +13,395 @@
 }
 
 /* ==========================================================================
-   1. HERO SECTION (Banner con Imagen Completa y Degradado)
+   HERO SECTION — Imagen de fondo + degradado + texto encima
    ========================================================================== */
+
 .perfil-hero {
     position: relative;
     width: 100%;
-    height: 420px;
-    border-radius: 20px;
+    height: 400px;
+    border-radius: 22px;
 
-    /* 🔥 Ajuste correcto de la imagen */
-    background-size: cover;            /* llena el contenedor */
-    background-position: center center; /* centra la imagen */
+    background-size: 100% 100%; /* ← LLENA TODO */
+    background-position: center top; /* ← NO CORTA LA IMAGEN */
     background-repeat: no-repeat;
-
-    /* 🔥 Quitar fondo café que dañaba todo */
-    background-color: transparent;
 
     display: flex;
     flex-direction: column;
-    justify-content: space-between; 
-    padding: 40px;
-    box-sizing: border-box;
-    color: #ffffff;
-    margin-bottom: 30px;
+    justify-content: flex-end;
+
+    padding: 40px 60px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.35);
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
 
 
-
-/* Sistema de Navegación Superior (Breadcrumbs) */
+/* Breadcrumb */
 .breadcrumb {
+    position: absolute;
+    top: 30px;
+    left: 60px;
     font-size: 0.9rem;
     display: flex;
     align-items: center;
     gap: 8px;
-    z-index: 2;
+    z-index: 10;
 }
 
 .breadcrumb a {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.85);
     text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-.breadcrumb a:hover {
-    color: #dfba9d;
+    font-weight: 500;
 }
 
 .breadcrumb .separator {
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.5);
 }
 
 .breadcrumb .active {
     color: #dfba9d;
-    font-weight: 500;
 }
 
-/* Info del Productor posicionada sobre el degradado */
+/* Contenedor del texto del productor */
 .perfil-hero-info {
-    max-width: 650px;
-    z-index: 2;
-    margin-top: auto; /* Empuja el contenido hacia la parte inferior del banner */
+    z-index: 10;
+    max-width: 600px;
 }
 
+/* Nombre del productor */
 .perfil-nombre {
-    font-size: 3rem;
-    font-family: 'Georgia', serif;
-    margin: 0 0 15px 0;
+    font-size: 3.4rem;
+    font-family: 'Playfair Display', Georgia, serif;
     font-weight: 700;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6);
+    color: #ffffff;
+    margin: 0 0 10px 0;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
 }
 
+/* Ubicación */
 .perfil-ubicacion {
-    font-size: 1.1rem;
-    color: #dfba9d; /* Beige cálido */
-    margin-bottom: 20px;
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+    font-size: 1.2rem;
+    color: #dfba9d;
+    margin-bottom: 15px;
+    font-weight: 600;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
 }
 
+/* Frase */
 .perfil-frase {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-style: italic;
     color: #f3ece4;
-    border-left: 3px solid #d4a373;
-    padding-left: 15px;
     line-height: 1.6;
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+    border-left: 4px solid #d4a373;
+    padding-left: 18px;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
 }
+
 
 /* ==========================================================================
    2. PESTAÑAS DE NAVEGACIÓN (Tabs)
    ========================================================================== */
 .perfil-tabs {
     display: flex;
-    gap: 10px;
+    gap: 20px;
     margin-bottom: 30px;
     overflow-x: auto; /* Scroll horizontal en pantallas pequeñas */
     padding-bottom: 5px;
+    margin-top: 25px;
+}
+
+.perfil-tabs::-webkit-scrollbar {
+    height: 5px;
+}
+
+.perfil-tabs::-webkit-scrollbar-thumb {
+    background-color: #ede5da;
+    border-radius: 10px;
+}
+
+.perfil-tab {
+    padding: 12px 24px;
+    border: none;
+    background-color: #ede5da;
+    color: #5c3d2e;
+    font-weight: 600;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.perfil-tab:hover {
+    background-color: #d8cca3;
+}
+
+.perfil-tab-activo {
+    background-color: #5c3d2e;
+    color: #ffffff;
+}
+
+/* ==========================================================================
+   3. SECCIÓN DE CONTENIDO (Historia + Ficha Técnica Integrada)
+   ========================================================================== */
+.perfil-contenido {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr; /* Divide la sección en dos */
+    gap: 40px;
+    margin-bottom: 40px;
+    align-items: start;
+}
+
+/* Columna Izquierda: Historia */
+.perfil-historia {
+    background: #ffffff;
+    padding: 35px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.perfil-historia h2 {
+    font-size: 2rem;
+    font-family: 'Georgia', serif;
+    color: #3d2514;
+    margin: 0;
+}
+
+.perfil-historia p {
+    line-height: 1.8;
+    color: #4a3b32;
+    font-size: 1.05rem;
+    margin: 0;
+}
+
+/* Botón "Leer más" */
+.btn-leer-mas {
+    align-self: flex-start;
+    background-color: #241103; /* Marrón casi negro */
+    color: #ffffff;
+    padding: 12px 28px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-leer-mas:hover {
+    background-color: #3d2314;
+}
+
+/* Columna Derecha: Tarjeta de Ficha Técnica */
+.perfil-ficha {
+    background-color: #d9c7b3; /* Fondo cálido característico */
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.ficha-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Rejilla de 2x2 */
+}
+
+/* Celdas individuales de la Ficha */
+.ficha-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 25px 15px;
+}
+
+.icon-placeholder {
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.icon-placeholder img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+
+/* Textos informativos de la Ficha */
+.ficha-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.ficha-valor {
+    font-weight: bold;
+    color: #2c1609;
+    font-size: 1.15rem;
+}
+
+.ficha-label {
+    color: #5c4a3c;
+    font-size: 0.85rem;
+    text-transform: capitalize;
+}
+
+/* Bordes Divisores de la Cuadrícula 2x2 */
+.border-r {
+    border-right: 1px solid rgba(44, 22, 9, 0.15);
+}
+
+.border-b {
+    border-bottom: 1px solid rgba(44, 22, 9, 0.15);
+}
+
+/* ==========================================================================
+   4. GALERÍA DE IMÁGENES
+   ========================================================================== */
+.perfil-galeria {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.perfil-galeria-item {
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    height: 180px;
+}
+
+.perfil-galeria-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.perfil-galeria-item img:hover {
+    transform: scale(1.08); /* Zoom interactivo al pasar el mouse */
+}
+
+
+
+/* ==========================================================================
+   ESTILOS GENERALES
+   ========================================================================== */
+.perfil-container {
+    max-width: none;
+    margin: 0 auto;
+    padding: 20px;
+    padding-left:80px;
+    padding-right: 80px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #2b1a0d; /* Marrón oscuro casi negro */
+    background-color: #e8dfd3; /* Crema muy claro */
+}
+
+/* ==========================================================================
+   HERO SECTION — Imagen de fondo + degradado + texto encima
+   ========================================================================== */
+
+.perfil-hero {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    border-radius: 22px;
+
+    background-size: 100% 100%; /* ← LLENA TODO */
+    background-position: center top; /* ← NO CORTA LA IMAGEN */
+    background-repeat: no-repeat;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+
+    padding: 40px 60px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+    overflow: hidden;
+}
+
+
+/* Breadcrumb */
+.breadcrumb {
+    position: absolute;
+    top: 30px;
+    left: 60px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
+}
+
+.breadcrumb a {
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.breadcrumb .separator {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.breadcrumb .active {
+    color: #dfba9d;
+}
+
+/* Contenedor del texto del productor */
+.perfil-hero-info {
+    z-index: 10;
+    max-width: 600px;
+}
+
+/* Nombre del productor */
+.perfil-nombre {
+    font-size: 3.4rem;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 10px 0;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
+}
+
+/* Ubicación */
+.perfil-ubicacion {
+    font-size: 1.2rem;
+    color: #dfba9d;
+    margin-bottom: 15px;
+    font-weight: 600;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
+}
+
+/* Frase */
+.perfil-frase {
+    font-size: 1.3rem;
+    font-style: italic;
+    color: #f3ece4;
+    line-height: 1.6;
+    border-left: 4px solid #d4a373;
+    padding-left: 18px;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
+}
+
+
+/* ==========================================================================
+   2. PESTAÑAS DE NAVEGACIÓN (Tabs)
+   ========================================================================== */
+.perfil-tabs {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+    overflow-x: auto; /* Scroll horizontal en pantallas pequeñas */
+    padding-bottom: 5px;
+    margin-top: 25px;
 }
 
 .perfil-tabs::-webkit-scrollbar {
@@ -292,6 +583,427 @@
 }
 
 /* ==========================================================================
+   SECCIÓN FINCA — ANCHO COMPLETO ALINEADO AL HERO
+   ========================================================================== */
+
+.perfil-finca {
+    background-color: #fdfbf7; 
+    border-radius: 24px;
+
+    /* PADDING IGUAL AL HERO */
+    padding: 45px 50px;
+    padding-left: 80px;
+    padding-right: 80px;
+
+    width: 100%;
+    max-width: none;
+    margin: 0 auto;
+
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    box-shadow: 0 10px 30px rgba(61, 37, 20, 0.04);
+    box-sizing: border-box;
+}
+
+/* PARTE SUPERIOR: Grid interno de la tarjeta (Texto vs Imagen) */
+.finca-top-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 50px;
+    align-items: stretch;
+    width: 100%;
+}
+
+.finca-texto {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.finca-texto h2 {
+    font-size: 2.6rem;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    color: #3d2514;
+    margin: 0 0 15px 0;
+}
+
+.finca-texto p {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #4a3b32;
+    margin: 0 0 25px 0;
+}
+
+/* DATOS HORIZONTALES */
+.finca-datos {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    border-top: 1px solid #ebdccb;
+    padding-top: 25px;
+    margin-top: auto;
+}
+
+.dato-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.dato-icono {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f5efe6;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+}
+
+.dato-textos {
+    display: flex;
+    flex-direction: column;
+}
+
+.dato-valor {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #3d2514;
+}
+
+.dato-label {
+    font-size: 0.85rem;
+    color: #7a6f67;
+}
+
+/* IMAGEN DE LA FINCA */
+.finca-imagen {
+    width: 100%;
+    height: 100%;
+    min-height: 350px;
+}
+
+.finca-imagen img {
+    width: 100%;
+    height: 100%;
+    min-height: 350px;
+    max-height: 400px;
+    border-radius: 20px;
+    object-fit: cover;
+    box-shadow: 0 10px 25px rgba(61, 37, 20, 0.08);
+}
+
+/* BANNER INFERIOR */
+.finca-bottom-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f5efe6;
+    padding: 24px 35px;
+    border-radius: 18px;
+    gap: 30px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.banner-izq {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.banner-icono {
+    background-color: #fff;
+    border: 1px solid #ebdccb;
+    border-radius: 50%;
+    width: 54px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.finca-extra {
+    font-size: 0.98rem;
+    color: #4a3b32;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.finca-bottom-banner .btn-leer-mas {
+    background-color: #241103;
+    padding: 14px 28px;
+    font-size: 0.95rem;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #fff;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: background 0.2s ease;
+}
+
+.finca-bottom-banner .btn-leer-mas:hover {
+    background-color: #3d2314;
+}
+
+/* ==========================================================================
+   FIX CRÍTICO — LIBERAR FINCA DEL GRID
+   ========================================================================== */
+.perfil-contenido.finca-activa {
+    display: block !important;
+}
+
+/* ==========================================================================
+   ESTILOS PARA LA PESTAÑA DE PROCESOS (Waylan Origin)
+   ========================================================================== */
+
+/* 1. Liberar procesos del grid principal de Blazor */
+.perfil-contenido.procesos-activa {
+    display: block !important;
+}
+
+/* 2. Contenedor principal (La gran tarjeta blanca que engloba todo) */
+.perfil-procesos {
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(235, 220, 203, 0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* 3. Grid Superior (Intro izquierda | Flujo derecha) */
+.procesos-top-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 32px;
+    align-items: start;
+    width: 100%;
+}
+
+/* 4. Columna Intro Izquierda */
+.procesos-intro {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.procesos-intro h2 {
+    font-size: 2rem;
+    font-family: 'Playfair Display', serif;
+    color: #2c1609;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.procesos-intro p {
+    color: #7a6f67;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Tarjeta Sostenibilidad (Debajo de la intro) */
+.procesos-sostenibilidad {
+    background-color: rgba(235, 220, 203, 0.2);
+    border: 1px solid rgba(235, 220, 203, 0.4);
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-top: 8px;
+}
+
+.sost-icono {
+    background: #ffffff;
+    border: 1px solid #ebdccb;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.procesos-sostenibilidad p {
+    font-size: 0.85rem;
+    color: #5c4f46;
+    margin: 0;
+}
+
+/* 5. Contenedor del Flujo de Pasos (Columna Derecha) */
+.procesos-flujo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* 6. Estructura de las Tarjetas de Procesos */
+.proceso-card {
+    background: #ffffff;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(44, 22, 9, 0.04);
+    border: 1px solid rgba(235, 220, 203, 0.5);
+    
+    /* Permite que las tarjetas se encojan equitativamente al mínimo */
+    flex: 1 1 0%;
+    min-width: 0; 
+    
+    display: flex;
+    flex-direction: column;
+    height: 335px; /* Altura ideal para soportar el wrap de títulos en 2 líneas */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-sizing: border-box;
+}
+
+.proceso-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(44, 22, 9, 0.08);
+}
+
+/* Imagen de la tarjeta */
+.proceso-card-img {
+    width: 100%;
+    height: 120px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.proceso-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Contenido de texto interno */
+.proceso-card-body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+/* Badge circular del paso */
+.proceso-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.badge-num {
+    background: #2c1609;
+    color: #ffffff;
+    font-size: 0.8rem;
+    font-weight: bold;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Título corregido (No empuja ni desborda la tarjeta) */
+.proceso-card-body h3 {
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: #2c1609;
+    margin: 0;
+    
+    /* Solución definitiva para el wrap y alineamiento */
+    white-space: normal !important;
+    word-break: break-word;
+    line-height: 1.25;
+    height: 38px; /* Mantiene la misma altura en todos los productores */
+    
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Límite de 2 renglones */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+/* Descripción del proceso */
+.proceso-card-body p {
+    font-size: 0.8rem;
+    color: #7a6f67;
+    line-height: 1.4;
+    margin: 0;
+    word-break: break-word;
+    
+    display: -webkit-box;
+    -webkit-line-clamp: 4; /* Recorta a un máximo de 4 renglones */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Flechas indicadoras de dirección (→) */
+.proceso-flecha {
+    font-size: 1.2rem;
+    color: #c9b097;
+    font-weight: bold;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+/* 7. Banner inferior de navegación */
+.procesos-footer-banner {
+    background-color: rgba(235, 220, 203, 0.2);
+    border: 1px solid rgba(235, 220, 203, 0.4);
+    border-radius: 18px;
+    padding: 18px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.banner-izq {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.banner-icono {
+    background: #ffffff;
+    border: 1px solid #ebdccb;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.procesos-footer-banner p {
+    font-size: 0.9rem;
+    color: #5c4f46;
+    margin: 0;
+}
+
+/* ==========================================================================
    5. DISEÑO RESPONSIVO (Móviles y Tablets)
    ========================================================================== */
 @media (max-width: 992px) {
@@ -339,3 +1051,5 @@
         border-bottom: 1px solid rgba(44, 22, 9, 0.15);
     }
 }
+
+

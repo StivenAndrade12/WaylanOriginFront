@@ -1,23 +1,40 @@
-
 namespace WaylanOrigin.Client.Models;
 using System.Collections.Generic;
 
 public class ProductorModel
 {
-    public string Id { get; set; }              // "juan", "maria", etc.
-    public string Nombre { get; set; }         // Juan Carlos Restrepo
-    public string Finca { get; set; }          // Finca El Paraíso
-    public string Ubicacion { get; set; }      // Caldas, Colombia
-    public string Frase { get; set; }          // Más de 25 años...
+    public string Id { get; set; }
+    public string Nombre { get; set; }
+    public string Finca { get; set; }
+    public string Ubicacion { get; set; }
+    public string Frase { get; set; }
 
-    public string HistoriaTitulo { get; set; } // Nuestra historia
-    public string HistoriaTexto { get; set; }  // Párrafo de historia
+    public string HistoriaTitulo { get; set; }
+    public string HistoriaTexto { get; set; }
 
-    public string Altitud { get; set; }        // 1.850 msnm
-    public string Proceso { get; set; }        // Lavado
-    public string Variedades { get; set; }     // Caturra, Castillo
-    public string Experiencia { get; set; }    // 25+ años
+    public string Altitud { get; set; }
+    public string Proceso { get; set; }
+    public string Variedades { get; set; }
+    public string Experiencia { get; set; }
 
-    public string ImagenPrincipal { get; set; } // /imagenes/productores/juan-main.png
-    public List<string> Galeria { get; set; }   // Rutas de imágenes de galería
+    public string ImagenPrincipal { get; set; }
+    public List<string> Galeria { get; set; }
+
+    public string FincaDescripcion { get; set; }
+    public string FincaImagen { get; set; }
+
+    // PROCESOS
+    public string ProcesosDescripcion { get; set; }
+    public string SostenibilidadDescripcion { get; set; }
+    public string ProcesosFooterTexto { get; set; }
+
+    public List<ProcesoModel> Procesos { get; set; }
+}
+
+public class ProcesoModel
+{
+    public int Numero { get; set; }
+    public string Titulo { get; set; }
+    public string Descripcion { get; set; }
+    public string Imagen { get; set; }
 }
