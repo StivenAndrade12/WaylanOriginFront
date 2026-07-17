@@ -177,9 +177,29 @@
                         <div class="error-alert" style="color:#8C2424; font-size:0.75rem; margin-bottom:8px; font-weight:700;">@checkoutErrorMessage</div>
                     }
 
-                    <div class="shipping-address-container" style="margin-bottom: 16px; text-align: left;">
-                        <label style="display:block; font-size:0.7rem; font-weight:800; color:#3A120D; margin-bottom:4px; text-transform:uppercase; letter-spacing:1px;">Dirección de Entrega (Requerido):</label>
-                        <input type="text" placeholder="Ej: Calle 45 # 12-34, Apto 302, Bogotá" @bind="shippingAddress" style="width:100%; padding:10px; border:1px solid rgba(184, 154, 94, 0.3); border-radius:4px; font-size:0.8rem; background-color:#FAF6F0; outline:none; transition: border-color 0.2s;" />
+                    <div class="shipping-address-container" style="margin-bottom: 16px; text-align: left; padding: 12px; border: 1px solid rgba(184, 154, 94, 0.2); border-radius: 6px; background-color: rgba(250, 246, 240, 0.5);">
+                        <span style="display:block; font-size:0.75rem; font-weight:800; color:#3A120D; margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">Datos de Envío</span>
+                        
+                        <div class="form-row" style="display: flex; gap: 8px; margin-bottom: 8px;">
+                            <div style="flex: 1;">
+                                <label style="display:block; font-size:0.65rem; font-weight:700; color:#6E5E58; margin-bottom:2px;">Ciudad / Municipio *</label>
+                                <input type="text" placeholder="Ej: Bogotá" @bind="addressCity" style="width:100%; padding:8px; border:1px solid rgba(184, 154, 94, 0.3); border-radius:4px; font-size:0.75rem; background-color:#FAF6F0; outline:none;" />
+                            </div>
+                            <div style="flex: 1;">
+                                <label style="display:block; font-size:0.65rem; font-weight:700; color:#6E5E58; margin-bottom:2px;">Departamento</label>
+                                <input type="text" placeholder="Ej: Cundinamarca" @bind="addressState" style="width:100%; padding:8px; border:1px solid rgba(184, 154, 94, 0.3); border-radius:4px; font-size:0.75rem; background-color:#FAF6F0; outline:none;" />
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 8px;">
+                            <label style="display:block; font-size:0.65rem; font-weight:700; color:#6E5E58; margin-bottom:2px;">Dirección Principal *</label>
+                            <input type="text" placeholder="Ej: Calle 45 # 12-34" @bind="addressStreet" style="width:100%; padding:8px; border:1px solid rgba(184, 154, 94, 0.3); border-radius:4px; font-size:0.75rem; background-color:#FAF6F0; outline:none;" />
+                        </div>
+
+                        <div>
+                            <label style="display:block; font-size:0.65rem; font-weight:700; color:#6E5E58; margin-bottom:2px;">Apto, Barrio o Detalle adicional</label>
+                            <input type="text" placeholder="Ej: Apto 302, Barrio Chapinero" @bind="addressDetails" style="width:100%; padding:8px; border:1px solid rgba(184, 154, 94, 0.3); border-radius:4px; font-size:0.75rem; background-color:#FAF6F0; outline:none;" />
+                        </div>
                     </div>
                     
                     <div class="cart-summary-row">
@@ -216,7 +236,12 @@
     private bool isCartOpen = false;
     private bool isProcessingCheckout = false;
     private string checkoutErrorMessage = "";
-    private string shippingAddress = "";
+    
+    // Multi-field shipping address states
+    private string addressCity = "";
+    private string addressState = "";
+    private string addressStreet = "";
+    private string addressDetails = "";
 
     private void OpenCart()
     {
@@ -244,10 +269,21 @@
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(shippingAddress))
+        if (string.IsNullOrWhiteSpace(addressCity) || string.IsNullOrWhiteSpace(addressStreet))
         {
-            checkoutErrorMessage = "Por favor, ingresa tu dirección de entrega para continuar.";
+            checkoutErrorMessage = "Por favor, completa los campos obligatorios (*) de envío.";
             return;
+        }
+
+        // Concatenate fields into a single string for backend
+        string fullAddress = $"{addressStreet}, {addressDetails}".TrimEnd(',', ' ');
+        if (!string.IsNullOrWhiteSpace(addressCity))
+        {
+            fullAddress += $", {addressCity}";
+        }
+        if (!string.IsNullOrWhiteSpace(addressState))
+        {
+            fullAddress += $" - {addressState}";
         }
 
         isProcessingCheckout = true;
@@ -259,14 +295,17 @@
             Cantidad = i.Cantidad 
         }).ToList();
 
-        var response = await ApiService.CrearPedidoAsync(items, shippingAddress);
+        var response = await ApiService.CrearPedidoAsync(items, fullAddress);
         isProcessingCheckout = false;
 
         if (response != null)
         {
-            // Clear cart & address
+            // Clear cart & address fields
             CartState.Clear();
-            shippingAddress = "";
+            addressCity = "";
+            addressState = "";
+            addressStreet = "";
+            addressDetails = "";
             CloseCart();
 
             string publicKey = "pub_test_Q5YtZgh76y9b1v1S0gR81Vn8Z6R8xQv8"; // Wompi Sandbox Public Key
