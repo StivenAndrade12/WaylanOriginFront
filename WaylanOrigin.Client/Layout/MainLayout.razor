@@ -57,7 +57,7 @@
                     }
                 </div>
 
-                <a href="@GetLink("#sostenibilidad")" @onclick="CloseMenuMobile">Sostenibilidad</a>
+                <a href="/sostenibilidad" class="@(IsActive("sostenibilidad") ? "nav-active" : "")" @onclick="CloseMenuMobile">Sostenibilidad</a>
                 <a href="/productores" class="@(IsActive("productores") ? "nav-active" : "")" @onclick="CloseMenuMobile">Productores</a>
                 <a href="productos" class="@(IsActive("productos") ? "nav-active" : "")" @onclick="CloseMenuMobile">Productos</a>
                 @if (ApiService.IsAdmin)
@@ -350,6 +350,10 @@
         if (pageName == "productos")
         {
             return relativeUri.StartsWith("productos", StringComparison.OrdinalIgnoreCase);
+        }
+        if (pageName == "sostenibilidad")
+        {
+            return relativeUri.StartsWith("sostenibilidad", StringComparison.OrdinalIgnoreCase);
         }
         return false;
     }
