@@ -712,9 +712,7 @@
 
     private string GetProductImage(Product p)
     {
-        if (string.IsNullOrEmpty(p.ImagenUrl)) return "/images/coffee_bag_generic.png";
-        if (p.ImagenUrl.StartsWith("/uploads/")) return "http://localhost:5074" + p.ImagenUrl;
-        return p.ImagenUrl;
+        return ApiService.GetFullImageUrl(p.ImagenUrl);
     }
 }
 

@@ -720,7 +720,7 @@
 
     private async Task ToggleCategoryStatus(Category c)
     {
-        var success = await ApiService.CambiarEstadoCategoriaAsync(c.Id);
+        var success = await ApiService.CambiarEstadoCategoriaAsync(c.Id, !c.Activo);
         if (success)
         {
             await LoadActiveTabData();
@@ -740,7 +740,7 @@
     // --- USERS OPERATIONS ---
     private async Task ToggleUserStatus(User u)
     {
-        var success = await ApiService.CambiarEstadoUsuarioAsync(u.Id);
+        var success = await ApiService.CambiarEstadoUsuarioAsync(u.Id, !u.Activo);
         if (success)
         {
             await LoadActiveTabData();

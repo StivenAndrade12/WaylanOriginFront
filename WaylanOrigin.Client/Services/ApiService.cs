@@ -7,7 +7,17 @@ namespace WaylanOrigin.Client.Services
     public class ApiService
     {
         private readonly HttpClient _http;
-        private const string ApiBaseUrl = "http://localhost:5074/";
+        private const string ApiBaseUrl = "https://api-waylan-c6euexdwa5g2emgj.southcentralus-01.azurewebsites.net/";
+
+        public string GetFullImageUrl(string? relativeUrl)
+        {
+            if (string.IsNullOrEmpty(relativeUrl)) return "/images/coffee_bag_generic.png";
+            if (relativeUrl.StartsWith("/uploads/"))
+            {
+                return ApiBaseUrl.TrimEnd('/') + relativeUrl;
+            }
+            return relativeUrl;
+        }
 
         public string? Token { get; private set; }
         public User? CurrentUser { get; private set; }
@@ -90,13 +100,37 @@ namespace WaylanOrigin.Client.Services
                 var response = await _http.PostAsJsonAsync($"{ApiBaseUrl}api/Auth/Login", new { Email = email, Password = password });
                 if (response.IsSuccessStatusCode)
                 {
-                    var result = await response.Content.ReadFromJsonAsync<LoginResponseDto>();
-                    if (result != null && !string.IsNullOrEmpty(result.Token))
+                    var token = await response.Content.ReadAsStringAsync();
+                    if (!string.IsNullOrEmpty(token))
                     {
-                        Token = result.Token;
-                        // Decode name and role from token locally or mock for front
-                        CurrentUser = new User { Email = email, Nombre = "Usuario Activo", Rol = email == "admin@waylan.com" ? "Admin" : "Cliente" };
+                        Token = token.Trim('"');
                         SetAuthHeader();
+
+                        // Fetch real user profile from backend
+                        try
+                        {
+                            var profile = await _http.GetFromJsonAsync<UsuarioReadDto>($"{ApiBaseUrl}api/Usuarios/Perfil");
+                            if (profile != null)
+                            {
+                                CurrentUser = new User
+                                {
+                                    Id = profile.Id,
+                                    Email = profile.Email ?? email,
+                                    Nombre = profile.Nombre ?? "Usuario Activo",
+                                    Rol = profile.RolNombre ?? "Cliente",
+                                    Activo = profile.Activo
+                                };
+                            }
+                            else
+                            {
+                                CurrentUser = new User { Email = email, Nombre = "Usuario Activo", Rol = "Cliente" };
+                            }
+                        }
+                        catch
+                        {
+                            CurrentUser = new User { Email = email, Nombre = "Usuario Activo (Local)", Rol = email == "admin@waylan.com" ? "Admin" : "Cliente" };
+                        }
+
                         OnAuthStateChanged?.Invoke();
                         return true;
                     }
@@ -387,7 +421,7 @@ namespace WaylanOrigin.Client.Services
         {
             try
             {
-                return await _http.GetFromJsonAsync<List<Category>>($"{ApiBaseUrl}api/categorias/activas") ?? new List<Category>();
+                return await _http.GetFromJsonAsync<List<Category>>($"{ApiBaseUrl}api/Categoria/Lista Categorias") ?? new List<Category>();
             }
             catch
             {
@@ -400,7 +434,7 @@ namespace WaylanOrigin.Client.Services
             try
             {
                 SetAuthHeader();
-                return await _http.GetFromJsonAsync<List<Category>>($"{ApiBaseUrl}api/categorias") ?? new List<Category>();
+                return await _http.GetFromJsonAsync<List<Category>>($"{ApiBaseUrl}api/Categoria/Lista Categorias Admin") ?? new List<Category>();
             }
             catch
             {
@@ -413,7 +447,7 @@ namespace WaylanOrigin.Client.Services
             try
             {
                 SetAuthHeader();
-                var response = await _http.PostAsJsonAsync($"{ApiBaseUrl}api/categorias", new { Nombre = nombre });
+                var response = await _http.PostAsJsonAsync($"{ApiBaseUrl}api/Categoria", new { Nombre = nombre, Descripcion = nombre });
                 return response.IsSuccessStatusCode;
             }
             catch
@@ -428,7 +462,7 @@ namespace WaylanOrigin.Client.Services
             try
             {
                 SetAuthHeader();
-                var response = await _http.PutAsJsonAsync($"{ApiBaseUrl}api/categorias/{id}", new { Nombre = nombre });
+                var response = await _http.PutAsJsonAsync($"{ApiBaseUrl}api/Categoria/{id}", new { Nombre = nombre, Descripcion = nombre });
                 return response.IsSuccessStatusCode;
             }
             catch
@@ -439,32 +473,53 @@ namespace WaylanOrigin.Client.Services
             }
         }
 
-        public async Task<bool> CambiarEstadoCategoriaAsync(int id)
+        public async Task<bool> CambiarEstadoCategoriaAsync(int id, bool nuevoEstado)
         {
             try
             {
                 SetAuthHeader();
-                var response = await _http.PatchAsync($"{ApiBaseUrl}api/categorias/{id}/cambiar-estado", null);
+                var response = await _http.PatchAsync($"{ApiBaseUrl}api/Categoria/{id}/cambiar-estado?nuevoEstado={nuevoEstado}", null);
                 return response.IsSuccessStatusCode;
             }
             catch
             {
                 var cat = _mockCategories.FirstOrDefault(c => c.Id == id);
-                if (cat != null) cat.Activo = !cat.Activo;
+                if (cat != null) cat.Activo = nuevoEstado;
                 return true;
             }
         }
 
         // --- PEDIDOS ---
-        public async Task<CrearPedidoResponseDto?> CrearPedidoAsync(List<CartItemDto> items)
+        public async Task<CrearPedidoResponseDto?> CrearPedidoAsync(List<CartItemDto> items, string direccion)
         {
             try
             {
                 SetAuthHeader();
-                var response = await _http.PostAsJsonAsync($"{ApiBaseUrl}api/pedidos", new { Items = items });
+                
+                var detalles = items.Select(item => new
+                {
+                    idProducto = int.TryParse(item.ProductoId, out var idVal) ? idVal : 1,
+                    cantidad = item.Cantidad
+                }).ToList();
+
+                var payload = new
+                {
+                    direccion = direccion,
+                    detalles = detalles
+                };
+
+                var response = await _http.PostAsJsonAsync($"{ApiBaseUrl}api/Pedidos", payload);
                 if (response.IsSuccessStatusCode)
                 {
-                    return await response.Content.ReadFromJsonAsync<CrearPedidoResponseDto>();
+                    var result = await response.Content.ReadFromJsonAsync<PedidoReadDto>();
+                    if (result != null)
+                    {
+                        return new CrearPedidoResponseDto 
+                        { 
+                            Codigo = result.CodigoSeguimiento ?? string.Empty, 
+                            Total = result.Total 
+                        };
+                    }
                 }
                 return null;
             }
@@ -504,12 +559,65 @@ namespace WaylanOrigin.Client.Services
             return sum;
         }
 
+        private Order MapToOrder(PedidoReadAdminDto dto)
+        {
+            return new Order
+            {
+                Id = dto.Id,
+                Codigo = dto.CodigoSeguimiento ?? string.Empty,
+                Fecha = dto.FechaPedido,
+                EmailCliente = dto.EmailUsuario ?? string.Empty,
+                Total = (int)dto.Total,
+                Estado = dto.Estado ?? "Pendiente",
+                Detalles = dto.DetallesAdmin?.Select(d => new OrderDetail
+                {
+                    Id = d.Id,
+                    PedidoId = dto.Id,
+                    ProductoId = d.IdProducto.ToString(),
+                    NombreProducto = d.NombreProducto ?? string.Empty,
+                    Cantidad = d.Cantidad,
+                    PrecioUnitario = (int)d.PrecioUnitario
+                }).ToList() ?? new List<OrderDetail>()
+            };
+        }
+
+        private Order MapToOrder(PedidoReadDto dto)
+        {
+            return new Order
+            {
+                Id = 0,
+                Codigo = dto.CodigoSeguimiento ?? string.Empty,
+                Fecha = dto.FechaPedido,
+                EmailCliente = "Cliente",
+                Total = (int)dto.Total,
+                Estado = dto.Estado ?? "Pendiente",
+                Detalles = dto.Detalles?.Select(d => new OrderDetail
+                {
+                    Id = d.Id,
+                    PedidoId = 0,
+                    ProductoId = d.IdProducto.ToString(),
+                    NombreProducto = d.NombreProducto ?? string.Empty,
+                    Cantidad = d.Cantidad,
+                    PrecioUnitario = (int)d.PrecioUnitario
+                }).ToList() ?? new List<OrderDetail>()
+            };
+        }
+
         public async Task<List<Order>> GetTodosPedidosAsync()
         {
             try
             {
                 SetAuthHeader();
-                return await _http.GetFromJsonAsync<List<Order>>($"{ApiBaseUrl}api/pedidos") ?? new List<Order>();
+                if (IsAdmin)
+                {
+                    var dtos = await _http.GetFromJsonAsync<List<PedidoReadAdminDto>>($"{ApiBaseUrl}api/Pedidos/Lista pedidos Admin");
+                    return dtos?.Select(MapToOrder).ToList() ?? new List<Order>();
+                }
+                else
+                {
+                    var dtos = await _http.GetFromJsonAsync<List<PedidoReadDto>>($"{ApiBaseUrl}api/Pedidos/Lista pedidos usuario");
+                    return dtos?.Select(MapToOrder).ToList() ?? new List<Order>();
+                }
             }
             catch
             {
@@ -522,7 +630,14 @@ namespace WaylanOrigin.Client.Services
             try
             {
                 SetAuthHeader();
-                var response = await _http.PutAsJsonAsync($"{ApiBaseUrl}api/pedidos/{codigo}/estado", new { Estado = estado });
+                int enumVal = estado switch
+                {
+                    "Aprobado" => 1,
+                    "Enviado" => 2,
+                    "Cancelado" => 3,
+                    _ => 0 // "Pendiente"
+                };
+                var response = await _http.PatchAsync($"{ApiBaseUrl}api/Pedidos/{codigo}/cambiar-estado?nuevoEstado={enumVal}", null);
                 return response.IsSuccessStatusCode;
             }
             catch
@@ -539,7 +654,15 @@ namespace WaylanOrigin.Client.Services
             try
             {
                 SetAuthHeader();
-                return await _http.GetFromJsonAsync<List<User>>($"{ApiBaseUrl}api/usuarios") ?? new List<User>();
+                var dtos = await _http.GetFromJsonAsync<List<UsuarioReadDto>>($"{ApiBaseUrl}api/Usuarios/ListaUsuarios");
+                return dtos?.Select(dto => new User
+                {
+                    Id = dto.Id,
+                    Email = dto.Email ?? string.Empty,
+                    Nombre = dto.Nombre ?? string.Empty,
+                    Rol = dto.RolNombre ?? "Cliente",
+                    Activo = dto.Activo
+                }).ToList() ?? new List<User>();
             }
             catch
             {
@@ -547,18 +670,18 @@ namespace WaylanOrigin.Client.Services
             }
         }
 
-        public async Task<bool> CambiarEstadoUsuarioAsync(int id)
+        public async Task<bool> CambiarEstadoUsuarioAsync(int id, bool nuevoEstado)
         {
             try
             {
                 SetAuthHeader();
-                var response = await _http.PatchAsync($"{ApiBaseUrl}api/usuarios/{id}/cambiar-estado", null);
+                var response = await _http.PatchAsync($"{ApiBaseUrl}api/Usuarios/{id}/cambiar-estado?nuevoEstado={nuevoEstado}", null);
                 return response.IsSuccessStatusCode;
             }
             catch
             {
                 var usr = _mockUsers.FirstOrDefault(u => u.Id == id);
-                if (usr != null) usr.Activo = !usr.Activo;
+                if (usr != null) usr.Activo = nuevoEstado;
                 return true;
             }
         }
@@ -573,6 +696,15 @@ namespace WaylanOrigin.Client.Services
     {
         public string ProductoId { get; set; } = string.Empty;
         public int Cantidad { get; set; }
+    }
+
+    public class UsuarioReadDto
+    {
+        public int Id { get; set; }
+        public string? RolNombre { get; set; }
+        public string? Nombre { get; set; }
+        public string? Email { get; set; }
+        public bool Activo { get; set; }
     }
 
     public class ProductoReadDto
@@ -602,6 +734,43 @@ namespace WaylanOrigin.Client.Services
         public string ImagenUrl { get; set; } = string.Empty;
         public bool Activo { get; set; }
         public List<Note>? Notas { get; set; } = new List<Note>();
+    }
+
+    public class DetallePedidoReadDto
+    {
+        public int Id { get; set; }
+        public int IdProducto { get; set; }
+        public string? NombreProducto { get; set; }
+        public string? ImagenProducto { get; set; }
+        public int Cantidad { get; set; }
+        public double PrecioUnitario { get; set; }
+        public double SubTotal { get; set; }
+    }
+
+    public class PedidoReadDto
+    {
+        public string? CodigoSeguimiento { get; set; }
+        public string? Direccion { get; set; }
+        public decimal Total { get; set; }
+        public string? Estado { get; set; }
+        public string? EstadoPago { get; set; }
+        public DateTime FechaPedido { get; set; }
+        public List<DetallePedidoReadDto>? Detalles { get; set; }
+    }
+
+    public class PedidoReadAdminDto
+    {
+        public int Id { get; set; }
+        public string? CodigoSeguimiento { get; set; }
+        public string? Direccion { get; set; }
+        public int IdUsuario { get; set; }
+        public string? NombreUsuario { get; set; }
+        public string? EmailUsuario { get; set; }
+        public decimal Total { get; set; }
+        public string? Estado { get; set; }
+        public string? EstadoPago { get; set; }
+        public DateTime FechaPedido { get; set; }
+        public List<DetallePedidoReadDto>? DetallesAdmin { get; set; }
     }
 
     public class CrearPedidoResponseDto

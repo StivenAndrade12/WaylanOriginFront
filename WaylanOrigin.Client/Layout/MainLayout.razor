@@ -176,6 +176,11 @@
                     {
                         <div class="error-alert" style="color:#8C2424; font-size:0.75rem; margin-bottom:8px; font-weight:700;">@checkoutErrorMessage</div>
                     }
+
+                    <div class="shipping-address-container" style="margin-bottom: 16px; text-align: left;">
+                        <label style="display:block; font-size:0.7rem; font-weight:800; color:#3A120D; margin-bottom:4px; text-transform:uppercase; letter-spacing:1px;">Dirección de Entrega (Requerido):</label>
+                        <input type="text" placeholder="Ej: Calle 45 # 12-34, Apto 302, Bogotá" @bind="shippingAddress" style="width:100%; padding:10px; border:1px solid rgba(184, 154, 94, 0.3); border-radius:4px; font-size:0.8rem; background-color:#FAF6F0; outline:none; transition: border-color 0.2s;" />
+                    </div>
                     
                     <div class="cart-summary-row">
                         <span>Total Compra:</span>
@@ -211,6 +216,7 @@
     private bool isCartOpen = false;
     private bool isProcessingCheckout = false;
     private string checkoutErrorMessage = "";
+    private string shippingAddress = "";
 
     private void OpenCart()
     {
@@ -225,9 +231,7 @@
 
     private string GetProductImage(Product p)
     {
-        if (string.IsNullOrEmpty(p.ImagenUrl)) return "/images/coffee_bag_generic.png";
-        if (p.ImagenUrl.StartsWith("/uploads/")) return "http://localhost:5074" + p.ImagenUrl;
-        return p.ImagenUrl;
+        return ApiService.GetFullImageUrl(p.ImagenUrl);
     }
 
     private async Task IniciarCheckout()
@@ -240,6 +244,12 @@
             return;
         }
 
+        if (string.IsNullOrWhiteSpace(shippingAddress))
+        {
+            checkoutErrorMessage = "Por favor, ingresa tu dirección de entrega para continuar.";
+            return;
+        }
+
         isProcessingCheckout = true;
         
         // Convert to DTO
@@ -249,13 +259,14 @@
             Cantidad = i.Cantidad 
         }).ToList();
 
-        var response = await ApiService.CrearPedidoAsync(items);
+        var response = await ApiService.CrearPedidoAsync(items, shippingAddress);
         isProcessingCheckout = false;
 
         if (response != null)
         {
-            // Clear cart
+            // Clear cart & address
             CartState.Clear();
+            shippingAddress = "";
             CloseCart();
 
             string publicKey = "pub_test_Q5YtZgh76y9b1v1S0gR81Vn8Z6R8xQv8"; // Wompi Sandbox Public Key
