@@ -1,0 +1,330 @@
+/* ==========================================
+   SECCIÓN CONTACTO - ESTILO PREMIUM BEIGE/CREMA
+   ========================================== */
+.contacto-section {
+    background-color: #F4F0EA;
+    color: #2B2B2B;
+    position: relative;
+    padding-top: 70px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    overflow: hidden;
+}
+
+.coffee-branch-bg {
+    position: absolute;
+    top: 20px;
+    right: -30px;
+    width: 320px;
+    height: 280px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' fill='none' stroke='%23C39A58' stroke-width='1' opacity='0.35'%3E%3Cpath d='M10,180 Q80,100 180,20' /%3E%3Cpath d='M60,120 Q40,90 20,100 Q40,110 60,120' /%3E%3Cpath d='M100,80 Q80,50 60,60 Q80,70 100,80' /%3E%3Cpath d='M140,40 Q120,10 100,20 Q120,30 140,40' /%3E%3Ccircle cx='70' cy='110' r='5' /%3E%3Ccircle cx='110' cy='70' r='5' /%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: contain;
+    pointer-events: none;
+}
+
+.contacto-container {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 20px 80px 20px;
+}
+
+/* Header */
+.contacto-header {
+    margin-bottom: 55px;
+}
+
+.subtitle-gold {
+    color: #C39A58;
+    font-size: 0.78rem;
+    letter-spacing: 2.5px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.title-serif {
+    font-family: 'Playfair Display', 'Georgia', serif;
+    font-size: 3.2rem;
+    color: #1A1A1A;
+    margin: 0;
+    font-weight: 500;
+}
+
+.divider-gold {
+    width: 40px;
+    height: 1.5px;
+    background-color: #C39A58;
+    margin: 15px auto 20px auto;
+}
+
+.description-text {
+    color: #555555;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Grid Layout */
+.contacto-grid {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 25px;
+    align-items: stretch;
+}
+
+@media (max-width: 992px) {
+    .contacto-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Tarjetas */
+.info-card, .form-card {
+    background-color: #FAF7F2;
+    border-radius: 12px;
+    padding: 40px 35px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+
+.card-title-serif {
+    font-family: 'Playfair Display', 'Georgia', serif;
+    font-size: 1.6rem;
+    color: #111111;
+    margin: 0;
+    font-weight: 500;
+}
+
+.small-divider-gold {
+    width: 35px;
+    height: 1.5px;
+    background-color: #C39A58;
+    margin: 12px 0 30px 0;
+}
+
+/* Información de Contacto (Con separadores elegantes) */
+.info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    border-bottom: 1px solid #EAE3D2; /* Línea divisora */
+    padding-bottom: 18px;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.icon-wrapper {
+    margin-top: 2px;
+}
+
+.info-text h3 {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #111111;
+    margin: 0 0 4px 0;
+}
+
+.info-text p {
+    font-size: 0.86rem;
+    color: #666666;
+    margin: 0;
+    line-height: 1.45;
+}
+
+.social-icons {
+    display: flex;
+    gap: 20px;
+    margin-top: 35px;
+    padding-top: 10px;
+}
+
+.social-icons a {
+    display: inline-flex;
+    transition: transform 0.2s ease;
+}
+
+.social-icons a:hover {
+    transform: translateY(-2px);
+}
+
+/* ==========================================
+   FORMULARIO Y RECUADROS (AJUSTADOS Y SEPARADOS)
+   ========================================== */
+.form-body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px !important; /* Despega los recuadros verticalmente */
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px !important; /* Despega Nombre y Correo horizontalmente */
+}
+
+@media (max-width: 576px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Estilos directos sobre los inputs y textareas de Blazor */
+::deep input,
+::deep textarea,
+.form-card input,
+.form-card textarea,
+.form-control-custom,
+.textarea-custom {
+    width: 100% !important;
+    background-color: #F7F3EE !important; /* Crema suave idéntico a la imagen */
+    border: 1px solid #E5DEC9 !important; /* Borde sutil y fino */
+    border-radius: 8px !important;
+    padding: 16px 20px !important; /* Aumenta el aire interno */
+    font-size: 0.92rem !important;
+    color: #333333 !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+    transition: all 0.25s ease !important;
+    box-shadow: none !important;
+}
+
+::deep input::placeholder,
+::deep textarea::placeholder,
+.form-card input::placeholder,
+.form-card textarea::placeholder {
+    color: #9E9488 !important;
+    font-size: 0.88rem !important;
+}
+
+::deep input:focus,
+::deep textarea:focus,
+.form-card input:focus,
+.form-card textarea:focus {
+    border-color: #C39A58 !important;
+    background-color: #FFFFFF !important;
+    box-shadow: 0 0 0 3px rgba(195, 154, 88, 0.12) !important;
+}
+
+::deep textarea,
+.form-card textarea,
+.textarea-custom {
+    min-height: 150px !important; /* Altura adecuada para la caja de mensaje */
+    resize: vertical !important;
+}
+
+/* Botón NEGRO Ancho Completo (Full Width) */
+.btn-submit-black {
+    width: 100% !important; /* Se estira a todo el ancho */
+    background-color: #0F0E0E !important;
+    color: #FFFFFF !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 18px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    cursor: pointer !important;
+    margin-top: 5px !important;
+    transition: background-color 0.25s ease !important;
+}
+
+.btn-submit-black span {
+    font-size: 0.82rem !important;
+    letter-spacing: 2.5px !important;
+    font-weight: 700 !important;
+    color: #FFFFFF !important;
+}
+
+.btn-submit-black:hover {
+    background-color: #242220 !important;
+}
+
+.success-msg {
+    color: #2e7d32;
+    background-color: #e8f5e9;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* Barra inferior */
+.bottom-benefits-bar {
+    background-color: #0A0A0A;
+    padding: 45px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.benefits-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+@media (max-width: 992px) {
+    .benefits-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+    }
+}
+
+@media (max-width: 576px) {
+    .benefits-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+.benefit-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    padding-right: 15px;
+}
+
+.benefit-item:last-child {
+    border-right: none;
+}
+
+@media (max-width: 992px) {
+    .benefit-item {
+        border-right: none;
+    }
+}
+
+.benefit-text h4 {
+    color: #FFFFFF;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 6px 0;
+}
+
+.benefit-text p {
+    color: #999999;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    margin: 0 0 10px 0;
+}
+
+.mini-line-gold {
+    width: 25px;
+    height: 2px;
+    background-color: #C39A58;
+}

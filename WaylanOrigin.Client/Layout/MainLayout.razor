@@ -13,7 +13,7 @@
         <div class="nav-container">
 
             <a class="nav-brand" href="">
-                <img src="/logotipo/Logotipo Waylan Origin-Photoroom.png" alt="Waylan Origin Logo" class="nav-logo-img" />
+                <img src="/logotipo/waylan.png" alt="Waylan Origin Logo" class="nav-logo-img" />
             </a>
 
             <button class="mobile-menu-btn" @onclick="ToggleMenuMobile" type="button" aria-label="Menu">
@@ -34,7 +34,7 @@
             <div class="nav-links @(isMenuMobileOpen ? "mobile-open" : "")">
                 <a href="@GetLink("#inicio")" @onclick="CloseMenuMobile">Inicio</a>
 
-                @* --- EVENTOS DE HOVER OPTIMIZADOS PARA PC --- *@
+                @* --- DROPDOWN NOSOTROS --- *@
                 <div class="dropdown-waylan-container"
                      @onmouseenter="ManejarMouseEnter"
                      @onmouseleave="ManejarMouseLeave">
@@ -52,24 +52,25 @@
                             <a href="@GetLink("#nosotros")" @onclick="CloseAllMenus">Nuestra Historia</a>
                             <a href="/nuestro-proceso" @onclick="CloseAllMenus">Nuestro Proceso</a>
                             <a href="/exportaciones" @onclick="CloseAllMenus">Exportaciones</a>
-                            <a href="@GetLink("#contacto")" @onclick="CloseAllMenus">Contacto</a>
                         </div>
                     }
                 </div>
 
                 <a href="/sostenibilidad" class="@(IsActive("sostenibilidad") ? "nav-active" : "")" @onclick="CloseMenuMobile">Sostenibilidad</a>
                 <a href="/productores" class="@(IsActive("productores") ? "nav-active" : "")" @onclick="CloseMenuMobile">Productores</a>
-                <a href="productos" class="@(IsActive("productos") ? "nav-active" : "")" @onclick="CloseMenuMobile">Productos</a>
+                <a href="/productos" class="@(IsActive("productos") ? "nav-active" : "")" @onclick="CloseMenuMobile">Productos</a>
+                
                 @if (ApiService.IsAdmin)
                 {
-                    <a href="admin" class="@(IsActive("admin") ? "nav-active" : "")" @onclick="CloseMenuMobile">Panel Admin</a>
+                    <a href="/admin" class="@(IsActive("admin") ? "nav-active" : "")" @onclick="CloseMenuMobile">Panel Admin</a>
                 }
-                <a href="@GetLink("#Contactanos")" @onclick="CloseMenuMobile">Contáctanos</a>
+                
+                <a href="/contacto" class="@(IsActive("contacto") ? "nav-active" : "")" @onclick="CloseMenuMobile">Contáctanos</a>
             </div>
 
             <div class="nav-auth-actions">
                 <button class="nav-icon-btn" title="Buscar productos..." type="button" @onclick="AbrirBuscador">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16" >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                         <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
                     </svg>
                 </button>
@@ -275,7 +276,6 @@
             return;
         }
 
-        // Concatenate fields into a single string for backend
         string fullAddress = $"{addressStreet}, {addressDetails}".TrimEnd(',', ' ');
         if (!string.IsNullOrWhiteSpace(addressCity))
         {
@@ -288,7 +288,6 @@
 
         isProcessingCheckout = true;
         
-        // Convert to DTO
         var items = CartState.Items.Select(i => new CartItemDto 
         { 
             ProductoId = i.Product.Id, 
@@ -300,7 +299,6 @@
 
         if (response != null)
         {
-            // Clear cart & address fields
             CartState.Clear();
             addressCity = "";
             addressState = "";
@@ -308,12 +306,11 @@
             addressDetails = "";
             CloseCart();
 
-            string publicKey = "pub_test_Q5YtZgh76y9b1v1S0gR81Vn8Z6R8xQv8"; // Wompi Sandbox Public Key
+            string publicKey = "pub_test_Q5YtZgh76y9b1v1S0gR81Vn8Z6R8xQv8";
             string reference = response.Codigo;
             long amountInCents = (long)(response.Total * 100);
             string redirectUrl = NavigationManager.ToAbsoluteUri("/pago-exitoso").ToString();
 
-            // Trigger Wompi checkout modal
             await JS.InvokeVoidAsync("abrirWidgetWompi", publicKey, reference, amountInCents, redirectUrl);
         }
         else
@@ -397,15 +394,7 @@
     private bool IsActive(string pageName)
     {
         var relativeUri = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
-        if (pageName == "productos")
-        {
-            return relativeUri.StartsWith("productos", StringComparison.OrdinalIgnoreCase);
-        }
-        if (pageName == "sostenibilidad")
-        {
-            return relativeUri.StartsWith("sostenibilidad", StringComparison.OrdinalIgnoreCase);
-        }
-        return false;
+        return relativeUri.StartsWith(pageName, StringComparison.OrdinalIgnoreCase);
     }
 
     private void ToggleDropdown()
@@ -434,7 +423,6 @@
     {
         isNosotrosOpen = false;
     }
-
 
     private void ProcesarLogout()
     {

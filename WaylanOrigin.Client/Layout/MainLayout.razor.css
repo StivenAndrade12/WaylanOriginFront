@@ -72,8 +72,10 @@ header {
 }
 
 .nav-logo-img {
-    height: 52px;
+    height: 80px !important; /* o el tamaño que quieras */
     width: auto;
+    margin-top: -14px; /* levanta el logo */
+    margin-bottom: -14px; /* baja el logo */
 }
 
 /* --- ENLACES (VISTA PC) --- */
