@@ -1,4 +1,5 @@
 @page "/perfil/{id}"
+@inject IJSRuntime JS
 @namespace WaylanOrigin.Client.Pages
 @using WaylanOrigin.Client.Models
 @using System.Linq
@@ -255,24 +256,34 @@
 
 
     </div>
-
-    <!-- GALERÍA (NO SE MUESTRA EN FINCA) -->
-    <!-- GALERÍA (NO SE MUESTRA EN FINCA) -->
+<!-- GALERÍA (CARRUSEL CENTRADO) -->
 @if (tabActiva == "historia")
 {
-    <div class="perfil-galeria">
-        @if (productor.Galeria != null && productor.Galeria.Any())
-        {
-            @foreach (var img in productor.Galeria)
-            {
-                <div class="perfil-galeria-item">
-                    <img src="@img" alt="Imagen de @productor.Nombre" />
-                </div>
-            }
-        }
-    </div>
-}
+    @if (productor.Galeria != null && productor.Galeria.Any())
+    {
+        <div class="galeria-carrusel-wrapper">
+            <!-- Flecha Izquierda -->
+            <button type="button" class="btn-carrusel" @onclick='() => MoverGaleria(-260)'>
+                ‹
+            </button>
 
+            <!-- Tira de imágenes -->
+            <div class="perfil-galeria">
+                @foreach (var img in productor.Galeria)
+                {
+                    <div class="perfil-galeria-item">
+                        <img src="@img" alt="Imagen de @productor.Nombre" />
+                    </div>
+                }
+            </div>
+
+            <!-- Flecha Derecha -->
+            <button type="button" class="btn-carrusel" @onclick='() => MoverGaleria(260)'>
+                ›
+            </button>
+        </div>
+    }
+}
 
 </div>
 
@@ -281,6 +292,12 @@
     public string id { get; set; }
 
     private ProductorModel productor;
+
+    
+    private async Task MoverGaleria(int px)
+    {
+        await JS.InvokeVoidAsync("eval", $"document.querySelector('.perfil-galeria').scrollBy({{ left: {px}, behavior: 'smooth' }})");
+    }
 
     private string tabActiva = "historia";
 
