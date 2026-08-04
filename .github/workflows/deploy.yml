@@ -31,8 +31,11 @@ jobs:
       - name: Publish Blazor App
         run: dotnet publish WaylanOrigin.Client/WaylanOrigin.Client.csproj -c Release -o output
 
-      - name: Fix SPA Routing for GitHub Pages
-        run: cp output/wwwroot/index.html output/wwwroot/404.html
+      - name: Fix SPA Routing, Base Href and NoJekyll for GitHub Pages
+        run: |
+          sed -i 's/<base href="\/" \/>/<base href="\/WaylanOriginFront\/" \/>/g' output/wwwroot/index.html
+          cp output/wwwroot/index.html output/wwwroot/404.html
+          touch output/wwwroot/.nojekyll
 
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
