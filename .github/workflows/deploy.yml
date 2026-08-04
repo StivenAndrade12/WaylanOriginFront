@@ -33,7 +33,7 @@ jobs:
 
       - name: Fix SPA Routing, Base Href and NoJekyll for GitHub Pages
         run: |
-          sed -i 's/<base href="[^"]*".*>/<base href="\/WaylanOriginFront\/" \/>/g' output/wwwroot/index.html
+          python3 -c "path='output/wwwroot/index.html'; text=open(path).read(); open(path,'w').write(text.replace('<base href=\"/\" />', '<base href=\"/WaylanOriginFront/\" />'))"
           cp output/wwwroot/index.html output/wwwroot/404.html
           touch output/wwwroot/.nojekyll
 
