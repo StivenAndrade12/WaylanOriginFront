@@ -31,11 +31,8 @@ jobs:
       - name: Publish Blazor App
         run: dotnet publish WaylanOrigin.Client/WaylanOrigin.Client.csproj -c Release -o output
 
-      - name: Fix SPA Routing, Base Href and NoJekyll for GitHub Pages
-        run: |
-          python3 -c "path='output/wwwroot/index.html'; text=open(path).read(); open(path,'w').write(text.replace('<base href=\"/\" />', '<base href=\"/WaylanOriginFront/\" />'))"
-          cp output/wwwroot/index.html output/wwwroot/404.html
-          touch output/wwwroot/.nojekyll
+      - name: Fix SPA Routing, Asset Fingerprinting, Base Href and NoJekyll for GitHub Pages
+        run: python3 .github/workflows/fix_deploy.py
 
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
