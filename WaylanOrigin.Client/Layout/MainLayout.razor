@@ -13,7 +13,7 @@
         <div class="nav-container">
 
             <a class="nav-brand" href="">
-                <img src="/logotipo/waylan.png" alt="Waylan Origin Logo" class="nav-logo-img" />
+                <img src="logotipo/waylan.png" alt="Waylan Origin Logo" class="nav-logo-img" />
             </a>
 
             <button class="mobile-menu-btn" @onclick="ToggleMenuMobile" type="button" aria-label="Menu">
@@ -50,22 +50,22 @@
                     {
                         <div class="dropdown-waylan-menu">
                             <a href="@GetLink("#nosotros")" @onclick="CloseAllMenus">Nuestra Historia</a>
-                            <a href="/nuestro-proceso" @onclick="CloseAllMenus">Nuestro Proceso</a>
-                            <a href="/exportaciones" @onclick="CloseAllMenus">Exportaciones</a>
+                            <a href="nuestro-proceso" @onclick="CloseAllMenus">Nuestro Proceso</a>
+                            <a href="exportaciones" @onclick="CloseAllMenus">Exportaciones</a>
                         </div>
                     }
                 </div>
 
-                <a href="/sostenibilidad" class="@(IsActive("sostenibilidad") ? "nav-active" : "")" @onclick="CloseMenuMobile">Sostenibilidad</a>
-                <a href="/productores" class="@(IsActive("productores") ? "nav-active" : "")" @onclick="CloseMenuMobile">Productores</a>
-                <a href="/productos" class="@(IsActive("productos") ? "nav-active" : "")" @onclick="CloseMenuMobile">Productos</a>
+                <a href="sostenibilidad" class="@(IsActive("sostenibilidad") ? "nav-active" : "")" @onclick="CloseMenuMobile">Sostenibilidad</a>
+                <a href="productores" class="@(IsActive("productores") ? "nav-active" : "")" @onclick="CloseMenuMobile">Productores</a>
+                <a href="productos" class="@(IsActive("productos") ? "nav-active" : "")" @onclick="CloseMenuMobile">Productos</a>
                 
                 @if (ApiService.IsAdmin)
                 {
-                    <a href="/admin" class="@(IsActive("admin") ? "nav-active" : "")" @onclick="CloseMenuMobile">Panel Admin</a>
+                    <a href="admin" class="@(IsActive("admin") ? "nav-active" : "")" @onclick="CloseMenuMobile">Panel Admin</a>
                 }
                 
-                <a href="/contacto" class="@(IsActive("contacto") ? "nav-active" : "")" @onclick="CloseMenuMobile">Contáctanos</a>
+                <a href="contacto" class="@(IsActive("contacto") ? "nav-active" : "")" @onclick="CloseMenuMobile">Contáctanos</a>
             </div>
 
             <div class="nav-auth-actions">
@@ -91,7 +91,7 @@
                             
                             @if (ApiService.IsAdmin)
                             {
-                                <a href="/admin" @onclick="CloseDropdown" class="btn-submit-login" style="text-decoration:none; text-align:center; display:block; margin-bottom:8px;">Panel de Control</a>
+                                <a href="admin" @onclick="CloseDropdown" class="btn-submit-login" style="text-decoration:none; text-align:center; display:block; margin-bottom:8px;">Panel de Control</a>
                             }
                             
                             <button type="button" class="btn-submit-login" style="background-color:#8C2424;" @onclick="ProcesarLogout">
@@ -108,7 +108,7 @@
                     <span class="cart-badge @(CartState.CartCount > 0 ? "cart-badge-bump" : "")">@CartState.CartCount</span>
                 </button>
 
-                <a href="/productos" class="btn-nav-accent">COMPRAR ORIGEN <span class="arrow-gold">›</span></a>
+                <a href="productos" class="btn-nav-accent">COMPRAR ORIGEN <span class="arrow-gold">›</span></a>
             </div>
         </div>
     </nav>

@@ -50,7 +50,51 @@ for target_dir in [old_fw, new_fw]:
                 shutil.copyfile(full_path, alias_path)
                 print(f"Aliased {fname} -> {alias_name}")
 
-# 3. Update index.html
+# 3. Clean leading slashes from static assets and hrefs across all published files
+replacements = [
+    ('src="/imagenes/', 'src="imagenes/'),
+    ('src="/logotipo/', 'src="logotipo/'),
+    ('src="/images/', 'src="images/'),
+    ('src="/fondos/', 'src="fondos/'),
+    ('src="/productores/', 'src="productores/'),
+    ('url(\'/imagenes/', 'url(\'imagenes/'),
+    ('url("/imagenes/', 'url("imagenes/'),
+    ('url(/imagenes/', 'url(imagenes/'),
+    ('url(\'/fondos/', 'url(\'fondos/'),
+    ('url("/fondos/', 'url("fondos/'),
+    ('url(/fondos/', 'url(fondos/'),
+    ('href="/nuestro-proceso"', 'href="nuestro-proceso"'),
+    ('href="/exportaciones"', 'href="exportaciones"'),
+    ('href="/sostenibilidad"', 'href="sostenibilidad"'),
+    ('href="/productores"', 'href="productores"'),
+    ('href="/productos"', 'href="productos"'),
+    ('href="/admin"', 'href="admin"'),
+    ('href="/contacto"', 'href="contacto"'),
+    ('href="/auth"', 'href="auth"'),
+    ('href="/cita-semanal"', 'href="cita-semanal"'),
+    ('href="/todos-los-productores"', 'href="todos-los-productores"'),
+    ('href="/organizacion/', 'href="organizacion/'),
+    ('href="/perfil/', 'href="perfil/'),
+]
+
+for root, dirs, files in os.walk(wwwroot):
+    for fname in files:
+        if fname.endswith((".html", ".js", ".css", ".json")):
+            fpath = os.path.join(root, fname)
+            try:
+                with open(fpath, "r", encoding="utf-8") as f:
+                    content = f.read()
+                orig = content
+                for old, new in replacements:
+                    content = content.replace(old, new)
+                if content != orig:
+                    with open(fpath, "w", encoding="utf-8") as f:
+                        f.write(content)
+                    print(f"Cleansed paths in {fname}")
+            except Exception as e:
+                pass
+
+# 4. Update index.html
 index_path = os.path.join(wwwroot, "index.html")
 if os.path.exists(index_path):
     with open(index_path, "r", encoding="utf-8") as f:
@@ -63,11 +107,11 @@ if os.path.exists(index_path):
         f.write(html)
     print("Updated index.html base href and framework path.")
 
-    # 4. Create 404.html for SPA routing
+    # 5. Create 404.html for SPA routing
     shutil.copyfile(index_path, os.path.join(wwwroot, "404.html"))
     print("Created 404.html")
 
-# 5. Touch .nojekyll in wwwroot
+# 6. Touch .nojekyll in wwwroot
 with open(os.path.join(wwwroot, ".nojekyll"), "w") as f:
     f.write("# Disable Jekyll\n")
 print("Created .nojekyll")
