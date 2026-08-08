@@ -384,11 +384,15 @@
     private string GetLink(string fragment)
     {
         var relativeUri = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
-        if (string.IsNullOrEmpty(relativeUri) || relativeUri.StartsWith("?") || relativeUri.StartsWith("#"))
+        if (string.IsNullOrEmpty(relativeUri) || relativeUri.Equals("index.html", StringComparison.OrdinalIgnoreCase))
         {
             return fragment;
         }
-        return "/" + fragment;
+        if (fragment == "#inicio" || string.IsNullOrEmpty(fragment))
+        {
+            return "./";
+        }
+        return "./" + fragment;
     }
 
     private bool IsActive(string pageName)

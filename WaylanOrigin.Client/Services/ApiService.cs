@@ -11,10 +11,18 @@ namespace WaylanOrigin.Client.Services
 
         public string GetFullImageUrl(string? relativeUrl)
         {
-            if (string.IsNullOrEmpty(relativeUrl)) return "/images/coffee_bag_generic.png";
+            if (string.IsNullOrEmpty(relativeUrl)) return "images/coffee_bag_generic.png";
+            if (relativeUrl.StartsWith("http://") || relativeUrl.StartsWith("https://"))
+            {
+                return relativeUrl;
+            }
             if (relativeUrl.StartsWith("/uploads/"))
             {
                 return ApiBaseUrl.TrimEnd('/') + relativeUrl;
+            }
+            if (relativeUrl.StartsWith("/"))
+            {
+                return relativeUrl.TrimStart('/');
             }
             return relativeUrl;
         }
