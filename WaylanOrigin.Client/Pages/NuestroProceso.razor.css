@@ -1,4 +1,4 @@
-﻿.proceso-container {
+.proceso-container {
     max-width: 1300px;
     margin: 0 auto;
     padding: 0 20px;
@@ -65,7 +65,7 @@
     left: 0;
     width: 60%;
     height: 100%;
-    background-image: url('/FONDOPROCESO.png');
+    background-image: url('');
     background-repeat: no-repeat;
     background-size: cover;
     background-position: left center;
@@ -172,7 +172,7 @@
 
 .proceso-steps-section {
     background-color: #E6DFD3;
-    background-image: url('/textura-papel.png');
+    background-image: url('');
     padding: 80px 0;
 }
 
@@ -473,7 +473,7 @@
 /* Lado izquierdo con el color beige/papel */
 .historias-left-side {
     background-color: #F2E6D8;
-    background-image: url('/textura-papel.png');
+    background-image: url('');
     background-repeat: repeat;
     padding: 90px 80px 90px 10%;
     display: flex;
@@ -577,7 +577,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-image: url('/imagenes/taza.png');
+        background-image: url('');
         background-size: cover;
         background-position: center center;
         background-repeat: no-repeat;
@@ -716,7 +716,7 @@
     }
 
     .historias-left-side {
-        background-image: url('/fondos/blanco.png');
+        background-image: url('');
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;

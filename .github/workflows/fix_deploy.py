@@ -51,42 +51,21 @@ for target_dir in [old_fw, new_fw]:
                 print(f"Aliased {fname} -> {alias_name}")
 
 # 3. Clean leading slashes from static assets and hrefs across all published files
-replacements = [
-    ('src="/imagenes/', 'src="imagenes/'),
-    ('src="/logotipo/', 'src="logotipo/'),
-    ('src="/images/', 'src="images/'),
-    ('src="/fondos/', 'src="fondos/'),
-    ('src="/productores/', 'src="productores/'),
-    ('url(\'/imagenes/', 'url(\'imagenes/'),
-    ('url("/imagenes/', 'url("imagenes/'),
-    ('url(/imagenes/', 'url(imagenes/'),
-    ('url(\'/fondos/', 'url(\'fondos/'),
-    ('url("/fondos/', 'url("fondos/'),
-    ('url(/fondos/', 'url(fondos/'),
-    ('href="/nuestro-proceso"', 'href="nuestro-proceso"'),
-    ('href="/exportaciones"', 'href="exportaciones"'),
-    ('href="/sostenibilidad"', 'href="sostenibilidad"'),
-    ('href="/productores"', 'href="productores"'),
-    ('href="/productos"', 'href="productos"'),
-    ('href="/admin"', 'href="admin"'),
-    ('href="/contacto"', 'href="contacto"'),
-    ('href="/auth"', 'href="auth"'),
-    ('href="/cita-semanal"', 'href="cita-semanal"'),
-    ('href="/todos-los-productores"', 'href="todos-los-productores"'),
-    ('href="/organizacion/', 'href="organizacion/'),
-    ('href="/perfil/', 'href="perfil/'),
-]
+import re
 
 for root, dirs, files in os.walk(wwwroot):
     for fname in files:
-        if fname.endswith((".html", ".js", ".css", ".json")):
+        if fname.endswith((".html", ".js", ".css", ".json", ".dat")):
             fpath = os.path.join(root, fname)
             try:
                 with open(fpath, "r", encoding="utf-8") as f:
                     content = f.read()
                 orig = content
-                for old, new in replacements:
-                    content = content.replace(old, new)
+
+                # Strip leading slashes from src="/...", href="/...", url('/...'), url("/..."), url(/...)
+                content = re.sub(r'src=["\']/([a-zA-Z0-9_\-\./]+)["\']', r'src="\1"', content)
+                content = re.sub(r'url\([\'"]?/([a-zA-Z0-9_\-\./]+)[\'"]?\)', r'url("\1")', content)
+
                 if content != orig:
                     with open(fpath, "w", encoding="utf-8") as f:
                         f.write(content)
