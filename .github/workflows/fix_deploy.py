@@ -64,7 +64,7 @@ for root, dirs, files in os.walk(wwwroot):
 
                 # Strip leading slashes from src="/...", href="/...", url('/...'), url("/..."), url(/...)
                 content = re.sub(r'src=["\']/([a-zA-Z0-9_\-\./]+)["\']', r'src="\1"', content)
-                content = re.sub(r'url\([\'"]?/([a-zA-Z0-9_\-\./]+)[\'"]?\)', r'url("\1")', content)
+                content = re.sub(r'url\([\'"]?/([a-zA-Z0-9_\-\./]+)[\'"]?\)', r'url(\1)', content)
 
                 if content != orig:
                     with open(fpath, "w", encoding="utf-8") as f:
