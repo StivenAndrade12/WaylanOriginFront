@@ -265,9 +265,9 @@
             await Task.Delay(1200);
             
             if (ApiService.IsAdmin)
-                NavigationManager.NavigateTo("/admin");
+                NavigationManager.NavigateTo("admin");
             else
-                NavigationManager.NavigateTo("/");
+                NavigationManager.NavigateTo("./");
         }
         else
         {

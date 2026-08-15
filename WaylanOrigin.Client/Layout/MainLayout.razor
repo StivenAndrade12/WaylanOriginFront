@@ -266,7 +266,7 @@
         if (!ApiService.IsLoggedIn)
         {
             CloseCart();
-            NavigationManager.NavigateTo("/auth");
+            NavigationManager.NavigateTo("auth");
             return;
         }
 
@@ -405,7 +405,7 @@
     {
         if (!ApiService.IsLoggedIn)
         {
-            NavigationManager.NavigateTo("/auth");
+            NavigationManager.NavigateTo("auth");
         }
         else
         {
@@ -432,7 +432,7 @@
     {
         ApiService.Logout();
         CloseDropdown();
-        NavigationManager.NavigateTo("/");
+        NavigationManager.NavigateTo("./");
     }
 
     private void AbrirBuscador()

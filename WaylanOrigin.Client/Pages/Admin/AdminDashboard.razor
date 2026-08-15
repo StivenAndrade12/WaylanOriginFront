@@ -49,7 +49,7 @@
             <div class="unauthorized-card">
                 <h2>Acceso Denegado</h2>
                 <p>Tu cuenta no cuenta con permisos de administrador en el sistema.</p>
-                <button class="btn-admin-submit" @onclick='() => NavigationManager.NavigateTo("/")'>IR AL INICIO</button>
+                <button class="btn-admin-submit" @onclick='() => NavigationManager.NavigateTo("./")'>IR AL INICIO</button>
             </div>
         </div>
     }
@@ -497,7 +497,7 @@
     private void HandleLogout()
     {
         ApiService.Logout();
-        NavigationManager.NavigateTo("/admin", forceLoad: true);
+        NavigationManager.NavigateTo("admin", forceLoad: true);
     }
 
     private async Task SetActiveTab(string tabName)
