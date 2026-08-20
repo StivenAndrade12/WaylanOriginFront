@@ -123,12 +123,12 @@
     flex: 1;
 }
 
-    .hero-feature-item img {
-        height: 55px;
-        width: auto;
-        object-fit: contain;
-        align-self: flex-start;
-    }
+.hero-feature-item img {
+    height: 55px;
+    width: auto;
+    object-fit: contain;
+    align-self: flex-start;
+}
 
 .hero-feature-info h6 {
     font-family: 'Georgia', serif;
@@ -228,11 +228,11 @@
     margin-bottom: 15px;
 }
 
-    .timeline-icono-top img {
-        height: 80px;
-        width: auto;
-        object-fit: contain;
-    }
+.timeline-icono-top img {
+    height: 80px;
+    width: auto;
+    object-fit: contain;
+}
 
 .timeline-numero-circulo {
     background-color: #1E1A16;
@@ -282,11 +282,11 @@
     background-color: #D6CDBD;
 }
 
-    .timeline-foto-box img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
+.timeline-foto-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 
 /* ============================
    SECCIÓN TRANSPARENCIA FINAL
@@ -318,7 +318,8 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    gap: 35px; /* Distancia perfecta entre los 3 bloques principales */
+    gap: 35px;
+    /* Distancia perfecta entre los 3 bloques principales */
 }
 
 /* BLOQUE DE TÍTULO (IZQUIERDA) */
@@ -345,10 +346,10 @@
     margin: 0;
 }
 
-    .transparencia-heading span {
-        font-style: italic;
-        color: #B89A5E;
-    }
+.transparencia-heading span {
+    font-style: italic;
+    color: #B89A5E;
+}
 
 /* BLOQUE DE CONTENIDO (CENTRO - HORIZONTAL) */
 .transparencia-features-row {
@@ -369,17 +370,19 @@
     text-align: left;
 }
 
-    .feature-item-horizontal img {
-        width: 80px; /* Iconos pequeños y finos */
-        height: 80px;
-        margin-bottom: 12px;
-        object-fit: contain;
-    }
+.feature-item-horizontal img {
+    width: 80px;
+    /* Iconos pequeños y finos */
+    height: 80px;
+    margin-bottom: 12px;
+    object-fit: contain;
+}
 
 .feature-content h5 {
     font-family: 'Georgia', serif;
     font-size: 0.95rem;
-    color: #B89A5E; /* Tono dorado elegante para los subtítulos */
+    color: #B89A5E;
+    /* Tono dorado elegante para los subtítulos */
     margin: 0 0 6px 0;
     font-weight: 400;
 }
@@ -395,7 +398,8 @@
 .transparencia-divider {
     width: 1px;
     background-color: rgba(184, 154, 94, 0.2);
-    height: 90px; /* Cubre el alto de los textos perfectamente */
+    height: 90px;
+    /* Cubre el alto de los textos perfectamente */
     flex-shrink: 0;
     align-self: center;
 }
@@ -403,18 +407,20 @@
 /* BANNER DE LA IMAGEN (DERECHA) */
 .transparencia-imagen-box {
     flex-shrink: 0;
-    width: 320px; /* Ancho controlado para que actúe como banner de cierre */
-    height: 130px; /* Obliga a la imagen a ser bajita y delgada */
+    width: 320px;
+    /* Ancho controlado para que actúe como banner de cierre */
+    height: 130px;
+    /* Obliga a la imagen a ser bajita y delgada */
     border-radius: 8px;
     overflow: hidden;
     border: 1px solid rgba(184, 154, 94, 0.15);
 }
 
-    .transparencia-imagen-box img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
+.transparencia-imagen-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 
 /* RESPONSIVE CONTROLADO */
 @media (max-width: 1200px) {
@@ -489,19 +495,20 @@
     z-index: 1;
 }
 
-    /* Borramos el pseudo-elemento de la sierra por completo y creamos la transición suave */
-    .historias-left-side::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        right: -150px; /* Se extiende hacia la derecha para hacer el fade encima de la taza */
-        width: 150px;
-        height: 100%;
-        z-index: 3;
-        /* Degradado que va desde el color beige exacto hasta desaparecer en transparente */
-        background: linear-gradient(to right, #F2E6D8 0%, rgba(242, 230, 216, 0.8) 30%, rgba(242, 230, 216, 0) 100%);
-        pointer-events: none;
-    }
+/* Borramos el pseudo-elemento de la sierra por completo y creamos la transición suave */
+.historias-left-side::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: -150px;
+    /* Se extiende hacia la derecha para hacer el fade encima de la taza */
+    width: 150px;
+    height: 100%;
+    z-index: 3;
+    /* Degradado que va desde el color beige exacto hasta desaparecer en transparente */
+    background: linear-gradient(to right, #F2E6D8 0%, rgba(242, 230, 216, 0.8) 30%, rgba(242, 230, 216, 0) 100%);
+    pointer-events: none;
+}
 
 .historias-content-wrapper {
     max-width: 600px;
@@ -547,11 +554,11 @@
     align-items: flex-start;
 }
 
-    .bullet-item-horizontal img {
-        width: 55px;
-        height: 55px;
-        object-fit: contain;
-    }
+.bullet-item-horizontal img {
+    width: 55px;
+    height: 55px;
+    object-fit: contain;
+}
 
 .bullet-info h6 {
     font-size: 0.95rem;
@@ -576,18 +583,18 @@
     z-index: 2;
 }
 
-    .historias-right-bg-side::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image: url('imagenes/taza.png');
-        background-size: cover;
-        background-position: center center;
-        background-repeat: no-repeat;
-    }
+.historias-right-bg-side::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('imagenes/taza.png');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
 
 /* ===================================================
    FOOTER VALORES — SIN CAMBIOS
@@ -732,9 +739,9 @@
         position: relative;
     }
 
-        .historias-left-side::after {
-            display: none;
-        }
+    .historias-left-side::after {
+        display: none;
+    }
 
     .historias-content-wrapper {
         align-items: center;
@@ -783,7 +790,9 @@
 }
 
 @media (max-width: 768px) {
-    .timeline-proceso-horizontal, .timeline-imagenes-grid {
+
+    .timeline-proceso-horizontal,
+    .timeline-imagenes-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 
@@ -797,13 +806,16 @@
         padding-bottom: 20px;
     }
 
-        .feature-item:last-child {
-            border-bottom: none;
-        }
+    .feature-item:last-child {
+        border-bottom: none;
+    }
 }
 
 @media (max-width: 480px) {
-    .timeline-proceso-horizontal, .timeline-imagenes-grid, .valores-row {
+
+    .timeline-proceso-horizontal,
+    .timeline-imagenes-grid,
+    .valores-row {
         grid-template-columns: 1fr;
     }
 }

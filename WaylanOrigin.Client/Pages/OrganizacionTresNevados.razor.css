@@ -1,21 +1,30 @@
 /* Paleta de Colores Café del Diseño */
 :root {
     /* 1. Fondos principales */
-    --tn-bg-main: #EFE6DC;         /* El fondo beige general de toda la página */
-    --tn-bg-container: #F6EEE5;    /* Un tono sutilmente más claro para el contenedor principal */
-    
+    --tn-bg-main: #EFE6DC;
+    /* El fondo beige general de toda la página */
+    --tn-bg-container: #F6EEE5;
+    /* Un tono sutilmente más claro para el contenedor principal */
+
     /* 2. Bloques y Tarjetas (Sección Estadísticas y Productores) */
-    --tn-card-bg: #EAE0D3;         /* El tono arena/beige medio de las tarjetas y el panel de iconos */
-    --tn-card-hover: #DFD2C2;      /* Un color un poco más oscuro para cuando pasen el mouse (Hover) */
-    
+    --tn-card-bg: #EAE0D3;
+    /* El tono arena/beige medio de las tarjetas y el panel de iconos */
+    --tn-card-hover: #DFD2C2;
+    /* Un color un poco más oscuro para cuando pasen el mouse (Hover) */
+
     /* 3. Textos y Tipografías */
-    --tn-text-title: #2A190E;      /* Café oscuro profundo para títulos principales */
-    --tn-text-body: #4A3B32;       /* Café medio para las descripciones y textos largos */
-    --tn-text-muted: #7A695D;      /* Café claro opaco para subtítulos */
-    
+    --tn-text-title: #2A190E;
+    /* Café oscuro profundo para títulos principales */
+    --tn-text-body: #4A3B32;
+    /* Café medio para las descripciones y textos largos */
+    --tn-text-muted: #7A695D;
+    /* Café claro opaco para subtítulos */
+
     /* 4. Detalles de Acento */
-    --tn-accent-gold: #966946;     /* El color marrón/dorado icónico de los iconos y detalles */
-    --tn-border-light: #DDD0C1;    /* Líneas divisorias sutiles */
+    --tn-accent-gold: #966946;
+    /* El color marrón/dorado icónico de los iconos y detalles */
+    --tn-border-light: #DDD0C1;
+    /* Líneas divisorias sutiles */
 }
 
 * {
@@ -25,16 +34,16 @@
 }
 
 body {
-    background-color: var(--tn-bg-main); 
+    background-color: var(--tn-bg-main);
     margin: 0;
     padding: 0;
     width: 100%;
-    min-height: 100vh; 
+    min-height: 100vh;
 }
 
 /* Contenedor principal */
 .tresnevados-container {
-    color: var(--tn-text-body); 
+    color: var(--tn-text-body);
     padding: 20px;
     padding-left: 150px;
     padding-right: 150px;
@@ -84,7 +93,7 @@ body {
 
     top: -100px;
     right: -200px;
-    
+
     width: 650px;
     height: 520px;
 
@@ -141,7 +150,7 @@ body {
     height: 100%;
     object-fit: cover;
     border-radius: 24px;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
 }
 
 /* Panel de Estadísticas */
@@ -173,7 +182,8 @@ body {
     top: 15%;
     height: 70%;
     width: 5px;
-    border-right: 1px solid #966946; /* MÁS GRUESA */
+    border-right: 1px solid #966946;
+    /* MÁS GRUESA */
 }
 
 .tn-stat-number {
@@ -258,7 +268,7 @@ body {
 
 .tn-card-img {
     width: 100%;
-    height: 200px; 
+    height: 200px;
     overflow: hidden;
     border-top-left-radius: 16px;
     border-top-right-radius: 16px;
@@ -375,7 +385,7 @@ body {
 .linea-dorada {
     width: 300px;
     height: 2px;
-    background: linear-gradient(to right, #c1923f, rgba(193, 146, 63, 0)); 
+    background: linear-gradient(to right, #c1923f, rgba(193, 146, 63, 0));
 }
 
 /* Responsive */
@@ -384,6 +394,7 @@ body {
         padding-left: 40px;
         padding-right: 40px;
     }
+
     .tn-productores-grid {
         grid-template-columns: repeat(3, 1fr);
     }
@@ -394,16 +405,20 @@ body {
         padding-left: 20px;
         padding-right: 20px;
     }
+
     .tn-hero {
         flex-direction: column;
     }
+
     .tn-stats-panel {
         flex-direction: column;
         gap: 20px;
     }
+
     .tn-stat-item:not(:last-child)::after {
         display: none;
     }
+
     .tn-productores-grid {
         grid-template-columns: repeat(2, 1fr);
     }
