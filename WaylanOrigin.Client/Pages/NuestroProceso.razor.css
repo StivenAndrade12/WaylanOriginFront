@@ -737,6 +737,7 @@
         background-position: center;
         background-repeat: no-repeat;
         position: relative;
+        padding: 45px 20px !important;
     }
 
     .historias-left-side::after {

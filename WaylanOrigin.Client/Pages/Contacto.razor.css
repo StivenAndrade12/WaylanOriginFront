@@ -275,6 +275,9 @@
 /* Barra inferior */
 .bottom-benefits-bar {
     background-color: #0A0A0A;
+    background-image: url('../fondos/topography.svg');
+    background-repeat: repeat;
+    background-size: 800px 800px;
     padding: 45px 20px;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
 }

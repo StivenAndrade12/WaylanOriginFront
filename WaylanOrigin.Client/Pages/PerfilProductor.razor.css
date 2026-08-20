@@ -1065,10 +1065,15 @@
 }
 
 @media (max-width: 768px) {
+    .perfil-container {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+        padding-top: 15px !important;
+    }
+
     .perfil-hero {
         min-height: 380px;
         padding: 25px 20px;
-        /* Oscurece un poco más el fondo en móvil para garantizar contraste */
         background-image: linear-gradient(to top, rgba(28, 15, 8, 0.95) 60%, rgba(28, 15, 8, 0.4) 100%) !important;
     }
 
