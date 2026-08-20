@@ -93,10 +93,10 @@
 
 .proceso-main-title {
     font-family: 'Georgia', serif;
-    font-size: 3.5rem;
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
     font-weight: 300;
     line-height: 1.15;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 .proceso-description {
@@ -791,6 +791,30 @@
 }
 
 @media (max-width: 768px) {
+
+    .proceso-hero-features {
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 20px !important;
+        max-width: 100% !important;
+    }
+
+    .hero-feature-item {
+        align-items: center !important;
+        text-align: center !important;
+        width: 100% !important;
+    }
+
+    .hero-feature-item img {
+        align-self: center !important;
+    }
+
+    .hero-feature-divider {
+        width: 100% !important;
+        height: 1px !important;
+        margin: 8px 0 !important;
+        background-color: rgba(255, 255, 255, 0.15) !important;
+    }
 
     .timeline-proceso-horizontal,
     .timeline-imagenes-grid {
