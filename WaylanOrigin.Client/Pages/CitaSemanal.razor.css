@@ -23,11 +23,12 @@
 /* --- HERO SECTION --- */
 .cita-hero-section {
     position: relative;
-    padding: 120px 0 80px 0;
+    padding: 100px 0 70px 0;
     color: #FAFAF9;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    background-color: #120c08;
+    background-image: url('../fondos/topography.svg');
+    background-repeat: repeat;
+    background-size: 800px 800px;
 }
 
 .cita-back-navigation {
@@ -86,11 +87,11 @@
 }
 
 .cita-hero-subtitle {
-    font-size: 1.1rem;
-    line-height: 1.7;
+    font-size: 1.15rem;
+    line-height: 1.75;
     color: #E5E7EB;
-    max-width: 620px;
-    margin-bottom: 36px;
+    max-width: 650px;
+    margin-bottom: 30px;
     font-weight: 300;
 }
 
@@ -536,6 +537,9 @@
 
 .callout-box {
     background-color: #120c08;
+    background-image: url('../fondos/topography.svg');
+    background-repeat: repeat;
+    background-size: 800px 800px;
     border-radius: 16px;
     padding: 48px;
     display: flex;
@@ -595,6 +599,9 @@
 /* --- FOOTER ESTADÍSTICAS --- */
 .cita-impact-footer {
     background-color: #1c1510;
+    background-image: url('../fondos/topography.svg');
+    background-repeat: repeat;
+    background-size: 800px 800px;
     padding: 48px 0;
     border-top: 1px solid rgba(184, 154, 94, 0.2);
 }

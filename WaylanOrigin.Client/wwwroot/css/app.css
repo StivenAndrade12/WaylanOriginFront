@@ -447,3 +447,36 @@ header {
 .btn-nav-accent:hover {
     background-color: var(--waylan-cherry-hover) !important;
 }
+
+/* --- ESTILO DE LÍNEAS TOPOGRÁFICAS DECORATIVAS EN FONDOS OSCUROS --- */
+.dark-topo-bg {
+    background-image: url('../fondos/topography.svg') !important;
+    background-repeat: repeat !important;
+    background-size: 800px 800px !important;
+    background-position: center center !important;
+}
+
+/* --- REGLAS GENERALES DE TIPOGRAFÍA Y ESPACIADO RESPONSIVO --- */
+p, .section-text, .hero-description, .proceso-description, .ex-desc-white {
+    font-size: clamp(1rem, 1.2vw, 1.15rem) !important;
+    line-height: 1.75 !important;
+}
+
+h1, .hero-main-title, .proceso-main-title, .ex-title-white {
+    font-size: clamp(2.5rem, 5vw, 4.2rem) !important;
+    line-height: 1.15 !important;
+}
+
+h2, .section-title, .proceso-subtitle-center, .historias-heading, .impact-heading, .destinos-heading {
+    font-size: clamp(2rem, 3.8vw, 3.2rem) !important;
+    line-height: 1.2 !important;
+}
+
+h3, .timeline-text-side h3, .valor-text-content h6 {
+    font-size: clamp(1.15rem, 2vw, 1.4rem) !important;
+}
+
+/* Reducción de vacíos y márgenes excesivos */
+section {
+    padding: clamp(40px, 6vw, 75px) 0;
+}

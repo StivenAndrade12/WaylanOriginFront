@@ -151,13 +151,16 @@ body {
 /* Panel de Estadísticas */
 .fc-stats-panel {
     display: flex;
-    background-color: #3A120D;/* Color sólido y opaco que tapa el fondo texturizado */
+    background-color: #3A120D;
+    background-image: url('../fondos/topography.svg');
+    background-repeat: repeat;
+    background-size: 800px 800px;
     border: 1px solid var(--fc-border-light);
     border-radius: 16px;
-    padding: 25px 10px;
+    padding: 30px 15px;
     margin-bottom: 50px;
     justify-content: space-around;
-    box-shadow: 0 4px 12px rgba(74, 59, 50, 0.05); /* Sombra suave para dar relieve */
+    box-shadow: 0 4px 12px rgba(74, 59, 50, 0.05);
 }
 
 .fc-stat-item {
