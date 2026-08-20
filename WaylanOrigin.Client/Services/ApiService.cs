@@ -633,6 +633,24 @@ namespace WaylanOrigin.Client.Services
             }
         }
 
+        public async Task<Order?> GetPedidoPorCodigoAsync(string codigo)
+        {
+            try
+            {
+                SetAuthHeader();
+                var dto = await _http.GetFromJsonAsync<PedidoReadDto>($"{ApiBaseUrl}api/Pedidos/{Uri.EscapeDataString(codigo)}");
+                if (dto != null)
+                {
+                    return MapToOrder(dto);
+                }
+            }
+            catch
+            {
+                // Fallback to mock search
+            }
+            return _mockOrders.FirstOrDefault(o => o.Codigo.Equals(codigo, StringComparison.OrdinalIgnoreCase));
+        }
+
         public async Task<bool> CambiarEstadoPedidoAsync(string codigo, string estado)
         {
             try

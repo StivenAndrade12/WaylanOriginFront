@@ -198,8 +198,7 @@
                     @if (isProcessingCheckout)
                     {
                         <button class="btn-checkout-submit" disabled>
-<span class="spinner">
-</span> PROCESANDO...
+                            <span class="spinner"></span> PROCESANDO...
                         </button>
                     }
                     else
@@ -296,7 +295,7 @@
             string publicKey = "pub_test_Q5YtZgh76y9b1v1S0gR81Vn8Z6R8xQv8";
             string reference = response.Codigo;
             long amountInCents = (long)(response.Total * 100);
-            string redirectUrl = NavigationManager.ToAbsoluteUri("/pago-exitoso").ToString();
+            string redirectUrl = NavigationManager.ToAbsoluteUri("pago-exitoso").ToString();
 
             await JS.InvokeVoidAsync("abrirWidgetWompi", publicKey, reference, amountInCents, redirectUrl);
         }
@@ -309,6 +308,7 @@
     protected override void OnInitialized()
     {
         CartState.OnChange += StateHasChanged;
+        CartState.OnCartRequested += OpenCart;
         ApiService.OnAuthStateChanged += StateHasChanged;
         NavigationManager.LocationChanged += OnLocationChanged;
     }
@@ -316,6 +316,7 @@
     public void Dispose()
     {
         CartState.OnChange -= StateHasChanged;
+        CartState.OnCartRequested -= OpenCart;
         ApiService.OnAuthStateChanged -= StateHasChanged;
         NavigationManager.LocationChanged -= OnLocationChanged;
     }

@@ -680,6 +680,7 @@
     private void AgregarAlCarrito(Product p)
     {
         CartState.AddProduct(p);
+        CartState.RequestOpenCart();
     }
 
     private void ToggleTypeContent() => isTypeExpanded = !isTypeExpanded;

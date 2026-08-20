@@ -14,6 +14,9 @@ namespace WaylanOrigin.Client
         public decimal TotalPrice => Items.Sum(i => i.Product.Precio * i.Cantidad);
 
         public event Action? OnChange;
+        public event Action? OnCartRequested;
+
+        public void RequestOpenCart() => OnCartRequested?.Invoke();
 
         public void AddProduct(Product product)
         {
