@@ -52,9 +52,27 @@
 
                 <div class="form-group-lux">
                     <label>Contraseña</label>
-                    <div class="input-wrapper">
-                        <input type="password" @bind="loginPassword" placeholder="••••••••" required
+                    <div class="input-wrapper password-input-wrapper">
+                        <input type="@(showLoginPassword ? "text" : "password")" @bind="loginPassword" placeholder="••••••••" required
                                class="form-control-lux" />
+                        <button type="button" class="btn-toggle-password" @onclick="() => showLoginPassword = !showLoginPassword" tabindex="-1" title="@(showLoginPassword ? "Ocultar contraseña" : "Mostrar contraseña")">
+                            @if (showLoginPassword)
+                            {
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486z"/>
+                                    <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829"/>
+                                    <path d="M3.35 5.47q-.27.424-.502.89C1.58 7.64 1 8 1 8s3 5.5 8 5.5a7 7 0 0 0 3.033-.687l.79.79c-.99.5-2.12.797-3.323.797-5 0-8-5.5-8-5.5a13 13 0 0 1 1.736-2.453l.795.795z"/>
+                                    <path d="M13.646 14.354l-12-12 .708-.708 12 12z"/>
+                                </svg>
+                            }
+                            else
+                            {
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>
+                                    <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>
+                                </svg>
+                            }
+                        </button>
                     </div>
                 </div>
 
@@ -70,13 +88,11 @@
                 </button>
 
                 <div class="auth-switch-links">
-                    <button type="button" class="btn-link-lux" @onclick='() => ChangeMode(AuthMode.Register)'>¿No tienes
-                        cuenta? Regístrate</button>
-                        <button type="button" class="btn-link-lux" @onclick='() => ChangeMode(AuthMode.Verify)'>Tengo un código
-                            de verificación</button>
-                        </div>
-                    </form>
-                }
+                    <button type="button" class="btn-link-lux" @onclick='() => ChangeMode(AuthMode.Register)'>¿No tienes cuenta? Regístrate</button>
+                    <button type="button" class="btn-link-lux" @onclick='() => ChangeMode(AuthMode.Verify)'>Tengo un código de verificación</button>
+                </div>
+            </form>
+        }
         else if (authMode == AuthMode.Register)
         {
             <!-- 2. REGISTRATION FORM (STEPPED) -->
@@ -101,9 +117,27 @@
 
                     <div class="form-group-lux">
                         <label>Contraseña (Mínimo 8 caracteres)</label>
-                        <div class="input-wrapper">
-                            <input type="password" @bind="registerPassword" placeholder="••••••••" required
+                        <div class="input-wrapper password-input-wrapper">
+                            <input type="@(showRegisterPassword ? "text" : "password")" @bind="registerPassword" placeholder="••••••••" required
                                    class="form-control-lux" />
+                            <button type="button" class="btn-toggle-password" @onclick="() => showRegisterPassword = !showRegisterPassword" tabindex="-1" title="@(showRegisterPassword ? "Ocultar contraseña" : "Mostrar contraseña")">
+                                @if (showRegisterPassword)
+                                {
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486z"/>
+                                        <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829"/>
+                                        <path d="M3.35 5.47q-.27.424-.502.89C1.58 7.64 1 8 1 8s3 5.5 8 5.5a7 7 0 0 0 3.033-.687l.79.79c-.99.5-2.12.797-3.323.797-5 0-8-5.5-8-5.5a13 13 0 0 1 1.736-2.453l.795.795z"/>
+                                        <path d="M13.646 14.354l-12-12 .708-.708 12 12z"/>
+                                    </svg>
+                                }
+                                else
+                                {
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>
+                                        <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>
+                                    </svg>
+                                }
+                            </button>
                         </div>
                     </div>
 
@@ -125,7 +159,7 @@
             }
             else if (registerStep == 2)
             {
-                <form @onsubmit="HandleRegisterVerify" class="auth-form">
+                <form @onsubmit="HandleRegisterVerify" class="auth-form step-fade-in">
                     <div class="email-verify-notice">
                         <div class="notice-icon">✉️</div>
                         <div class="notice-text">
@@ -146,7 +180,7 @@
                         <label>Código de Activación (6 Caracteres / Números)</label>
                         <div class="input-wrapper">
                             <input type="text" @bind="verifyCodigo" placeholder="E.g. 123456" maxlength="12" required
-                                   class="form-control-lux code-input" />
+                                   class="form-control-lux code-input" autofocus />
                         </div>
                     </div>
 
@@ -170,7 +204,7 @@
         else if (authMode == AuthMode.Verify)
         {
             <!-- 3. EMAIL VERIFICATION FORM -->
-            <form @onsubmit="HandleVerify" class="auth-form">
+            <form @onsubmit="HandleVerify" class="auth-form step-fade-in">
                 <div class="email-verify-notice">
                     <div class="notice-icon">🔐</div>
                     <div class="notice-text">
@@ -219,6 +253,10 @@
     private enum AuthMode { Login, Register, Verify }
     private AuthMode authMode = AuthMode.Login;
 
+    // Password visibility toggles
+    private bool showLoginPassword = false;
+    private bool showRegisterPassword = false;
+
     // Headings
     private string pageTitle = "Iniciar Sesión";
     private string pageSubtitle = "Bienvenido de vuelta a la experiencia Waylan Origin.";
@@ -251,6 +289,8 @@
         errorMessage = "";
         registerStep = 1; // Reset step on mode change
         verifyCodigo = "";
+        showLoginPassword = false;
+        showRegisterPassword = false;
 
         switch (mode)
         {
@@ -429,6 +469,21 @@
         }
     }
 
+    .step-fade-in {
+        animation: stepFadeIn 0.35s ease-out;
+    }
+
+    @@keyframes stepFadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.97) translateY(8px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
     .auth-card-header {
         text-align: center;
         margin-bottom: 35px;
@@ -470,6 +525,39 @@
         font-size: 0.75rem;
         font-weight: 700;
         letter-spacing: 0.5px;
+        color: var(--lux-brown);
+    }
+
+    .input-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    .password-input-wrapper {
+        display: flex;
+        align-items: center;
+    }
+
+    .password-input-wrapper .form-control-lux {
+        padding-right: 44px;
+    }
+
+    .btn-toggle-password {
+        position: absolute;
+        right: 12px;
+        background: transparent;
+        border: none;
+        color: #8C847A;
+        cursor: pointer;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.2s;
+        outline: none;
+    }
+
+    .btn-toggle-password:hover {
         color: var(--lux-brown);
     }
 
