@@ -679,6 +679,11 @@
                 content.Add(new StringContent(nid.ToString()), "IdNotas");
             }
         }
+        else
+        {
+            int defaultNoteId = availableNotes.FirstOrDefault()?.Id ?? 1;
+            content.Add(new StringContent(defaultNoteId.ToString()), "IdNotas");
+        }
 
         bool success;
         if (isEditingProduct)
