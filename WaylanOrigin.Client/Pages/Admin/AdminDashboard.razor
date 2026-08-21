@@ -111,10 +111,14 @@
                                 <thead>
                                     <tr>
                                         <th>ID</th>
+                                        <th>Imagen</th>
                                         <th>Nombre</th>
-                                        <th>Región</th>
-                                        <th>Formato</th>
+                                        <th>Categoría</th>
+                                        <th>Tueste</th>
+                                        <th>Proceso</th>
                                         <th>Precio</th>
+                                        <th>Stock</th>
+                                        <th>Notas</th>
                                         <th>Estado</th>
                                         <th>Acciones</th>
                                     </tr>
@@ -123,11 +127,35 @@
                                     @foreach (var p in products)
                                     {
                                         <tr>
-                                            <td><strong>@p.Id</strong></td>
-                                            <td>@p.Nombre</td>
-                                            <td>@p.Region</td>
-                                            <td>@p.Formato</td>
-                                            <td>$@p.Precio.ToString("N0") COP</td>
+                                            <td><strong>#@p.Id</strong></td>
+                                            <td>
+                                                <img src="@ApiService.GetFullImageUrl(p.ImagenUrl)" alt="@p.Nombre" class="admin-prod-img" />
+                                            </td>
+                                            <td><strong>@p.Nombre</strong></td>
+                                            <td>@(string.IsNullOrEmpty(p.CategoriaNombre) ? p.Formato : p.CategoriaNombre)</td>
+                                            <td><span class="badge-tueste">@(string.IsNullOrEmpty(p.Tueste) ? "Medio" : p.Tueste)</span></td>
+                                            <td><span class="badge-proceso">@(string.IsNullOrEmpty(p.Proceso) ? "Lavado" : p.Proceso)</span></td>
+                                            <td><strong>$@p.Precio.ToString("N0") COP</strong></td>
+                                            <td>
+                                                <span class="stock-badge @(p.Stock > 10 ? "in-stock" : p.Stock > 0 ? "low-stock" : "out-of-stock")">
+                                                    @p.Stock un.
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if (p.Notas != null && p.Notas.Any())
+                                                {
+                                                    <div class="notes-pill-group">
+                                                        @foreach (var n in p.Notas)
+                                                        {
+                                                            <span class="note-pill">@n.Nombre</span>
+                                                        }
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
                                             <td>
                                                 <span class="status-badge @(p.Activo ? "active" : "inactive")">
                                                     @(p.Activo ? "Activo" : "Inactivo")
@@ -1069,6 +1097,66 @@
 
     .admin-table tr:hover td {
         background-color: #FCFBF9;
+    }
+
+    /* PRODUCT THUMBNAIL & DTO BADGES */
+    .admin-prod-img {
+        width: 44px;
+        height: 44px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 1px solid rgba(184, 154, 94, 0.3);
+        background-color: #FAF6F0;
+    }
+
+    .badge-tueste, .badge-proceso {
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 4px;
+        background-color: #FAF6F0;
+        color: var(--admin-brown);
+        border: 1px solid rgba(40, 26, 18, 0.15);
+        display: inline-block;
+    }
+
+    .stock-badge {
+        font-size: 0.75rem;
+        font-weight: 800;
+        padding: 3px 8px;
+        border-radius: 4px;
+        display: inline-block;
+    }
+
+    .stock-badge.in-stock {
+        background-color: #E2F3E7;
+        color: #2F6F4C;
+    }
+
+    .stock-badge.low-stock {
+        background-color: #FEF3D6;
+        color: #C47A2B;
+    }
+
+    .stock-badge.out-of-stock {
+        background-color: #FCE8E6;
+        color: var(--admin-red);
+    }
+
+    .notes-pill-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        max-width: 180px;
+    }
+
+    .note-pill {
+        font-size: 0.65rem;
+        font-weight: 700;
+        background-color: rgba(184, 154, 94, 0.15);
+        color: var(--admin-brown);
+        padding: 2px 6px;
+        border-radius: 10px;
     }
 
     /* BADGES */
