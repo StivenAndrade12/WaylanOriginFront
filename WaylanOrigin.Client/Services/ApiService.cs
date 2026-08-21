@@ -154,7 +154,14 @@ namespace WaylanOrigin.Client.Services
             _mockUsers = new List<User>
             {
                 new User { Id = 1, Nombre = "Administrador Principal", Email = "vaquiroedinson@gmail.com", Rol = "Admin", Activo = true },
-                new User { Id = 2, Nombre = "Juan Pérez", Email = "juan@correo.com", Rol = "Cliente", Activo = true }
+                new User { Id = 2, Nombre = "Juan Pérez", Email = "juan@correo.com", Rol = "Cliente", Activo = true },
+                new User { Id = 3, Nombre = "María Camila Rodríguez", Email = "maria.rodriguez@gmail.com", Rol = "Cliente", Activo = true },
+                new User { Id = 4, Nombre = "Carlos Alberto Gómez", Email = "carlos.gomez@gmail.com", Rol = "Cliente", Activo = true },
+                new User { Id = 5, Nombre = "Laura Restrepo", Email = "laura.restrepo@gmail.com", Rol = "Cliente", Activo = false },
+                new User { Id = 6, Nombre = "Stiven Andrade", Email = "stivenandrade12@gmail.com", Rol = "Admin", Activo = true },
+                new User { Id = 7, Nombre = "Diana Marcela Torres", Email = "diana.torres@gmail.com", Rol = "Cliente", Activo = true },
+                new User { Id = 8, Nombre = "Felipe Jaramillo", Email = "felipe.jaramillo@gmail.com", Rol = "Cliente", Activo = true },
+                new User { Id = 9, Nombre = "Edinson Admin", Email = "edinson.admin@waylan.com", Rol = "Admin", Activo = true }
             };
         }
 
@@ -265,6 +272,12 @@ namespace WaylanOrigin.Client.Services
                 var response = await _http.PostAsJsonAsync($"{ApiBaseUrl}api/Auth/Registrar", new { Nombre = nombre, Email = email, Password = password });
                 if (response.IsSuccessStatusCode)
                 {
+                    if (!_mockUsers.Any(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        int maxId = _mockUsers.Any() ? _mockUsers.Max(u => u.Id) + 1 : 1;
+                        _mockUsers.Add(new User { Id = maxId, Nombre = nombre, Email = email, Rol = "Cliente", Activo = false });
+                    }
+                    OnDataChanged?.Invoke();
                     return (true, "Registro exitoso.");
                 }
 
@@ -274,10 +287,12 @@ namespace WaylanOrigin.Client.Services
             catch
             {
                 // In mock mode, add to local mock users list
-                if (!_mockUsers.Any(u => u.Email == email))
+                if (!_mockUsers.Any(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase)))
                 {
-                    _mockUsers.Add(new User { Id = _mockUsers.Max(u => u.Id) + 1, Nombre = nombre, Email = email, Rol = "Cliente", Activo = false });
+                    int maxId = _mockUsers.Any() ? _mockUsers.Max(u => u.Id) + 1 : 1;
+                    _mockUsers.Add(new User { Id = maxId, Nombre = nombre, Email = email, Rol = "Cliente", Activo = false });
                 }
+                OnDataChanged?.Invoke();
                 return (true, "Registro completado.");
             }
         }
@@ -1024,7 +1039,7 @@ namespace WaylanOrigin.Client.Services
                     var dtos = await response.Content.ReadFromJsonAsync<List<UsuarioReadDto>>();
                     if (dtos != null && dtos.Any())
                     {
-                        return dtos.Select(dto => new User
+                        var apiUsers = dtos.Select(dto => new User
                         {
                             Id = dto.Id,
                             Email = dto.Email ?? string.Empty,
@@ -1032,6 +1047,22 @@ namespace WaylanOrigin.Client.Services
                             Rol = dto.GetEffectiveRol(),
                             Activo = dto.Activo
                         }).ToList();
+
+                        foreach (var u in apiUsers)
+                        {
+                            var existing = _mockUsers.FirstOrDefault(m => m.Id == u.Id || m.Email.Equals(u.Email, StringComparison.OrdinalIgnoreCase));
+                            if (existing != null)
+                            {
+                                existing.Nombre = u.Nombre;
+                                existing.Email = u.Email;
+                                existing.Rol = u.Rol;
+                                existing.Activo = u.Activo;
+                            }
+                            else
+                            {
+                                _mockUsers.Add(u);
+                            }
+                        }
                     }
                 }
                 else
