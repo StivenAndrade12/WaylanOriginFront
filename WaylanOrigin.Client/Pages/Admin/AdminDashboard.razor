@@ -745,12 +745,16 @@
             return;
         }
 
+        string descToSend = string.IsNullOrWhiteSpace(productFormDescripcion) 
+            ? "Café de especialidad Waylan Origin con perfil de notas seleccionadas." 
+            : productFormDescripcion;
+
         var content = new MultipartFormDataContent();
         content.Add(new StringContent(productFormNombre), "Nombre");
         content.Add(new StringContent(productFormIdCategoria.ToString()), "IdCategoria");
         content.Add(new StringContent(productFormTueste.ToString()), "tueste");
         content.Add(new StringContent(productFormProceso.ToString()), "proceso");
-        content.Add(new StringContent(productFormDescripcion), "Descripcion");
+        content.Add(new StringContent(descToSend), "Descripcion");
         content.Add(new StringContent(productFormPrecio.ToString()), "Precio");
         content.Add(new StringContent(productFormStock.ToString()), "Stock");
 

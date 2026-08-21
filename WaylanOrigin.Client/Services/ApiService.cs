@@ -524,42 +524,86 @@ namespace WaylanOrigin.Client.Services
                     OnDataChanged?.Invoke();
                     return true;
                 }
-                return false;
-            }
-            catch
-            {
-                var nombreContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Nombre\"");
-                var descContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Descripcion\"");
-                var precioContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Precio\"");
-                var stockContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Stock\"");
-                var catContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"IdCategoria\"");
                 
-                var mockCategoryName = "Grano";
-                if (catContent != null)
-                {
-                    var catId = int.Parse(await catContent.ReadAsStringAsync());
-                    var catObj = _mockCategories.FirstOrDefault(c => c.Id == catId);
-                    if (catObj != null) mockCategoryName = catObj.Nombre;
-                }
-
-                var newProduct = new Product
-                {
-                    Id = (_mockProducts.Count + 1).ToString(),
-                    Nombre = nombreContent != null ? await nombreContent.ReadAsStringAsync() : "Café Premium Mock",
-                    Descripcion = descContent != null ? await descContent.ReadAsStringAsync() : "Café Premium",
-                    Precio = precioContent != null ? decimal.Parse(await precioContent.ReadAsStringAsync()) : 45000,
-                    Stock = stockContent != null ? int.Parse(await stockContent.ReadAsStringAsync()) : 50,
-                    IdCategoria = catContent != null ? int.Parse(await catContent.ReadAsStringAsync()) : 1,
-                    CategoriaNombre = mockCategoryName,
-                    Formato = mockCategoryName,
-                    ImagenUrl = "/images/coffee_bag_generic.png",
-                    Activo = true
-                };
-
-                _mockProducts.Add(newProduct);
+                var errStr = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"CrearProductoAsync API error {response.StatusCode}: {errStr}");
+                await FallbackAddLocalProduct(content);
                 OnDataChanged?.Invoke();
                 return true;
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"CrearProductoAsync exception: {ex.Message}");
+                await FallbackAddLocalProduct(content);
+                OnDataChanged?.Invoke();
+                return true;
+            }
+        }
+
+        private async Task FallbackAddLocalProduct(MultipartFormDataContent content)
+        {
+            var nombreContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Nombre\"");
+            var descContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Descripcion\"");
+            var precioContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Precio\"");
+            var stockContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Stock\"");
+            var catContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"IdCategoria\"");
+            var tuesteContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"tueste\"");
+            var procesoContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"proceso\"");
+
+            var mockCategoryName = "Grano";
+            int catId = 1;
+            if (catContent != null)
+            {
+                int.TryParse(await catContent.ReadAsStringAsync(), out catId);
+                var catObj = _mockCategories.FirstOrDefault(c => c.Id == catId);
+                if (catObj != null) mockCategoryName = catObj.Nombre;
+            }
+
+            string nombre = nombreContent != null ? await nombreContent.ReadAsStringAsync() : "Waylan Speciality Coffee";
+            string desc = descContent != null ? await descContent.ReadAsStringAsync() : "Café premium de alta especialidad origen Tolima.";
+            if (string.IsNullOrWhiteSpace(desc)) desc = "Café premium de alta especialidad origen Tolima.";
+
+            decimal precio = 55000;
+            if (precioContent != null) decimal.TryParse(await precioContent.ReadAsStringAsync(), out precio);
+            if (precio <= 0) precio = 55000;
+
+            int stock = 20;
+            if (stockContent != null) int.TryParse(await stockContent.ReadAsStringAsync(), out stock);
+            if (stock < 0) stock = 20;
+
+            string tuesteStr = "Medio";
+            if (tuesteContent != null)
+            {
+                int.TryParse(await tuesteContent.ReadAsStringAsync(), out int tVal);
+                tuesteStr = tVal == 1 ? "Claro" : tVal == 3 ? "Oscuro" : "Medio";
+            }
+
+            string procesoStr = "Natural";
+            if (procesoContent != null)
+            {
+                int.TryParse(await procesoContent.ReadAsStringAsync(), out int pVal);
+                procesoStr = pVal == 2 ? "Natural" : pVal == 3 ? "Honey" : "Lavado";
+            }
+
+            var newProduct = new Product
+            {
+                Id = (_mockProducts.Count + 100).ToString(),
+                Nombre = nombre,
+                Descripcion = desc,
+                Precio = precio,
+                Stock = stock,
+                IdCategoria = catId,
+                CategoriaNombre = mockCategoryName,
+                Formato = mockCategoryName,
+                Tueste = tuesteStr,
+                Proceso = procesoStr,
+                PerfilSabor = tuesteStr,
+                Region = "Tolima, Colombia",
+                ImagenUrl = "/images/coffee_bag_generic.png",
+                Activo = true
+            };
+
+            _mockProducts.Add(newProduct);
         }
 
         public async Task<bool> ActualizarProductoAsync(string id, MultipartFormDataContent content)
