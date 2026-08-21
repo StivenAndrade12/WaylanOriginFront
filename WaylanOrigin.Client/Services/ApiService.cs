@@ -184,7 +184,18 @@ namespace WaylanOrigin.Client.Services
                     var rawToken = await response.Content.ReadAsStringAsync();
                     if (!string.IsNullOrEmpty(rawToken))
                     {
-                        Token = rawToken.Trim('"').Trim();
+                        string extractedToken = rawToken.Trim('"').Trim();
+                        try
+                        {
+                            using var doc = System.Text.Json.JsonDocument.Parse(rawToken);
+                            if (doc.RootElement.ValueKind == System.Text.Json.JsonValueKind.Object && doc.RootElement.TryGetProperty("token", out var tokenProp))
+                            {
+                                extractedToken = tokenProp.GetString() ?? extractedToken;
+                            }
+                        }
+                        catch { }
+
+                        Token = extractedToken;
                         SetAuthHeader();
 
                         // Fetch real user profile from Azure backend
