@@ -69,10 +69,93 @@ namespace WaylanOrigin.Client.Services
             _js = js;
         }
 
+        private async Task PersistCustomDataAsync()
+        {
+            try
+            {
+                if (_customProducts.Any())
+                {
+                    var json = System.Text.Json.JsonSerializer.Serialize(_customProducts);
+                    await _js.InvokeVoidAsync("localStorage.setItem", "waylan_custom_products", json);
+                }
+                if (_customCategories.Any())
+                {
+                    var json = System.Text.Json.JsonSerializer.Serialize(_customCategories);
+                    await _js.InvokeVoidAsync("localStorage.setItem", "waylan_custom_categories", json);
+                }
+                if (_customNotes.Any())
+                {
+                    var json = System.Text.Json.JsonSerializer.Serialize(_customNotes);
+                    await _js.InvokeVoidAsync("localStorage.setItem", "waylan_custom_notes", json);
+                }
+            }
+            catch { }
+        }
+
         public async Task InitializeAuthAsync()
         {
             try
             {
+                try
+                {
+                    var savedProdsJson = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_custom_products");
+                    if (!string.IsNullOrEmpty(savedProdsJson))
+                    {
+                        var prods = System.Text.Json.JsonSerializer.Deserialize<List<Product>>(savedProdsJson);
+                        if (prods != null && prods.Any())
+                        {
+                            foreach (var p in prods)
+                            {
+                                if (!_customProducts.Any(cp => cp.Id == p.Id))
+                                {
+                                    _customProducts.Add(p);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch { }
+
+                try
+                {
+                    var savedCatsJson = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_custom_categories");
+                    if (!string.IsNullOrEmpty(savedCatsJson))
+                    {
+                        var cats = System.Text.Json.JsonSerializer.Deserialize<List<Category>>(savedCatsJson);
+                        if (cats != null && cats.Any())
+                        {
+                            foreach (var c in cats)
+                            {
+                                if (!_customCategories.Any(cc => cc.Id == c.Id))
+                                {
+                                    _customCategories.Add(c);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch { }
+
+                try
+                {
+                    var savedNotesJson = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_custom_notes");
+                    if (!string.IsNullOrEmpty(savedNotesJson))
+                    {
+                        var notes = System.Text.Json.JsonSerializer.Deserialize<List<Note>>(savedNotesJson);
+                        if (notes != null && notes.Any())
+                        {
+                            foreach (var n in notes)
+                            {
+                                if (!_customNotes.Any(cn => cn.Id == n.Id))
+                                {
+                                    _customNotes.Add(n);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch { }
+
                 var storedToken = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_token");
                 var storedEmail = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_user_email");
                 var storedNombre = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_user_nombre");
@@ -695,6 +778,7 @@ namespace WaylanOrigin.Client.Services
             string newId = (1000 + _customProducts.Count + 1).ToString();
             var localProd = ParseProductFromMultipart(newId, content);
             _customProducts.Add(localProd);
+            _ = PersistCustomDataAsync();
             OnDataChanged?.Invoke();
             return true;
         }
@@ -719,6 +803,7 @@ namespace WaylanOrigin.Client.Services
             var localProd = ParseProductFromMultipart(id, content);
             _customProducts.RemoveAll(p => p.Id == id);
             _customProducts.Add(localProd);
+            _ = PersistCustomDataAsync();
             OnDataChanged?.Invoke();
             return true;
         }
