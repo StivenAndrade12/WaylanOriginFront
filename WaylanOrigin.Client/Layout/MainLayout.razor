@@ -415,7 +415,7 @@
             addressDetails = "";
             CloseCart();
 
-            string publicKey = "pub_test_Q5YtZgh76y9b1v1S0gR81Vn8Z6R8xQv8";
+            string publicKey = ApiService.WompiPublicKey;
             string reference = response.Codigo;
             long amountInCents = (long)(response.Total * 100);
             string redirectUrl = NavigationManager.ToAbsoluteUri("pago-exitoso").ToString();

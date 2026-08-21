@@ -31,6 +31,7 @@ namespace WaylanOrigin.Client.Services
         public User? CurrentUser { get; private set; }
         public bool IsLoggedIn => !string.IsNullOrEmpty(Token);
         public bool IsAdmin => IsLoggedIn && CurrentUser?.Rol == "Admin";
+        public string WompiPublicKey { get; set; } = "pub_test_Q5YtZgh76y9b1v1S0gR81Vn8Z6R8xQv8";
 
         public event Action? OnAuthStateChanged;
 
