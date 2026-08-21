@@ -4,8 +4,8 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
     <BlazorEnableCompression>false</BlazorEnableCompression>
+    <WasmEnableFingerprinting>false</WasmEnableFingerprinting>
   </PropertyGroup>
 
   <ItemGroup>
