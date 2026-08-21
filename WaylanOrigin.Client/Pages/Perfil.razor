@@ -105,7 +105,7 @@
                                             </div>
                                             <div class="order-status-block">
                                                 <span class="status-pill @(pedido.Estado.ToLower())">
-                                                    @pedido.Estado
+                                                    @(pedido.Estado == "En_Transito" ? "En Tránsito" : pedido.Estado == "En_Reparto" ? "En Reparto" : pedido.Estado)
                                                 </span>
                                             </div>
                                         </div>

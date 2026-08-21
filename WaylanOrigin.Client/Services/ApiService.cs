@@ -308,6 +308,31 @@ namespace WaylanOrigin.Client.Services
             }
         }
 
+        public static string FormatTueste(string? input)
+        {
+            if (string.IsNullOrEmpty(input)) return "Medio";
+            if (input == "1" || input.Equals("Claro", StringComparison.OrdinalIgnoreCase)) return "Claro";
+            if (input == "3" || input.Equals("Oscuro", StringComparison.OrdinalIgnoreCase)) return "Oscuro";
+            return "Medio";
+        }
+
+        public static string FormatProceso(string? input)
+        {
+            if (string.IsNullOrEmpty(input)) return "Lavado";
+            if (input == "2" || input.Equals("Natural", StringComparison.OrdinalIgnoreCase)) return "Natural";
+            if (input == "3" || input.Equals("Honey", StringComparison.OrdinalIgnoreCase)) return "Honey";
+            return "Lavado";
+        }
+
+        public static string FormatEstadoPedido(string? input)
+        {
+            if (string.IsNullOrEmpty(input)) return "Pendiente";
+            if (input == "1" || input.Equals("En_Transito", StringComparison.OrdinalIgnoreCase) || input.Equals("En Transito", StringComparison.OrdinalIgnoreCase)) return "En_Transito";
+            if (input == "2" || input.Equals("En_Reparto", StringComparison.OrdinalIgnoreCase) || input.Equals("En Reparto", StringComparison.OrdinalIgnoreCase)) return "En_Reparto";
+            if (input == "3" || input.Equals("Entregado", StringComparison.OrdinalIgnoreCase)) return "Entregado";
+            return "Pendiente";
+        }
+
         // --- PRODUCTOS ---
         private Product MapToProduct(ProductoReadDto dto)
         {
@@ -317,8 +342,8 @@ namespace WaylanOrigin.Client.Services
                 Nombre = dto.Nombre,
                 CategoriaNombre = dto.CategoriaNombre,
                 IdCategoria = 0,
-                Tueste = dto.Tueste,
-                Proceso = dto.Proceso,
+                Tueste = FormatTueste(dto.Tueste),
+                Proceso = FormatProceso(dto.Proceso),
                 Descripcion = dto.Descripcion,
                 Precio = dto.Precio,
                 Stock = 0,
@@ -329,7 +354,7 @@ namespace WaylanOrigin.Client.Services
                 // Fallbacks/Legacies
                 Formato = dto.CategoriaNombre,
                 Region = "Tolima, Colombia",
-                PerfilSabor = dto.Tueste,
+                PerfilSabor = FormatTueste(dto.Tueste),
                 MetodoRecomendado = "Filtrado",
                 Intensidad = 3
             };
@@ -343,8 +368,8 @@ namespace WaylanOrigin.Client.Services
                 Nombre = dto.Nombre,
                 IdCategoria = dto.IdCategoria,
                 CategoriaNombre = dto.CategoriaNombre,
-                Tueste = dto.Tueste,
-                Proceso = dto.Proceso,
+                Tueste = FormatTueste(dto.Tueste),
+                Proceso = FormatProceso(dto.Proceso),
                 Descripcion = dto.Descripcion,
                 Precio = dto.Precio,
                 Stock = dto.Stock,
@@ -355,7 +380,7 @@ namespace WaylanOrigin.Client.Services
                 // Fallbacks/Legacies
                 Formato = dto.CategoriaNombre,
                 Region = "Tolima, Colombia",
-                PerfilSabor = dto.Tueste,
+                PerfilSabor = FormatTueste(dto.Tueste),
                 MetodoRecomendado = "Filtrado",
                 Intensidad = 3
             };
@@ -800,7 +825,7 @@ namespace WaylanOrigin.Client.Services
                 NombreUsuario = dto.NombreUsuario ?? string.Empty,
                 EmailCliente = dto.EmailUsuario ?? string.Empty,
                 Total = (double)dto.Total,
-                Estado = dto.Estado ?? "Pendiente",
+                Estado = FormatEstadoPedido(dto.Estado),
                 EstadoPago = dto.EstadoPago ?? "APPROVED",
                 Fecha = dto.FechaPedido,
                 Detalles = dto.DetallesAdmin?.Select(d => new OrderDetail
@@ -829,7 +854,7 @@ namespace WaylanOrigin.Client.Services
                 NombreUsuario = CurrentUser?.Nombre ?? "Cliente",
                 EmailCliente = CurrentUser?.Email ?? string.Empty,
                 Total = (double)dto.Total,
-                Estado = dto.Estado ?? "Pendiente",
+                Estado = FormatEstadoPedido(dto.Estado),
                 EstadoPago = dto.EstadoPago ?? "APPROVED",
                 Fecha = dto.FechaPedido,
                 Detalles = dto.Detalles?.Select(d => new OrderDetail
