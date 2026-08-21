@@ -748,15 +748,11 @@
         var content = new MultipartFormDataContent();
         content.Add(new StringContent(productFormNombre), "Nombre");
         content.Add(new StringContent(productFormIdCategoria.ToString()), "IdCategoria");
+        content.Add(new StringContent(productFormTueste.ToString()), "tueste");
+        content.Add(new StringContent(productFormProceso.ToString()), "proceso");
         content.Add(new StringContent(productFormDescripcion), "Descripcion");
         content.Add(new StringContent(productFormPrecio.ToString()), "Precio");
         content.Add(new StringContent(productFormStock.ToString()), "Stock");
-
-        if (!isEditingProduct)
-        {
-            content.Add(new StringContent(productFormTueste.ToString()), "tueste");
-            content.Add(new StringContent(productFormProceso.ToString()), "proceso");
-        }
 
         if (selectedImageFile != null)
         {
@@ -899,11 +895,12 @@
     // --- USERS OPERATIONS ---
     private async Task ToggleUserStatus(User u)
     {
-        var success = await ApiService.CambiarEstadoUsuarioAsync(u.Id, !u.Activo);
-        if (success)
-        {
-            await LoadActiveTabData();
-        }
+        bool nextState = !u.Activo;
+        u.Activo = nextState;
+        StateHasChanged();
+        await ApiService.CambiarEstadoUsuarioAsync(u.Id, nextState);
+        await LoadActiveTabData();
+        StateHasChanged();
     }
 }
 

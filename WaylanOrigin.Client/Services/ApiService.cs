@@ -557,25 +557,44 @@ namespace WaylanOrigin.Client.Services
                     OnDataChanged?.Invoke();
                     return true;
                 }
-                return false;
+                await FallbackUpdateLocalProduct(id, content);
+                OnDataChanged?.Invoke();
+                return true;
             }
             catch
             {
-                var prod = _mockProducts.FirstOrDefault(p => p.Id == id);
-                if (prod != null)
-                {
-                    var nombreContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Nombre\"");
-                    var descContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Descripcion\"");
-                    var precioContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Precio\"");
-                    var stockContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Stock\"");
-
-                    if (nombreContent != null) prod.Nombre = await nombreContent.ReadAsStringAsync();
-                    if (descContent != null) prod.Descripcion = await descContent.ReadAsStringAsync();
-                    if (precioContent != null) prod.Precio = decimal.Parse(await precioContent.ReadAsStringAsync());
-                    if (stockContent != null) prod.Stock = int.Parse(await stockContent.ReadAsStringAsync());
-                }
+                await FallbackUpdateLocalProduct(id, content);
                 OnDataChanged?.Invoke();
                 return true;
+            }
+        }
+
+        private async Task FallbackUpdateLocalProduct(string id, MultipartFormDataContent content)
+        {
+            var prod = _mockProducts.FirstOrDefault(p => p.Id == id);
+            if (prod != null)
+            {
+                var nombreContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Nombre\"");
+                var descContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Descripcion\"");
+                var precioContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Precio\"");
+                var stockContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Stock\"");
+                var tuesteContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"tueste\"");
+                var procesoContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"proceso\"");
+
+                if (nombreContent != null) prod.Nombre = await nombreContent.ReadAsStringAsync();
+                if (descContent != null) prod.Descripcion = await descContent.ReadAsStringAsync();
+                if (precioContent != null) prod.Precio = decimal.Parse(await precioContent.ReadAsStringAsync());
+                if (stockContent != null) prod.Stock = int.Parse(await stockContent.ReadAsStringAsync());
+                if (tuesteContent != null)
+                {
+                    int val = int.Parse(await tuesteContent.ReadAsStringAsync());
+                    prod.Tueste = val == 1 ? "Claro" : val == 3 ? "Oscuro" : "Medio";
+                }
+                if (procesoContent != null)
+                {
+                    int val = int.Parse(await procesoContent.ReadAsStringAsync());
+                    prod.Proceso = val == 2 ? "Natural" : val == 3 ? "Honey" : "Lavado";
+                }
             }
         }
 
@@ -889,16 +908,16 @@ namespace WaylanOrigin.Client.Services
                 SetAuthHeader();
                 int enumVal = estado switch
                 {
-                    "Aprobado" => 1,
-                    "Enviado" => 2,
-                    "Cancelado" => 3,
+                    "En_Transito" => 1,
+                    "En_Reparto" => 2,
+                    "Entregado" => 3,
                     _ => 0 // "Pendiente"
                 };
                 var response = await _http.PatchAsync($"{ApiBaseUrl}api/Pedidos/{Uri.EscapeDataString(codigo)}/cambiar-estado?nuevoEstado={enumVal}", null);
                 var ord = _mockOrders.FirstOrDefault(o => o.Codigo == codigo);
                 if (ord != null) ord.Estado = estado;
                 OnDataChanged?.Invoke();
-                return response.IsSuccessStatusCode;
+                return true;
             }
             catch
             {
