@@ -202,14 +202,93 @@
                                                     <label
                                                         style="display:block; font-size:0.65rem; font-weight:700; color:#6E5E58; margin-bottom:2px;">Ciudad
                                                         / Municipio *</label>
-                                                        <input type="text" placeholder="Ej: Bogotá" @bind="addressCity"
+                                                        <input type="text" placeholder="Ej: Ibagué" @bind="addressCity" list="list-ciudades"
                                                                style="width:100%; padding:8px; border:1px solid rgba(184, 154, 94, 0.3); border-radius:4px; font-size:0.75rem; background-color:#FAF6F0; outline:none;" />
+                                                        <datalist id="list-ciudades">
+                                                            <option value="Ibagué" />
+                                                            <option value="Bogotá D.C." />
+                                                            <option value="Medellín" />
+                                                            <option value="Cali" />
+                                                            <option value="Barranquilla" />
+                                                            <option value="Cartagena" />
+                                                            <option value="Bucaramanga" />
+                                                            <option value="Manizales" />
+                                                            <option value="Pereira" />
+                                                            <option value="Armenia" />
+                                                            <option value="Neiva" />
+                                                            <option value="Villavicencio" />
+                                                            <option value="Pasto" />
+                                                            <option value="Popayán" />
+                                                            <option value="Santa Marta" />
+                                                            <option value="Cúcuta" />
+                                                            <option value="Montería" />
+                                                            <option value="Valledupar" />
+                                                            <option value="Tunja" />
+                                                            <option value="Florencia" />
+                                                            <option value="Yopal" />
+                                                            <option value="Quibdó" />
+                                                            <option value="Riohacha" />
+                                                            <option value="Sincelejo" />
+                                                            <option value="San Andrés" />
+                                                            <option value="Espinal" />
+                                                            <option value="Melgar" />
+                                                            <option value="Honda" />
+                                                            <option value="Mariquita" />
+                                                            <option value="Líbano" />
+                                                            <option value="Chaparral" />
+                                                            <option value="Girardot" />
+                                                            <option value="Fusagasugá" />
+                                                            <option value="Zipaquirá" />
+                                                            <option value="Chía" />
+                                                            <option value="Soacha" />
+                                                            <option value="Envigado" />
+                                                            <option value="Itagüí" />
+                                                            <option value="Rionegro" />
+                                                            <option value="Palmira" />
+                                                            <option value="Buenaventura" />
+                                                            <option value="Soledad" />
+                                                        </datalist>
                                                     </div>
                                                     <div style="flex: 1;">
                                                         <label
                                                         style="display:block; font-size:0.65rem; font-weight:700; color:#6E5E58; margin-bottom:2px;">Departamento</label>
-                                                        <input type="text" placeholder="Ej: Cundinamarca" @bind="addressState"
+                                                        <input type="text" placeholder="Ej: Tolima" @bind="addressState" list="list-departamentos"
                                                                style="width:100%; padding:8px; border:1px solid rgba(184, 154, 94, 0.3); border-radius:4px; font-size:0.75rem; background-color:#FAF6F0; outline:none;" />
+                                                        <datalist id="list-departamentos">
+                                                            <option value="Amazonas" />
+                                                            <option value="Antioquia" />
+                                                            <option value="Arauca" />
+                                                            <option value="Atlántico" />
+                                                            <option value="Bogotá D.C." />
+                                                            <option value="Bolívar" />
+                                                            <option value="Boyacá" />
+                                                            <option value="Caldas" />
+                                                            <option value="Caquetá" />
+                                                            <option value="Casanare" />
+                                                            <option value="Cauca" />
+                                                            <option value="Cesar" />
+                                                            <option value="Chocó" />
+                                                            <option value="Córdoba" />
+                                                            <option value="Cundinamarca" />
+                                                            <option value="Guainía" />
+                                                            <option value="Guaviare" />
+                                                            <option value="Huila" />
+                                                            <option value="La Guajira" />
+                                                            <option value="Magdalena" />
+                                                            <option value="Meta" />
+                                                            <option value="Nariño" />
+                                                            <option value="Norte de Santander" />
+                                                            <option value="Putumayo" />
+                                                            <option value="Quindío" />
+                                                            <option value="Risaralda" />
+                                                            <option value="San Andrés y Providencia" />
+                                                            <option value="Santander" />
+                                                            <option value="Sucre" />
+                                                            <option value="Tolima" />
+                                                            <option value="Valle del Cauca" />
+                                                            <option value="Vaupés" />
+                                                            <option value="Vichada" />
+                                                        </datalist>
                                                     </div>
                                                 </div>
                                                 <div style="margin-bottom: 8px;">
