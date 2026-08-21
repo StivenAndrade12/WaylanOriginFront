@@ -294,9 +294,10 @@ namespace WaylanOrigin.Client.Services
         public static string FormatEstadoPedido(string? input)
         {
             if (string.IsNullOrEmpty(input)) return "Pendiente";
-            if (input == "1" || input.Equals("En_Transito", StringComparison.OrdinalIgnoreCase) || input.Equals("En Transito", StringComparison.OrdinalIgnoreCase)) return "En_Transito";
-            if (input == "2" || input.Equals("En_Reparto", StringComparison.OrdinalIgnoreCase) || input.Equals("En Reparto", StringComparison.OrdinalIgnoreCase)) return "En_Reparto";
-            if (input == "3" || input.Equals("Entregado", StringComparison.OrdinalIgnoreCase)) return "Entregado";
+            if (input == "1" || input.Equals("EnPreparacion", StringComparison.OrdinalIgnoreCase) || input.Equals("En_Preparacion", StringComparison.OrdinalIgnoreCase) || input.Equals("En Preparacion", StringComparison.OrdinalIgnoreCase)) return "EnPreparacion";
+            if (input == "2" || input.Equals("EnTransito", StringComparison.OrdinalIgnoreCase) || input.Equals("En_Transito", StringComparison.OrdinalIgnoreCase) || input.Equals("En Transito", StringComparison.OrdinalIgnoreCase)) return "EnTransito";
+            if (input == "3" || input.Equals("EnReparto", StringComparison.OrdinalIgnoreCase) || input.Equals("En_Reparto", StringComparison.OrdinalIgnoreCase) || input.Equals("En Reparto", StringComparison.OrdinalIgnoreCase)) return "EnReparto";
+            if (input == "4" || input.Equals("Entregado", StringComparison.OrdinalIgnoreCase)) return "Entregado";
             return "Pendiente";
         }
 
@@ -804,9 +805,10 @@ namespace WaylanOrigin.Client.Services
                 SetAuthHeader();
                 int enumVal = estado switch
                 {
-                    "En_Transito" or "En Transito" => 1,
-                    "En_Reparto" or "En Reparto" => 2,
-                    "Entregado" => 3,
+                    "EnPreparacion" or "En_Preparacion" or "En Preparacion" => 1,
+                    "EnTransito" or "En_Transito" or "En Transito" => 2,
+                    "EnReparto" or "En_Reparto" or "En Reparto" => 3,
+                    "Entregado" => 4,
                     _ => 0 // "Pendiente"
                 };
                 var response = await _http.PatchAsync($"{ApiBaseUrl}api/Pedidos/{Uri.EscapeDataString(codigo)}/cambiar-estado?nuevoEstado={enumVal}", null);

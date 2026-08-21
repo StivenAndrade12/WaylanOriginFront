@@ -297,8 +297,9 @@
                                             <td>
                                                 <select class="select-order-state" value="@currentState" @onchange='(e) => OnOrderStateSelected(o.Codigo, e.Value?.ToString() ?? "")'>
                                                     <option value="Pendiente">Pendiente</option>
-                                                    <option value="En_Transito">En Tránsito</option>
-                                                    <option value="En_Reparto">En Reparto</option>
+                                                    <option value="EnPreparacion">En Preparación</option>
+                                                    <option value="EnTransito">En Tránsito</option>
+                                                    <option value="EnReparto">En Reparto</option>
                                                     <option value="Entregado">Entregado</option>
                                                 </select>
                                             </td>
@@ -762,7 +763,9 @@
         content.Add(new StringContent(productFormNombre), "Nombre");
         content.Add(new StringContent(productFormIdCategoria.ToString()), "IdCategoria");
         content.Add(new StringContent(productFormTueste.ToString()), "tueste");
+        content.Add(new StringContent(productFormTueste.ToString()), "Tueste");
         content.Add(new StringContent(productFormProceso.ToString()), "proceso");
+        content.Add(new StringContent(productFormProceso.ToString()), "Proceso");
         content.Add(new StringContent(descToSend), "Descripcion");
         content.Add(new StringContent(productFormPrecio.ToString()), "Precio");
         content.Add(new StringContent(productFormStock.ToString()), "Stock");
