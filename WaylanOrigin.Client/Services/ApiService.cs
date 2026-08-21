@@ -14,7 +14,7 @@ namespace WaylanOrigin.Client.Services
         public string GetFullImageUrl(string? relativeUrl)
         {
             if (string.IsNullOrEmpty(relativeUrl)) return "images/coffee_bag_generic.png";
-            if (relativeUrl.StartsWith("http://") || relativeUrl.StartsWith("https://"))
+            if (relativeUrl.StartsWith("http://") || relativeUrl.StartsWith("https://") || relativeUrl.StartsWith("data:"))
             {
                 return relativeUrl;
             }
@@ -410,20 +410,11 @@ namespace WaylanOrigin.Client.Services
             {
                 SetAuthHeader();
                 var dtos = await _http.GetFromJsonAsync<List<ProductoReadAdminDto>>($"{ApiBaseUrl}api/Producto/Lista de productos Admin");
-                var list = dtos?.Select(MapToProduct).ToList() ?? new List<Product>();
-                foreach (var mock in _mockProducts)
+                if (dtos != null && dtos.Any())
                 {
-                    var existing = list.FirstOrDefault(p => p.Id == mock.Id);
-                    if (existing != null)
-                    {
-                        existing.Activo = mock.Activo;
-                    }
-                    else
-                    {
-                        list.Add(mock);
-                    }
+                    return dtos.Select(MapToProduct).ToList();
                 }
-                return list;
+                return _mockProducts;
             }
             catch
             {

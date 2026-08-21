@@ -297,9 +297,9 @@
                                             <td>
                                                 <select class="select-order-state" value="@currentState" @onchange='(e) => OnOrderStateSelected(o.Codigo, e.Value?.ToString() ?? "")'>
                                                     <option value="Pendiente">Pendiente</option>
-                                                    <option value="Aprobado">Aprobado</option>
-                                                    <option value="Enviado">Enviado</option>
-                                                    <option value="Cancelado">Cancelado</option>
+                                                    <option value="En_Transito">En Tránsito</option>
+                                                    <option value="En_Reparto">En Reparto</option>
+                                                    <option value="Entregado">Entregado</option>
                                                 </select>
                                             </td>
                                             <td>
