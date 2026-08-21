@@ -36,6 +36,7 @@ namespace WaylanOrigin.Client.Services
         public string WompiPublicKey { get; set; } = "pub_test_W563zt7LZtn9qNMfSfZMSlY9ODRuw6bb";
 
         public event Action? OnAuthStateChanged;
+        public event Action? OnDataChanged;
 
         // Mock state lists for standalone frontend execution
         private List<Product> _mockProducts = new();
@@ -425,6 +426,7 @@ namespace WaylanOrigin.Client.Services
                     {
                         _mockProducts.Add(MapToProduct(created));
                     }
+                    OnDataChanged?.Invoke();
                     return true;
                 }
                 return false;
@@ -460,6 +462,7 @@ namespace WaylanOrigin.Client.Services
                 };
 
                 _mockProducts.Add(newProduct);
+                OnDataChanged?.Invoke();
                 return true;
             }
         }
@@ -481,6 +484,7 @@ namespace WaylanOrigin.Client.Services
                             _mockProducts[idx] = MapToProduct(updated);
                         }
                     }
+                    OnDataChanged?.Invoke();
                     return true;
                 }
                 return false;
@@ -500,6 +504,7 @@ namespace WaylanOrigin.Client.Services
                     if (precioContent != null) prod.Precio = decimal.Parse(await precioContent.ReadAsStringAsync());
                     if (stockContent != null) prod.Stock = int.Parse(await stockContent.ReadAsStringAsync());
                 }
+                OnDataChanged?.Invoke();
                 return true;
             }
         }
@@ -510,12 +515,20 @@ namespace WaylanOrigin.Client.Services
             {
                 SetAuthHeader();
                 var response = await _http.PatchAsync($"{ApiBaseUrl}api/Producto/{id}/cambiar-estado?nuevoEstado={nuevoEstado}", null);
+                if (response.IsSuccessStatusCode)
+                {
+                    var prod = _mockProducts.FirstOrDefault(p => p.Id == id);
+                    if (prod != null) prod.Activo = nuevoEstado;
+                    OnDataChanged?.Invoke();
+                    return true;
+                }
                 return response.IsSuccessStatusCode;
             }
             catch
             {
                 var prod = _mockProducts.FirstOrDefault(p => p.Id == id);
                 if (prod != null) prod.Activo = nuevoEstado;
+                OnDataChanged?.Invoke();
                 return true;
             }
         }
@@ -552,11 +565,17 @@ namespace WaylanOrigin.Client.Services
             {
                 SetAuthHeader();
                 var response = await _http.PostAsJsonAsync($"{ApiBaseUrl}api/Categoria", new { Nombre = nombre, Descripcion = nombre });
-                return response.IsSuccessStatusCode;
+                if (response.IsSuccessStatusCode)
+                {
+                    OnDataChanged?.Invoke();
+                    return true;
+                }
+                return false;
             }
             catch
             {
                 _mockCategories.Add(new Category { Id = _mockCategories.Max(c => c.Id) + 1, Nombre = nombre, Activo = true });
+                OnDataChanged?.Invoke();
                 return true;
             }
         }
@@ -567,12 +586,18 @@ namespace WaylanOrigin.Client.Services
             {
                 SetAuthHeader();
                 var response = await _http.PutAsJsonAsync($"{ApiBaseUrl}api/Categoria/{id}", new { Nombre = nombre, Descripcion = nombre });
-                return response.IsSuccessStatusCode;
+                if (response.IsSuccessStatusCode)
+                {
+                    OnDataChanged?.Invoke();
+                    return true;
+                }
+                return false;
             }
             catch
             {
                 var cat = _mockCategories.FirstOrDefault(c => c.Id == id);
                 if (cat != null) cat.Nombre = nombre;
+                OnDataChanged?.Invoke();
                 return true;
             }
         }
@@ -583,12 +608,20 @@ namespace WaylanOrigin.Client.Services
             {
                 SetAuthHeader();
                 var response = await _http.PatchAsync($"{ApiBaseUrl}api/Categoria/{id}/cambiar-estado?nuevoEstado={nuevoEstado}", null);
+                if (response.IsSuccessStatusCode)
+                {
+                    var cat = _mockCategories.FirstOrDefault(c => c.Id == id);
+                    if (cat != null) cat.Activo = nuevoEstado;
+                    OnDataChanged?.Invoke();
+                    return true;
+                }
                 return response.IsSuccessStatusCode;
             }
             catch
             {
                 var cat = _mockCategories.FirstOrDefault(c => c.Id == id);
                 if (cat != null) cat.Activo = nuevoEstado;
+                OnDataChanged?.Invoke();
                 return true;
             }
         }

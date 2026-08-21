@@ -611,15 +611,28 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadCatalogDataAsync();
+        CartState.OnChange += StateHasChanged;
+        ApiService.OnDataChanged += HandleDataChanged;
+    }
+
+    private async void HandleDataChanged()
+    {
+        await LoadCatalogDataAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task LoadCatalogDataAsync()
+    {
         AllProducts = await ApiService.GetProductosActivosAsync();
         AllCategories = await ApiService.GetCategoriasActivasAsync();
         AllNotes = await ApiService.GetNotasAsync();
-        CartState.OnChange += StateHasChanged;
     }
 
     public void Dispose()
     {
         CartState.OnChange -= StateHasChanged;
+        ApiService.OnDataChanged -= HandleDataChanged;
     }
 
     private IEnumerable<Product> GetFilteredProducts()
