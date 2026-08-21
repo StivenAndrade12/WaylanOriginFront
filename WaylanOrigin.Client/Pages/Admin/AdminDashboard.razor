@@ -241,39 +241,79 @@
                 {
                     <!-- TAB 3: ORDERS MANAGEMENT -->
                     <div class="panel-section">
-                        <h2>Pedidos Recibidos</h2>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                            <h2>Pedidos Recibidos</h2>
+                            @if (pendingOrderStateChanges.Any())
+                            {
+                                <button class="btn-save" @onclick="SavePendingOrderStateChanges" style="background-color: #B89A5E; color: #1A100A; border: none; font-weight: 800; padding: 10px 20px; border-radius: 6px; cursor: pointer;">
+                                    💾 GUARDAR CAMBIOS DE PEDIDOS (@pendingOrderStateChanges.Count PENDIENTES)
+                                </button>
+                            }
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(orderStatusSuccessMessage))
+                        {
+                            <div style="background-color: #E2F3E7; color: #2F6F4C; padding: 12px 18px; border-radius: 8px; margin-bottom: 20px; font-weight: 700;">
+                                @orderStatusSuccessMessage
+                            </div>
+                        }
 
                         <div class="table-container">
                             <table class="admin-table">
                                 <thead>
                                     <tr>
-                                        <th>Código</th>
+                                        <th>ID</th>
+                                        <th>Código Seguimiento</th>
                                         <th>Fecha</th>
-                                        <th>Cliente</th>
+                                        <th>Usuario / Email</th>
+                                        <th>Dirección</th>
                                         <th>Total</th>
-                                        <th>Estado</th>
-                                        <th>Cambiar Estado</th>
+                                        <th>Estado Pago</th>
+                                        <th>Estado Pedido</th>
+                                        <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach (var o in orders)
                                     {
-                                        <tr>
+                                        bool isPending = pendingOrderStateChanges.ContainsKey(o.Codigo);
+                                        string currentState = isPending ? pendingOrderStateChanges[o.Codigo] : o.Estado;
+
+                                        <tr style="@(isPending ? "background-color: #FEF9F0;" : "")">
+                                            <td><code>#@o.Id</code></td>
                                             <td><strong>@o.Codigo</strong></td>
                                             <td>@o.Fecha.ToLocalTime().ToString("g")</td>
-                                            <td>@o.EmailCliente</td>
-                                            <td>$@o.Total.ToString("N0") COP</td>
                                             <td>
-                                                <span class="status-badge @(o.Estado == "Enviado" ? "active" : o.Estado == "Cancelado" ? "inactive" : "pending")">
-                                                    @o.Estado
+                                                <div><strong>@(string.IsNullOrEmpty(o.NombreUsuario) ? "Cliente" : o.NombreUsuario)</strong></div>
+                                                <small class="text-muted" style="font-size: 0.72rem; color: #706B64;">@o.EmailCliente</small>
+                                            </td>
+                                            <td><small style="font-size: 0.78rem;">@(string.IsNullOrEmpty(o.Direccion) ? "Dirección registrada" : o.Direccion)</small></td>
+                                            <td><strong>$@o.Total.ToString("N0") COP</strong></td>
+                                            <td>
+                                                <span class="status-badge active" style="font-size:0.7rem; text-transform:uppercase;">
+                                                    @o.EstadoPago
                                                 </span>
                                             </td>
                                             <td>
-                                                <select class="select-order-state" value="@o.Estado" @onchange='(e) => UpdateOrderState(o, e.Value?.ToString() ?? "")'>
+                                                <select class="select-order-state" value="@currentState" @onchange='(e) => OnOrderStateSelected(o.Codigo, e.Value?.ToString() ?? "")'>
                                                     <option value="Pendiente">Pendiente</option>
+                                                    <option value="Aprobado">Aprobado</option>
                                                     <option value="Enviado">Enviado</option>
                                                     <option value="Cancelado">Cancelado</option>
                                                 </select>
+                                            </td>
+                                            <td>
+                                                <div style="display: flex; gap: 6px;">
+                                                    <button class="btn-table-action edit" @onclick="() => ViewOrderDetails(o)" title="Ver Productos">
+                                                        👁️ Productos (@o.Detalles.Count)
+                                                    </button>
+                                                    @if (isPending)
+                                                    {
+                                                        <button class="btn-save" @onclick="() => SaveSingleOrderState(o.Codigo)" style="padding: 4px 8px; font-size: 0.75rem;">
+                                                            💾 Guardar
+                                                        </button>
+                                                    }
+                                                </div>
                                             </td>
                                         </tr>
                                     }
@@ -816,13 +856,44 @@
     }
 
     // --- ORDERS OPERATIONS ---
-    private async Task UpdateOrderState(Order o, string newState)
+    private Dictionary<string, string> pendingOrderStateChanges = new();
+    private string orderStatusSuccessMessage = "";
+
+    private void OnOrderStateSelected(string codigo, string newState)
     {
-        var success = await ApiService.CambiarEstadoPedidoAsync(o.Codigo, newState);
-        if (success)
+        orderStatusSuccessMessage = "";
+        pendingOrderStateChanges[codigo] = newState;
+    }
+
+    private async Task SaveSingleOrderState(string codigo)
+    {
+        if (pendingOrderStateChanges.TryGetValue(codigo, out var newState))
         {
-            await LoadActiveTabData();
+            var success = await ApiService.CambiarEstadoPedidoAsync(codigo, newState);
+            if (success)
+            {
+                pendingOrderStateChanges.Remove(codigo);
+                orderStatusSuccessMessage = $"¡Estado del pedido {codigo} actualizado a '{newState}' exitosamente!";
+                await LoadActiveTabData();
+            }
         }
+    }
+
+    private async Task SavePendingOrderStateChanges()
+    {
+        if (!pendingOrderStateChanges.Any()) return;
+        int count = 0;
+        foreach (var kvp in pendingOrderStateChanges.ToList())
+        {
+            var success = await ApiService.CambiarEstadoPedidoAsync(kvp.Key, kvp.Value);
+            if (success)
+            {
+                pendingOrderStateChanges.Remove(kvp.Key);
+                count++;
+            }
+        }
+        orderStatusSuccessMessage = $"¡Se actualizaron {count} pedido(s) exitosamente!";
+        await LoadActiveTabData();
     }
 
     // --- USERS OPERATIONS ---
