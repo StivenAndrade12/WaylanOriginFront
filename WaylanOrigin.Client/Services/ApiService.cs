@@ -75,6 +75,9 @@ namespace WaylanOrigin.Client.Services
                 }
 
                 await LoadUsersFromLocalStorageAsync();
+                await LoadProductsFromLocalStorageAsync();
+                await LoadOrdersFromLocalStorageAsync();
+                await LoadCategoriesFromLocalStorageAsync();
             }
             catch
             {
@@ -163,6 +166,132 @@ namespace WaylanOrigin.Client.Services
             {
                 // Ignore JS Interop errors
             }
+        }
+
+        private async Task LoadOrdersFromLocalStorageAsync()
+        {
+            try
+            {
+                var json = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_orders_cache");
+                if (!string.IsNullOrEmpty(json))
+                {
+                    var savedOrders = System.Text.Json.JsonSerializer.Deserialize<List<Order>>(json);
+                    if (savedOrders != null && savedOrders.Any())
+                    {
+                        foreach (var ord in savedOrders)
+                        {
+                            var existing = _mockOrders.FirstOrDefault(o => o.Codigo == ord.Codigo || (o.Id > 0 && o.Id == ord.Id));
+                            if (existing != null)
+                            {
+                                existing.Estado = ord.Estado;
+                                existing.EstadoPago = ord.EstadoPago;
+                                existing.Direccion = ord.Direccion;
+                                if (ord.Detalles != null && ord.Detalles.Any()) existing.Detalles = ord.Detalles;
+                            }
+                            else
+                            {
+                                _mockOrders.Add(ord);
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private async Task SaveOrdersToLocalStorageAsync()
+        {
+            try
+            {
+                var json = System.Text.Json.JsonSerializer.Serialize(_mockOrders);
+                await _js.InvokeVoidAsync("localStorage.setItem", "waylan_orders_cache", json);
+            }
+            catch { }
+        }
+
+        private async Task LoadProductsFromLocalStorageAsync()
+        {
+            try
+            {
+                var json = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_products_cache");
+                if (!string.IsNullOrEmpty(json))
+                {
+                    var savedProds = System.Text.Json.JsonSerializer.Deserialize<List<Product>>(json);
+                    if (savedProds != null && savedProds.Any())
+                    {
+                        foreach (var p in savedProds)
+                        {
+                            var existing = _mockProducts.FirstOrDefault(m => m.Id == p.Id);
+                            if (existing != null)
+                            {
+                                existing.Nombre = p.Nombre;
+                                existing.Precio = p.Precio;
+                                existing.Stock = p.Stock;
+                                existing.Activo = p.Activo;
+                                existing.ImagenUrl = p.ImagenUrl;
+                                existing.Tueste = p.Tueste;
+                                existing.Proceso = p.Proceso;
+                                existing.Formato = p.Formato;
+                                existing.Descripcion = p.Descripcion;
+                            }
+                            else
+                            {
+                                _mockProducts.Add(p);
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private async Task SaveProductsToLocalStorageAsync()
+        {
+            try
+            {
+                var json = System.Text.Json.JsonSerializer.Serialize(_mockProducts);
+                await _js.InvokeVoidAsync("localStorage.setItem", "waylan_products_cache", json);
+            }
+            catch { }
+        }
+
+        private async Task LoadCategoriesFromLocalStorageAsync()
+        {
+            try
+            {
+                var json = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_categories_cache");
+                if (!string.IsNullOrEmpty(json))
+                {
+                    var savedCats = System.Text.Json.JsonSerializer.Deserialize<List<Category>>(json);
+                    if (savedCats != null && savedCats.Any())
+                    {
+                        foreach (var c in savedCats)
+                        {
+                            var existing = _mockCategories.FirstOrDefault(m => m.Id == c.Id);
+                            if (existing != null)
+                            {
+                                existing.Nombre = c.Nombre;
+                                existing.Activo = c.Activo;
+                            }
+                            else
+                            {
+                                _mockCategories.Add(c);
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private async Task SaveCategoriesToLocalStorageAsync()
+        {
+            try
+            {
+                var json = System.Text.Json.JsonSerializer.Serialize(_mockCategories);
+                await _js.InvokeVoidAsync("localStorage.setItem", "waylan_categories_cache", json);
+            }
+            catch { }
         }
 
         private void InitializeMockData()
@@ -477,13 +606,31 @@ namespace WaylanOrigin.Client.Services
 
         public async Task<List<Product>> GetTodosProductosAsync()
         {
+            await LoadProductsFromLocalStorageAsync();
             try
             {
                 SetAuthHeader();
                 var dtos = await _http.GetFromJsonAsync<List<ProductoReadAdminDto>>($"{ApiBaseUrl}api/Producto/Lista de productos Admin");
                 if (dtos != null && dtos.Any())
                 {
-                    return dtos.Select(MapToProduct).ToList();
+                    var apiProds = dtos.Select(MapToProduct).ToList();
+                    foreach (var ap in apiProds)
+                    {
+                        var existing = _mockProducts.FirstOrDefault(p => p.Id == ap.Id);
+                        if (existing != null)
+                        {
+                            existing.Nombre = ap.Nombre;
+                            existing.Precio = ap.Precio;
+                            existing.Stock = ap.Stock;
+                            existing.Activo = ap.Activo;
+                            existing.ImagenUrl = ap.ImagenUrl;
+                        }
+                        else
+                        {
+                            _mockProducts.Add(ap);
+                        }
+                    }
+                    await SaveProductsToLocalStorageAsync();
                 }
                 return _mockProducts;
             }
@@ -763,6 +910,7 @@ namespace WaylanOrigin.Client.Services
                 var response = await _http.PatchAsync($"{ApiBaseUrl}api/Producto/{id}/cambiar-estado?nuevoEstado={queryBool}", null);
                 var prod = _mockProducts.FirstOrDefault(p => p.Id == id);
                 if (prod != null) prod.Activo = nuevoEstado;
+                await SaveProductsToLocalStorageAsync();
                 OnDataChanged?.Invoke();
                 return response.IsSuccessStatusCode;
             }
@@ -770,6 +918,7 @@ namespace WaylanOrigin.Client.Services
             {
                 var prod = _mockProducts.FirstOrDefault(p => p.Id == id);
                 if (prod != null) prod.Activo = nuevoEstado;
+                await SaveProductsToLocalStorageAsync();
                 OnDataChanged?.Invoke();
                 return true;
             }
@@ -871,62 +1020,6 @@ namespace WaylanOrigin.Client.Services
             }
         }
 
-        // --- PEDIDOS ---
-        public async Task<CrearPedidoResponseDto?> CrearPedidoAsync(List<CartItemDto> items, string direccion)
-        {
-            try
-            {
-                SetAuthHeader();
-                
-                var detalles = items.Select(item => new
-                {
-                    idProducto = int.TryParse(item.ProductoId, out var idVal) ? idVal : 1,
-                    cantidad = item.Cantidad
-                }).ToList();
-
-                var payload = new
-                {
-                    direccion = direccion,
-                    detalles = detalles
-                };
-
-                var response = await _http.PostAsJsonAsync($"{ApiBaseUrl}api/Pedidos", payload);
-                if (response.IsSuccessStatusCode)
-                {
-                    var result = await response.Content.ReadFromJsonAsync<PedidoReadDto>();
-                    if (result != null)
-                    {
-                        return new CrearPedidoResponseDto 
-                        { 
-                            Codigo = !string.IsNullOrWhiteSpace(result.CodigoSeguimiento) 
-                                ? result.CodigoSeguimiento 
-                                : ("PED-" + Guid.NewGuid().ToString().Substring(0, 6).ToUpper()), 
-                            Total = result.Total > 0 ? result.Total : ItemsSumMockTotal(items)
-                        };
-                    }
-                }
-            }
-            catch
-            {
-                // Fallback for seamless Wompi payment testing
-            }
-
-            // Fallback generation for reliable Wompi payment testing flow
-            var randomCode = "PED-" + Guid.NewGuid().ToString().Substring(0, 6).ToUpper();
-            var mockTotal = (int)ItemsSumMockTotal(items);
-            var newMockOrder = new Order 
-            { 
-                Id = _mockOrders.Count + 1, 
-                Codigo = randomCode, 
-                Fecha = DateTime.Now, 
-                EmailCliente = CurrentUser?.Email ?? "cliente@waylan.com", 
-                Total = mockTotal, 
-                Estado = "Pendiente" 
-            };
-            _mockOrders.Add(newMockOrder);
-            return new CrearPedidoResponseDto { Codigo = randomCode, Total = mockTotal };
-        }
-
         private decimal ItemsSumMockTotal(List<CartItemDto> items)
         {
             decimal sum = 0;
@@ -1003,40 +1096,177 @@ namespace WaylanOrigin.Client.Services
             };
         }
 
-        public async Task<List<Order>> GetMisPedidosAsync()
+        // --- PEDIDOS ---
+        public async Task<CrearPedidoResponseDto?> CrearPedidoAsync(List<CartItemDto> items, string direccion)
         {
             try
             {
                 SetAuthHeader();
-                var dtos = await _http.GetFromJsonAsync<List<PedidoReadDto>>($"{ApiBaseUrl}api/Pedidos/Lista pedidos usuario");
-                return dtos?.Select(MapToOrder).ToList() ?? new List<Order>();
+                
+                var detalles = items.Select(item => new
+                {
+                    idProducto = int.TryParse(item.ProductoId, out var idVal) ? idVal : 1,
+                    cantidad = item.Cantidad
+                }).ToList();
+
+                var payload = new
+                {
+                    direccion = direccion,
+                    detalles = detalles
+                };
+
+                var response = await _http.PostAsJsonAsync($"{ApiBaseUrl}api/Pedidos", payload);
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = await response.Content.ReadFromJsonAsync<PedidoReadDto>();
+                    if (result != null)
+                    {
+                        var code = !string.IsNullOrWhiteSpace(result.CodigoSeguimiento) 
+                            ? result.CodigoSeguimiento 
+                            : ("PED-" + Guid.NewGuid().ToString().Substring(0, 6).ToUpper());
+                        var tot = result.Total > 0 ? result.Total : ItemsSumMockTotal(items);
+
+                        var orderDetails = items.Select(item => {
+                            var prod = _mockProducts.FirstOrDefault(p => p.Id == item.ProductoId);
+                            double price = prod != null ? (double)prod.Precio : 45000;
+                            string name = prod != null ? prod.Nombre : "Café Especial Waylan";
+                            string img = prod != null ? prod.ImagenUrl : "/images/coffee_bag_generic.png";
+                            return new OrderDetail
+                            {
+                                Id = 1,
+                                ProductoId = item.ProductoId,
+                                NombreProducto = name,
+                                ImagenProducto = img,
+                                Cantidad = item.Cantidad,
+                                PrecioUnitario = price,
+                                SubTotal = price * item.Cantidad
+                            };
+                        }).ToList();
+
+                        _mockOrders.Add(new Order
+                        {
+                            Id = _mockOrders.Count + 1,
+                            Codigo = code,
+                            Fecha = DateTime.Now,
+                            EmailCliente = CurrentUser?.Email ?? "cliente@waylan.com",
+                            NombreUsuario = CurrentUser?.Nombre ?? "Cliente",
+                            Direccion = string.IsNullOrWhiteSpace(direccion) ? "Dirección registrada" : direccion,
+                            Total = (double)tot,
+                            Estado = "Pendiente",
+                            EstadoPago = "APPROVED",
+                            Detalles = orderDetails
+                        });
+                        await SaveOrdersToLocalStorageAsync();
+
+                        return new CrearPedidoResponseDto 
+                        { 
+                            Codigo = code, 
+                            Total = tot
+                        };
+                    }
+                }
             }
             catch
             {
-                return _mockOrders;
+                // Fallback for seamless Wompi payment testing
             }
+
+            // Fallback generation for reliable Wompi payment testing flow
+            var randomCode = "PED-" + Guid.NewGuid().ToString().Substring(0, 6).ToUpper();
+            var mockTotal = (int)ItemsSumMockTotal(items);
+            var fallbackDetails = items.Select(item => {
+                var prod = _mockProducts.FirstOrDefault(p => p.Id == item.ProductoId);
+                double price = prod != null ? (double)prod.Precio : 45000;
+                string name = prod != null ? prod.Nombre : "Café Especial Waylan";
+                string img = prod != null ? prod.ImagenUrl : "/images/coffee_bag_generic.png";
+                return new OrderDetail
+                {
+                    Id = 1,
+                    ProductoId = item.ProductoId,
+                    NombreProducto = name,
+                    ImagenProducto = img,
+                    Cantidad = item.Cantidad,
+                    PrecioUnitario = price,
+                    SubTotal = price * item.Cantidad
+                };
+            }).ToList();
+
+            var newMockOrder = new Order 
+            { 
+                Id = _mockOrders.Count + 1, 
+                Codigo = randomCode, 
+                Fecha = DateTime.Now, 
+                EmailCliente = CurrentUser?.Email ?? "cliente@waylan.com", 
+                NombreUsuario = CurrentUser?.Nombre ?? "Cliente",
+                Direccion = string.IsNullOrWhiteSpace(direccion) ? "Dirección registrada" : direccion,
+                Total = mockTotal, 
+                Estado = "Pendiente",
+                EstadoPago = "APPROVED",
+                Detalles = fallbackDetails
+            };
+            _mockOrders.Add(newMockOrder);
+            await SaveOrdersToLocalStorageAsync();
+            return new CrearPedidoResponseDto { Codigo = randomCode, Total = mockTotal };
+        }
+
+        public async Task<List<Order>> GetMisPedidosAsync()
+        {
+            await LoadOrdersFromLocalStorageAsync();
+            try
+            {
+                SetAuthHeader();
+                var dtos = await _http.GetFromJsonAsync<List<PedidoReadDto>>($"{ApiBaseUrl}api/Pedidos/Lista pedidos usuario");
+                if (dtos != null && dtos.Any())
+                {
+                    var serverOrders = dtos.Select(MapToOrder).ToList();
+                    foreach (var so in serverOrders)
+                    {
+                        if (!_mockOrders.Any(o => o.Codigo == so.Codigo))
+                        {
+                            _mockOrders.Add(so);
+                        }
+                    }
+                    await SaveOrdersToLocalStorageAsync();
+                }
+            }
+            catch
+            {
+                // Fallback
+            }
+
+            if (CurrentUser == null) return new List<Order>();
+            return _mockOrders.Where(o => o.EmailCliente.Equals(CurrentUser.Email, StringComparison.OrdinalIgnoreCase)).ToList();
         }
 
         public async Task<List<Order>> GetTodosPedidosAsync()
         {
+            await LoadOrdersFromLocalStorageAsync();
             try
             {
                 SetAuthHeader();
                 if (IsAdmin)
                 {
                     var dtos = await _http.GetFromJsonAsync<List<PedidoReadAdminDto>>($"{ApiBaseUrl}api/Pedidos/Lista pedidos Admin");
-                    return dtos?.Select(MapToOrder).ToList() ?? new List<Order>();
-                }
-                else
-                {
-                    var dtos = await _http.GetFromJsonAsync<List<PedidoReadDto>>($"{ApiBaseUrl}api/Pedidos/Lista pedidos usuario");
-                    return dtos?.Select(MapToOrder).ToList() ?? new List<Order>();
+                    if (dtos != null && dtos.Any())
+                    {
+                        var serverOrders = dtos.Select(MapToOrder).ToList();
+                        foreach (var so in serverOrders)
+                        {
+                            if (!_mockOrders.Any(o => o.Codigo == so.Codigo))
+                            {
+                                _mockOrders.Add(so);
+                            }
+                        }
+                        await SaveOrdersToLocalStorageAsync();
+                    }
                 }
             }
             catch
             {
-                return _mockOrders;
+                // Fallback
             }
+
+            return _mockOrders;
         }
 
         public async Task<Order?> GetPedidoPorCodigoAsync(string codigo)
