@@ -170,9 +170,10 @@ namespace WaylanOrigin.Client.Services
             LastLoginError = null;
             bool isAdminEmail = email.Equals("vaquiroedinson@gmail.com", StringComparison.OrdinalIgnoreCase) || 
                                email.Equals("stivenandrade12@gmail.com", StringComparison.OrdinalIgnoreCase) ||
+                               email.Equals("andradestiven1212@gmail.com", StringComparison.OrdinalIgnoreCase) ||
                                email.Equals("admin@waylan.com", StringComparison.OrdinalIgnoreCase);
 
-            bool isValidAdminPass = password == "Fermin26*" || password == "admin123";
+            bool isValidAdminPass = password == "Fermin26*" || password == "admin123" || password == "Tolima1206";
 
             try
             {
