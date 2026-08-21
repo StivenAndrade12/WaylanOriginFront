@@ -953,26 +953,39 @@ namespace WaylanOrigin.Client.Services
             }
         }
 
-        // --- USUARIOS ---
         public async Task<List<User>> GetUsuariosAsync()
         {
             try
             {
                 SetAuthHeader();
-                var dtos = await _http.GetFromJsonAsync<List<UsuarioReadDto>>($"{ApiBaseUrl}api/Usuarios/ListaUsuarios");
-                return dtos?.Select(dto => new User
+                var response = await _http.GetAsync($"{ApiBaseUrl}api/Usuarios/ListaUsuarios");
+                if (response.IsSuccessStatusCode)
                 {
-                    Id = dto.Id,
-                    Email = dto.Email ?? string.Empty,
-                    Nombre = dto.Nombre ?? string.Empty,
-                    Rol = dto.RolNombre ?? "Cliente",
-                    Activo = dto.Activo
-                }).ToList() ?? new List<User>();
+                    var dtos = await response.Content.ReadFromJsonAsync<List<UsuarioReadDto>>();
+                    if (dtos != null && dtos.Any())
+                    {
+                        return dtos.Select(dto => new User
+                        {
+                            Id = dto.Id,
+                            Email = dto.Email ?? string.Empty,
+                            Nombre = string.IsNullOrWhiteSpace(dto.Nombre) ? (dto.Email ?? "Usuario") : dto.Nombre,
+                            Rol = dto.GetEffectiveRol(),
+                            Activo = dto.Activo
+                        }).ToList();
+                    }
+                }
+                else
+                {
+                    var err = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"API GetUsuariosAsync status {response.StatusCode}: {err}");
+                }
             }
-            catch
+            catch (Exception ex)
             {
-                return _mockUsers;
+                Console.WriteLine($"Error GetUsuariosAsync: {ex.Message}");
             }
+
+            return _mockUsers;
         }
 
         public async Task<bool> CambiarEstadoUsuarioAsync(int id, bool nuevoEstado)
@@ -1012,9 +1025,17 @@ namespace WaylanOrigin.Client.Services
     {
         public int Id { get; set; }
         public string? RolNombre { get; set; }
+        public string? Rol { get; set; }
         public string? Nombre { get; set; }
         public string? Email { get; set; }
         public bool Activo { get; set; }
+
+        public string GetEffectiveRol()
+        {
+            if (!string.IsNullOrWhiteSpace(RolNombre)) return RolNombre;
+            if (!string.IsNullOrWhiteSpace(Rol)) return Rol;
+            return "Cliente";
+        }
     }
 
     public class ProductoReadDto
