@@ -760,7 +760,13 @@
 
         if (selectedImageFile != null)
         {
-            var fileContent = new StreamContent(selectedImageFile.OpenReadStream(maxAllowedSize: 15 * 1024 * 1024)); // 15MB max
+            using var ms = new MemoryStream();
+            await selectedImageFile.OpenReadStream(maxAllowedSize: 15 * 1024 * 1024).CopyToAsync(ms);
+            byte[] fileBytes = ms.ToArray();
+            string imageBase64 = $"data:{selectedImageFile.ContentType};base64,{Convert.ToBase64String(fileBytes)}";
+            content.Add(new StringContent(imageBase64), "ImagenBase64");
+
+            var fileContent = new ByteArrayContent(fileBytes);
             fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(selectedImageFile.ContentType);
             content.Add(fileContent, "Imagen", selectedImageFile.Name);
         }

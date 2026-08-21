@@ -562,6 +562,7 @@ namespace WaylanOrigin.Client.Services
             var catContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"IdCategoria\"");
             var tuesteContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"tueste\"");
             var procesoContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"proceso\"");
+            var imgBase64Content = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"ImagenBase64\"");
 
             var mockCategoryName = "Grano";
             int catId = 1;
@@ -598,6 +599,12 @@ namespace WaylanOrigin.Client.Services
                 procesoStr = pVal == 2 ? "Natural" : pVal == 3 ? "Honey" : "Lavado";
             }
 
+            string imgUrl = "/images/coffee_bag_generic.png";
+            if (imgBase64Content != null)
+            {
+                imgUrl = await imgBase64Content.ReadAsStringAsync();
+            }
+
             var newProduct = new Product
             {
                 Id = (_mockProducts.Count + 100).ToString(),
@@ -612,7 +619,7 @@ namespace WaylanOrigin.Client.Services
                 Proceso = procesoStr,
                 PerfilSabor = tuesteStr,
                 Region = "Tolima, Colombia",
-                ImagenUrl = "/images/coffee_bag_generic.png",
+                ImagenUrl = imgUrl,
                 Activo = true
             };
 
@@ -662,6 +669,7 @@ namespace WaylanOrigin.Client.Services
                 var stockContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Stock\"");
                 var tuesteContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"tueste\"");
                 var procesoContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"proceso\"");
+                var imgBase64Content = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"ImagenBase64\"");
 
                 if (nombreContent != null) prod.Nombre = await nombreContent.ReadAsStringAsync();
                 if (descContent != null) prod.Descripcion = await descContent.ReadAsStringAsync();
@@ -676,6 +684,10 @@ namespace WaylanOrigin.Client.Services
                 {
                     int val = int.Parse(await procesoContent.ReadAsStringAsync());
                     prod.Proceso = val == 2 ? "Natural" : val == 3 ? "Honey" : "Lavado";
+                }
+                if (imgBase64Content != null)
+                {
+                    prod.ImagenUrl = await imgBase64Content.ReadAsStringAsync();
                 }
             }
         }
