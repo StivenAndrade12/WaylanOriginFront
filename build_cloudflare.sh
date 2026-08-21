@@ -9,9 +9,15 @@ echo "===> Publishing WaylanOrigin.Client..."
 
 echo "===> Structuring build output..."
 mkdir -p output
-cp -r output_temp/wwwroot/* output/
-if [ -d "output_temp/wwwroot/_framework" ]; then
+cp -r output_temp/wwwroot/. output/
+cp WaylanOrigin.Client/wwwroot/_headers output/_headers 2>/dev/null || true
+cp WaylanOrigin.Client/wwwroot/_redirects output/_redirects 2>/dev/null || true
+
+if [ -d "output/_framework" ]; then
     echo "===> Verified _framework folder exists in output!"
+fi
+if [ -f "output/_headers" ]; then
+    echo "===> Verified _headers file exists in output!"
 fi
 
 echo "===> Build completed successfully!"

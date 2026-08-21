@@ -1,0 +1,19 @@
+# Desactivar caché estricta para el HTML principal
+/*
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
+# Caché inmutable a largo plazo para assets estáticos con hash
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Caché moderada para imágenes y recursos estáticos
+/*.png
+  Cache-Control: public, max-age=604800
+/*.jpg
+  Cache-Control: public, max-age=604800
+/*.svg
+  Cache-Control: public, max-age=604800
+/*.webp
+  Cache-Control: public, max-age=604800
