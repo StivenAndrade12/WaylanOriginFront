@@ -651,19 +651,15 @@
         var content = new MultipartFormDataContent();
         content.Add(new StringContent(productFormNombre), "Nombre");
         content.Add(new StringContent(productFormIdCategoria.ToString()), "IdCategoria");
-        content.Add(new StringContent(productFormTueste.ToString()), "tueste");
-        content.Add(new StringContent(productFormProceso.ToString()), "proceso");
         content.Add(new StringContent(productFormDescripcion), "Descripcion");
         content.Add(new StringContent(productFormPrecio.ToString()), "Precio");
         content.Add(new StringContent(productFormStock.ToString()), "Stock");
 
-        // Legacy / Fallbacks
-        content.Add(new StringContent(productFormRegion), "Region");
-        content.Add(new StringContent(productFormFormato), "Formato");
-        content.Add(new StringContent(productFormPerfilSabor), "PerfilSabor");
-        content.Add(new StringContent(productFormMetodoRecomendado), "MetodoRecomendado");
-        content.Add(new StringContent(productFormIntensidad.ToString()), "Intensidad");
-        content.Add(new StringContent(productFormEtiqueta ?? ""), "Etiqueta");
+        if (!isEditingProduct)
+        {
+            content.Add(new StringContent(productFormTueste.ToString()), "tueste");
+            content.Add(new StringContent(productFormProceso.ToString()), "proceso");
+        }
 
         if (selectedImageFile != null)
         {
@@ -702,7 +698,7 @@
         }
         else
         {
-            formErrorMessage = "Ocurrió un error en el servidor. Verifica las reglas de notas e imágenes.";
+            formErrorMessage = "Ocurrió un error en el servidor al guardar el producto. Inténtalo de nuevo.";
         }
     }
 
