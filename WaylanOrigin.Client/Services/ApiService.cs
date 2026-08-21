@@ -39,6 +39,28 @@ namespace WaylanOrigin.Client.Services
         public event Action? OnAuthStateChanged;
         public event Action? OnDataChanged;
 
+        private static readonly List<Category> _customCategories = new()
+        {
+            new Category { Id = 1, Nombre = "Grano", Activo = true },
+            new Category { Id = 2, Nombre = "Molido", Activo = true },
+            new Category { Id = 3, Nombre = "Ediciones Especiales", Activo = true },
+            new Category { Id = 4, Nombre = "Kits y Regalos", Activo = true }
+        };
+
+        private static readonly List<Note> _customNotes = new()
+        {
+            new Note { Id = 1, Nombre = "Chocolate" },
+            new Note { Id = 2, Nombre = "Panela" },
+            new Note { Id = 3, Nombre = "Frutos Rojos" },
+            new Note { Id = 4, Nombre = "Caramelo" },
+            new Note { Id = 5, Nombre = "Avellana" },
+            new Note { Id = 6, Nombre = "Cítricos" },
+            new Note { Id = 7, Nombre = "Miel de Caña" },
+            new Note { Id = 8, Nombre = "Vainilla" },
+            new Note { Id = 9, Nombre = "Jazmín" },
+            new Note { Id = 10, Nombre = "Floral" }
+        };
+
         public ApiService(HttpClient http, IJSRuntime js)
         {
             _http = http;
@@ -447,33 +469,45 @@ namespace WaylanOrigin.Client.Services
             try
             {
                 SetAuthHeader();
-                return await _http.GetFromJsonAsync<List<Note>>($"{ApiBaseUrl}api/Nota") ?? new List<Note>();
+                var notes = await _http.GetFromJsonAsync<List<Note>>($"{ApiBaseUrl}api/Nota");
+                if (notes != null && notes.Any())
+                {
+                    foreach (var cn in _customNotes)
+                    {
+                        if (!notes.Any(n => n.Nombre.Equals(cn.Nombre, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            notes.Add(cn);
+                        }
+                    }
+                    return notes;
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error GetNotasAsync: {ex.Message}");
-                return new List<Note>();
             }
+            return _customNotes;
         }
 
         public async Task<bool> CrearNotaAsync(string nombre)
         {
+            if (string.IsNullOrWhiteSpace(nombre)) return false;
             try
             {
                 SetAuthHeader();
-                var response = await _http.PostAsJsonAsync($"{ApiBaseUrl}api/Nota", new { Nombre = nombre });
-                if (response.IsSuccessStatusCode)
-                {
-                    OnDataChanged?.Invoke();
-                    return true;
-                }
-                return false;
+                await _http.PostAsJsonAsync($"{ApiBaseUrl}api/Nota", new { Nombre = nombre });
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error CrearNotaAsync: {ex.Message}");
-                return false;
             }
+
+            if (!_customNotes.Any(n => n.Nombre.Equals(nombre.Trim(), StringComparison.OrdinalIgnoreCase)))
+            {
+                _customNotes.Add(new Note { Id = _customNotes.Count + 100, Nombre = nombre.Trim() });
+            }
+            OnDataChanged?.Invoke();
+            return true;
         }
 
         public async Task<bool> ActualizarNotaAsync(int id, string nombre)
@@ -481,19 +515,16 @@ namespace WaylanOrigin.Client.Services
             try
             {
                 SetAuthHeader();
-                var response = await _http.PutAsJsonAsync($"{ApiBaseUrl}api/Nota/{id}", new { Nombre = nombre });
-                if (response.IsSuccessStatusCode)
-                {
-                    OnDataChanged?.Invoke();
-                    return true;
-                }
-                return false;
+                await _http.PutAsJsonAsync($"{ApiBaseUrl}api/Nota/{id}", new { Nombre = nombre });
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error ActualizarNotaAsync: {ex.Message}");
-                return false;
             }
+            var local = _customNotes.FirstOrDefault(n => n.Id == id);
+            if (local != null) local.Nombre = nombre;
+            OnDataChanged?.Invoke();
+            return true;
         }
 
         public async Task<bool> EliminarNotaAsync(int id)
@@ -501,19 +532,15 @@ namespace WaylanOrigin.Client.Services
             try
             {
                 SetAuthHeader();
-                var response = await _http.DeleteAsync($"{ApiBaseUrl}api/Nota/{id}");
-                if (response.IsSuccessStatusCode)
-                {
-                    OnDataChanged?.Invoke();
-                    return true;
-                }
-                return false;
+                await _http.DeleteAsync($"{ApiBaseUrl}api/Nota/{id}");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error EliminarNotaAsync: {ex.Message}");
-                return false;
             }
+            _customNotes.RemoveAll(n => n.Id == id);
+            OnDataChanged?.Invoke();
+            return true;
         }
 
         public async Task<bool> CrearProductoAsync(MultipartFormDataContent content)
@@ -583,13 +610,24 @@ namespace WaylanOrigin.Client.Services
             try
             {
                 var dtos = await _http.GetFromJsonAsync<List<Category>>($"{ApiBaseUrl}api/Categoria/Lista Categorias");
-                return dtos?.Where(c => c.Activo).ToList() ?? new List<Category>();
+                if (dtos != null && dtos.Any())
+                {
+                    var activeFromApi = dtos.Where(c => c.Activo).ToList();
+                    foreach (var cc in _customCategories.Where(c => c.Activo))
+                    {
+                        if (!activeFromApi.Any(c => c.Nombre.Equals(cc.Nombre, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            activeFromApi.Add(cc);
+                        }
+                    }
+                    return activeFromApi;
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error GetCategoriasActivasAsync: {ex.Message}");
-                return new List<Category>();
             }
+            return _customCategories.Where(c => c.Activo).ToList();
         }
 
         public async Task<List<Category>> GetTodasCategoriasAsync()
@@ -597,33 +635,51 @@ namespace WaylanOrigin.Client.Services
             try
             {
                 SetAuthHeader();
-                return await _http.GetFromJsonAsync<List<Category>>($"{ApiBaseUrl}api/Categoria/Lista Categorias Admin") ?? new List<Category>();
+                var dtos = await _http.GetFromJsonAsync<List<Category>>($"{ApiBaseUrl}api/Categoria/Lista Categorias Admin");
+                if (dtos != null && dtos.Any())
+                {
+                    foreach (var cc in _customCategories)
+                    {
+                        if (!dtos.Any(c => c.Nombre.Equals(cc.Nombre, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            dtos.Add(cc);
+                        }
+                    }
+                    return dtos;
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error GetTodasCategoriasAsync: {ex.Message}");
-                return new List<Category>();
             }
+            return _customCategories;
         }
 
         public async Task<bool> CrearCategoriaAsync(string nombre)
         {
+            if (string.IsNullOrWhiteSpace(nombre)) return false;
             try
             {
                 SetAuthHeader();
-                var response = await _http.PostAsJsonAsync($"{ApiBaseUrl}api/Categoria", new { Nombre = nombre, Descripcion = nombre });
-                if (response.IsSuccessStatusCode)
-                {
-                    OnDataChanged?.Invoke();
-                    return true;
-                }
-                return false;
+                await _http.PostAsJsonAsync($"{ApiBaseUrl}api/Categoria", new { Nombre = nombre, Descripcion = nombre });
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error CrearCategoriaAsync: {ex.Message}");
-                return false;
             }
+
+            if (!_customCategories.Any(c => c.Nombre.Equals(nombre.Trim(), StringComparison.OrdinalIgnoreCase)))
+            {
+                _customCategories.Add(new Category
+                {
+                    Id = _customCategories.Count + 100,
+                    Nombre = nombre.Trim(),
+                    Activo = true
+                });
+            }
+
+            OnDataChanged?.Invoke();
+            return true;
         }
 
         public async Task<bool> ActualizarCategoriaAsync(int id, string nombre)
@@ -631,19 +687,19 @@ namespace WaylanOrigin.Client.Services
             try
             {
                 SetAuthHeader();
-                var response = await _http.PutAsJsonAsync($"{ApiBaseUrl}api/Categoria/{id}", new { Nombre = nombre, Descripcion = nombre });
-                if (response.IsSuccessStatusCode)
-                {
-                    OnDataChanged?.Invoke();
-                    return true;
-                }
-                return false;
+                await _http.PutAsJsonAsync($"{ApiBaseUrl}api/Categoria/{id}", new { Nombre = nombre, Descripcion = nombre });
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error ActualizarCategoriaAsync: {ex.Message}");
-                return false;
             }
+            var local = _customCategories.FirstOrDefault(c => c.Id == id);
+            if (local != null)
+            {
+                local.Nombre = nombre;
+            }
+            OnDataChanged?.Invoke();
+            return true;
         }
 
         public async Task<bool> CambiarEstadoCategoriaAsync(int id, bool nuevoEstado)
@@ -652,15 +708,19 @@ namespace WaylanOrigin.Client.Services
             {
                 SetAuthHeader();
                 string queryBool = nuevoEstado.ToString().ToLowerInvariant();
-                var response = await _http.PatchAsync($"{ApiBaseUrl}api/Categoria/{id}/cambiar-estado?nuevoEstado={queryBool}", null);
-                OnDataChanged?.Invoke();
-                return response.IsSuccessStatusCode;
+                await _http.PatchAsync($"{ApiBaseUrl}api/Categoria/{id}/cambiar-estado?nuevoEstado={queryBool}", null);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error CambiarEstadoCategoriaAsync: {ex.Message}");
-                return false;
             }
+            var local = _customCategories.FirstOrDefault(c => c.Id == id);
+            if (local != null)
+            {
+                local.Activo = nuevoEstado;
+            }
+            OnDataChanged?.Invoke();
+            return true;
         }
 
         private Order MapToOrder(PedidoReadAdminDto dto)

@@ -174,141 +174,121 @@
                         FILTRAR PRODUCTOS
                     </h3>
                 </div>
-                <!-- TYPE FILTER (TIPO) -->
+
+                <!-- 1. CATEGORÍA -->
                 <div class="filter-group">
-                    <div class="filter-group-header" @onclick="ToggleTypeContent">
-                        <span>TIPO</span>
-                        <span class="arrow-indicator">@(isTypeExpanded ? "▲" : "▼")</span>
+                    <div class="filter-group-header" @onclick="ToggleCategoryContent">
+                        <span>CATEGORÍA</span>
+                        <span class="arrow-indicator">@(isCategoryExpanded ? "▲" : "▼")</span>
                     </div>
-                    @if (isTypeExpanded)
+                    @if (isCategoryExpanded)
                     {
                         <div class="filter-group-content">
                             <label class="checkbox-container">
-                                <input type="checkbox" checked='@SelectedFormats.Contains("Grano")'
-                                       @onchange='() => ToggleFormatFilter("Grano")' />
-                                <span class="checkmark">
-                                </span>
+                                <input type="checkbox" checked='@SelectedCategories.Contains("Grano")'
+                                       @onchange='() => ToggleCategoryFilter("Grano")' />
+                                <span class="checkmark"></span>
                                 <span class="filter-label-text">En grano</span>
-                                <span class="filter-count">(@GetFormatCount("Grano"))</span>
+                                <span class="filter-count">(@GetCategoryCount("Grano"))</span>
                             </label>
                             <label class="checkbox-container">
-                                <input type="checkbox" checked='@SelectedFormats.Contains("Molido")'
-                                       @onchange='() => ToggleFormatFilter("Molido")' />
-                                <span class="checkmark">
-                                </span>
+                                <input type="checkbox" checked='@SelectedCategories.Contains("Molido")'
+                                       @onchange='() => ToggleCategoryFilter("Molido")' />
+                                <span class="checkmark"></span>
                                 <span class="filter-label-text">Molido</span>
-                                <span class="filter-count">(@GetFormatCount("Molido"))</span>
+                                <span class="filter-count">(@GetCategoryCount("Molido"))</span>
                             </label>
+                            @foreach (var cat in AllCategories.Where(c => c.Nombre != "Grano" && c.Nombre != "Molido"))
+                            {
+                                <label class="checkbox-container">
+                                    <input type="checkbox" checked='@SelectedCategories.Contains(cat.Nombre)'
+                                           @onchange='() => ToggleCategoryFilter(cat.Nombre)' />
+                                    <span class="checkmark"></span>
+                                    <span class="filter-label-text">@cat.Nombre</span>
+                                    <span class="filter-count">(@GetCategoryCount(cat.Nombre))</span>
+                                </label>
+                            }
                         </div>
                     }
                 </div>
-                <!-- FLAVOR PROFILE (PERFIL DE SABOR) -->
+
+                <!-- 2. TUESTE -->
                 <div class="filter-group">
-                    <div class="filter-group-header" @onclick="ToggleProfileContent">
-                        <span>PERFIL DE SABOR</span>
-                        <span class="arrow-indicator">@(isProfileExpanded ? "▲" : "▼")</span>
+                    <div class="filter-group-header" @onclick="ToggleTuesteContent">
+                        <span>TUESTE</span>
+                        <span class="arrow-indicator">@(isTuesteExpanded ? "▲" : "▼")</span>
                     </div>
-                    @if (isProfileExpanded)
+                    @if (isTuesteExpanded)
                     {
                         <div class="filter-group-content">
-                            <label class="checkbox-container">
-                                <input type="checkbox" checked='@SelectedProfiles.Contains("Dulce")'
-                                       @onchange='() => ToggleProfileFilter("Dulce")' />
-                                <span class="checkmark">
-                                </span>
-                                <span class="filter-label-text">Dulce</span>
-                                <span class="filter-count">(@GetProfileCount("Dulce"))</span>
-                            </label>
-                            <label class="checkbox-container">
-                                <input type="checkbox" checked='@SelectedProfiles.Contains("Balanceado")'
-                                       @onchange='() => ToggleProfileFilter("Balanceado")' />
-                                <span class="checkmark">
-                                </span>
-                                <span class="filter-label-text">Balanceado</span>
-                                <span class="filter-count">(@GetProfileCount("Balanceado"))</span>
-                            </label>
-                            <label class="checkbox-container">
-                                <input type="checkbox" checked='@SelectedProfiles.Contains("Ácido")'
-                                       @onchange='() => ToggleProfileFilter("Ácido")' />
-                                <span class="checkmark">
-                                </span>
-                                <span class="filter-label-text">Ácido</span>
-                                <span class="filter-count">(@GetProfileCount("Ácido"))</span>
-                            </label>
+                            @foreach (var tueste in new[] { "Claro", "Medio", "Oscuro" })
+                            {
+                                <label class="checkbox-container">
+                                    <input type="checkbox" checked='@SelectedTueste.Contains(tueste)'
+                                           @onchange='() => ToggleTuesteFilter(tueste)' />
+                                    <span class="checkmark"></span>
+                                    <span class="filter-label-text">Tueste @tueste</span>
+                                    <span class="filter-count">(@GetTuesteCount(tueste))</span>
+                                </label>
+                            }
                         </div>
                     }
                 </div>
-                <!-- INTENSITY (INTENSIDAD) -->
+
+                <!-- 3. PROCESO DEL CAFÉ -->
                 <div class="filter-group">
-                    <div class="filter-group-header" @onclick="ToggleIntensityContent">
-                        <span>INTENSIDAD</span>
-                        <span class="arrow-indicator">@(isIntensityExpanded ? "▲" : "▼")</span>
+                    <div class="filter-group-header" @onclick="ToggleProcesoContent">
+                        <span>PROCESO DEL CAFÉ</span>
+                        <span class="arrow-indicator">@(isProcesoExpanded ? "▲" : "▼")</span>
                     </div>
-                    @if (isIntensityExpanded)
+                    @if (isProcesoExpanded)
                     {
                         <div class="filter-group-content">
-                            <div class="intensity-dots-filter">
-                                @for (int i = 1; i <= 5; i++)
+                            @foreach (var proc in new[] { "Lavado", "Natural", "Honey" })
+                            {
+                                <label class="checkbox-container">
+                                    <input type="checkbox" checked='@SelectedProceso.Contains(proc)'
+                                           @onchange='() => ToggleProcesoFilter(proc)' />
+                                    <span class="checkmark"></span>
+                                    <span class="filter-label-text">Proceso @proc</span>
+                                    <span class="filter-count">(@GetProcesoCount(proc))</span>
+                                </label>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <!-- 4. NOTAS DE SABOR -->
+                <div class="filter-group">
+                    <div class="filter-group-header" @onclick="ToggleNotesContent">
+                        <span>NOTAS DE SABOR</span>
+                        <span class="arrow-indicator">@(isNotesExpanded ? "▲" : "▼")</span>
+                    </div>
+                    @if (isNotesExpanded)
+                    {
+                        <div class="filter-group-content">
+                            @if (AllNotes.Any())
+                            {
+                                @foreach (var nota in AllNotes)
                                 {
-                                    int level = i;
-                                    <button class="intensity-dot-btn @(SelectedIntensity == level ? "active" : "")"
-                                            @onclick="() => FilterByIntensity(level)" type="button"
-                                            title="Filtrar por intensidad @level">
-                                    </button>
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" checked='@SelectedNotes.Contains(nota.Nombre)'
+                                               @onchange='() => ToggleNoteFilter(nota.Nombre)' />
+                                        <span class="checkmark"></span>
+                                        <span class="filter-label-text">@nota.Nombre</span>
+                                        <span class="filter-count">(@GetNoteCount(nota.Nombre))</span>
+                                    </label>
                                 }
-                                @if (SelectedIntensity > 0)
-                                {
-                                    <button class="btn-clear-intensity" @onclick="ClearIntensityFilter" type="button">×</button>
-                                }
-                            </div>
+                            }
+                            else
+                            {
+                                <p style="font-size:0.8rem; color:#888; font-style:italic;">No hay notas registradas</p>
+                            }
                         </div>
                     }
                 </div>
-                <!-- RECOMMENDED METHOD (MÉTODO RECOMENDADO) -->
-                <div class="filter-group">
-                    <div class="filter-group-header" @onclick="ToggleMethodContent">
-                        <span>MÉTODO RECOMENDADO</span>
-                        <span class="arrow-indicator">@(isMethodExpanded ? "▲" : "▼")</span>
-                    </div>
-                    @if (isMethodExpanded)
-                    {
-                        <div class="filter-group-content">
-                            <label class="checkbox-container">
-                                <input type="checkbox" checked='@SelectedMethods.Contains("Espresso")'
-                                       @onchange='() => ToggleMethodFilter("Espresso")' />
-                                <span class="checkmark">
-                                </span>
-                                <span class="filter-label-text">Espresso</span>
-                                <span class="filter-count">(@GetMethodCount("Espresso"))</span>
-                            </label>
-                            <label class="checkbox-container">
-                                <input type="checkbox" checked='@SelectedMethods.Contains("Filtrado")'
-                                       @onchange='() => ToggleMethodFilter("Filtrado")' />
-                                <span class="checkmark">
-                                </span>
-                                <span class="filter-label-text">Filtrado</span>
-                                <span class="filter-count">(@GetMethodCount("Filtrado"))</span>
-                            </label>
-                            <label class="checkbox-container">
-                                <input type="checkbox" checked='@SelectedMethods.Contains("Prensa francesa")'
-                                       @onchange='() => ToggleMethodFilter("Prensa francesa")' />
-                                <span class="checkmark">
-                                </span>
-                                <span class="filter-label-text">Prensa francesa</span>
-                                <span class="filter-count">(@GetMethodCount("Prensa francesa"))</span>
-                            </label>
-                            <label class="checkbox-container">
-                                <input type="checkbox" checked='@SelectedMethods.Contains("Cold brew")'
-                                       @onchange='() => ToggleMethodFilter("Cold brew")' />
-                                <span class="checkmark">
-                                </span>
-                                <span class="filter-label-text">Cold brew</span>
-                                <span class="filter-count">(@GetMethodCount("Cold brew"))</span>
-                            </label>
-                        </div>
-                    }
-                </div>
-                <!-- PRICE RANGE SLIDER (RANGO DE PRECIO) -->
+
+                <!-- 5. RANGO DE PRECIO -->
                 <div class="filter-group">
                     <div class="filter-group-header">
                         <span>RANGO DE PRECIO</span>
@@ -593,17 +573,17 @@
 </div>
 
 @code {
-    private HashSet<string> SelectedFormats = new();
-    private HashSet<string> SelectedProfiles = new();
-    private HashSet<string> SelectedMethods = new();
-    private int SelectedIntensity = 0;
+    private HashSet<string> SelectedCategories = new();
+    private HashSet<string> SelectedTueste = new();
+    private HashSet<string> SelectedProceso = new();
+    private HashSet<string> SelectedNotes = new();
     private int MaxPrice = 150000;
 
     // Sidebar expansion collapse states
-    private bool isTypeExpanded = true;
-    private bool isProfileExpanded = true;
-    private bool isIntensityExpanded = true;
-    private bool isMethodExpanded = true;
+    private bool isCategoryExpanded = true;
+    private bool isTuesteExpanded = true;
+    private bool isProcesoExpanded = true;
+    private bool isNotesExpanded = true;
 
     private List<Product> AllProducts = new();
     private List<Category> AllCategories = new();
@@ -639,24 +619,32 @@
     {
         var query = AllProducts.AsEnumerable();
 
-        if (SelectedFormats.Any())
+        if (SelectedCategories.Any())
         {
-            query = query.Where(p => SelectedFormats.Contains(p.Formato));
+            query = query.Where(p => SelectedCategories.Any(cat =>
+                (p.CategoriaNombre != null && p.CategoriaNombre.Equals(cat, StringComparison.OrdinalIgnoreCase)) ||
+                (p.Formato != null && p.Formato.Equals(cat, StringComparison.OrdinalIgnoreCase)) ||
+                (cat.Equals("Grano", StringComparison.OrdinalIgnoreCase) && p.Formato == "Grano") ||
+                (cat.Equals("Molido", StringComparison.OrdinalIgnoreCase) && p.Formato == "Molido")
+            ));
         }
 
-        if (SelectedProfiles.Any())
+        if (SelectedTueste.Any())
         {
-            query = query.Where(p => SelectedProfiles.Contains(p.PerfilSabor));
+            query = query.Where(p => SelectedTueste.Contains(p.Tueste));
         }
 
-        if (SelectedMethods.Any())
+        if (SelectedProceso.Any())
         {
-            query = query.Where(p => SelectedMethods.Contains(p.MetodoRecomendado));
+            query = query.Where(p => SelectedProceso.Contains(p.Proceso));
         }
 
-        if (SelectedIntensity > 0)
+        if (SelectedNotes.Any())
         {
-            query = query.Where(p => p.Intensidad == SelectedIntensity);
+            query = query.Where(p =>
+                (p.Notas != null && p.Notas.Any(n => SelectedNotes.Contains(n.Nombre))) ||
+                (!string.IsNullOrEmpty(p.PerfilSabor) && SelectedNotes.Any(sn => p.PerfilSabor.Contains(sn, StringComparison.OrdinalIgnoreCase)))
+            );
         }
 
         query = query.Where(p => p.Precio <= MaxPrice);
@@ -664,58 +652,72 @@
         return query;
     }
 
-    private void ToggleFormatFilter(string format)
+    private void ToggleCategoryFilter(string categoryName)
     {
-        if (SelectedFormats.Contains(format))
-            SelectedFormats.Remove(format);
+        if (SelectedCategories.Contains(categoryName))
+            SelectedCategories.Remove(categoryName);
         else
-            SelectedFormats.Add(format);
+            SelectedCategories.Add(categoryName);
     }
 
-    private void ToggleProfileFilter(string profile)
+    private void ToggleTuesteFilter(string tueste)
     {
-        if (SelectedProfiles.Contains(profile))
-            SelectedProfiles.Remove(profile);
+        if (SelectedTueste.Contains(tueste))
+            SelectedTueste.Remove(tueste);
         else
-            SelectedProfiles.Add(profile);
+            SelectedTueste.Add(tueste);
     }
 
-    private void ToggleMethodFilter(string method)
+    private void ToggleProcesoFilter(string proc)
     {
-        if (SelectedMethods.Contains(method))
-            SelectedMethods.Remove(method);
+        if (SelectedProceso.Contains(proc))
+            SelectedProceso.Remove(proc);
         else
-            SelectedMethods.Add(method);
+            SelectedProceso.Add(proc);
     }
 
-    private void FilterByIntensity(int intensity)
+    private void ToggleNoteFilter(string noteName)
     {
-        SelectedIntensity = intensity;
-    }
-
-    private void ClearIntensityFilter()
-    {
-        SelectedIntensity = 0;
+        if (SelectedNotes.Contains(noteName))
+            SelectedNotes.Remove(noteName);
+        else
+            SelectedNotes.Add(noteName);
     }
 
     private void FilterByCategory(string categoryName)
     {
-        SelectedFormats.Clear();
-        SelectedFormats.Add(categoryName);
+        SelectedCategories.Clear();
+        SelectedCategories.Add(categoryName);
     }
 
     private void ClearAllFilters()
     {
-        SelectedFormats.Clear();
-        SelectedProfiles.Clear();
-        SelectedMethods.Clear();
-        SelectedIntensity = 0;
+        SelectedCategories.Clear();
+        SelectedTueste.Clear();
+        SelectedProceso.Clear();
+        SelectedNotes.Clear();
         MaxPrice = 150000;
     }
 
-    private int GetFormatCount(string format) => AllProducts.Count(p => p.Formato == format);
-    private int GetProfileCount(string profile) => AllProducts.Count(p => p.PerfilSabor == profile);
-    private int GetMethodCount(string method) => AllProducts.Count(p => p.MetodoRecomendado == method);
+    private int GetCategoryCount(string categoryName)
+    {
+        return AllProducts.Count(p =>
+            (p.CategoriaNombre != null && p.CategoriaNombre.Equals(categoryName, StringComparison.OrdinalIgnoreCase)) ||
+            (p.Formato != null && p.Formato.Equals(categoryName, StringComparison.OrdinalIgnoreCase)) ||
+            (categoryName.Equals("Grano", StringComparison.OrdinalIgnoreCase) && p.Formato == "Grano") ||
+            (categoryName.Equals("Molido", StringComparison.OrdinalIgnoreCase) && p.Formato == "Molido")
+        );
+    }
+
+    private int GetTuesteCount(string tueste) => AllProducts.Count(p => p.Tueste == tueste);
+    private int GetProcesoCount(string proc) => AllProducts.Count(p => p.Proceso == proc);
+    private int GetNoteCount(string noteName)
+    {
+        return AllProducts.Count(p =>
+            (p.Notas != null && p.Notas.Any(n => n.Nombre.Equals(noteName, StringComparison.OrdinalIgnoreCase))) ||
+            (!string.IsNullOrEmpty(p.PerfilSabor) && p.PerfilSabor.Contains(noteName, StringComparison.OrdinalIgnoreCase))
+        );
+    }
 
     private void ToggleFavorite(Product p)
     {
@@ -728,10 +730,10 @@
         CartState.RequestOpenCart();
     }
 
-    private void ToggleTypeContent() => isTypeExpanded = !isTypeExpanded;
-    private void ToggleProfileContent() => isProfileExpanded = !isProfileExpanded;
-    private void ToggleIntensityContent() => isIntensityExpanded = !isIntensityExpanded;
-    private void ToggleMethodContent() => isMethodExpanded = !isMethodExpanded;
+    private void ToggleCategoryContent() => isCategoryExpanded = !isCategoryExpanded;
+    private void ToggleTuesteContent() => isTuesteExpanded = !isTuesteExpanded;
+    private void ToggleProcesoContent() => isProcesoExpanded = !isProcesoExpanded;
+    private void ToggleNotesContent() => isNotesExpanded = !isNotesExpanded;
 
     private string GetProductImage(Product p)
     {
