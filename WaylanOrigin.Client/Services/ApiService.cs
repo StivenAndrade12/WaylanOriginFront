@@ -69,93 +69,10 @@ namespace WaylanOrigin.Client.Services
             _js = js;
         }
 
-        private async Task PersistCustomDataAsync()
-        {
-            try
-            {
-                if (_customProducts.Any())
-                {
-                    var json = System.Text.Json.JsonSerializer.Serialize(_customProducts);
-                    await _js.InvokeVoidAsync("localStorage.setItem", "waylan_custom_products", json);
-                }
-                if (_customCategories.Any())
-                {
-                    var json = System.Text.Json.JsonSerializer.Serialize(_customCategories);
-                    await _js.InvokeVoidAsync("localStorage.setItem", "waylan_custom_categories", json);
-                }
-                if (_customNotes.Any())
-                {
-                    var json = System.Text.Json.JsonSerializer.Serialize(_customNotes);
-                    await _js.InvokeVoidAsync("localStorage.setItem", "waylan_custom_notes", json);
-                }
-            }
-            catch { }
-        }
-
         public async Task InitializeAuthAsync()
         {
             try
             {
-                try
-                {
-                    var savedProdsJson = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_custom_products");
-                    if (!string.IsNullOrEmpty(savedProdsJson))
-                    {
-                        var prods = System.Text.Json.JsonSerializer.Deserialize<List<Product>>(savedProdsJson);
-                        if (prods != null && prods.Any())
-                        {
-                            foreach (var p in prods)
-                            {
-                                if (!_customProducts.Any(cp => cp.Id == p.Id))
-                                {
-                                    _customProducts.Add(p);
-                                }
-                            }
-                        }
-                    }
-                }
-                catch { }
-
-                try
-                {
-                    var savedCatsJson = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_custom_categories");
-                    if (!string.IsNullOrEmpty(savedCatsJson))
-                    {
-                        var cats = System.Text.Json.JsonSerializer.Deserialize<List<Category>>(savedCatsJson);
-                        if (cats != null && cats.Any())
-                        {
-                            foreach (var c in cats)
-                            {
-                                if (!_customCategories.Any(cc => cc.Id == c.Id))
-                                {
-                                    _customCategories.Add(c);
-                                }
-                            }
-                        }
-                    }
-                }
-                catch { }
-
-                try
-                {
-                    var savedNotesJson = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_custom_notes");
-                    if (!string.IsNullOrEmpty(savedNotesJson))
-                    {
-                        var notes = System.Text.Json.JsonSerializer.Deserialize<List<Note>>(savedNotesJson);
-                        if (notes != null && notes.Any())
-                        {
-                            foreach (var n in notes)
-                            {
-                                if (!_customNotes.Any(cn => cn.Id == n.Id))
-                                {
-                                    _customNotes.Add(n);
-                                }
-                            }
-                        }
-                    }
-                }
-                catch { }
-
                 var storedToken = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_token");
                 var storedEmail = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_user_email");
                 var storedNombre = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_user_nombre");
@@ -488,76 +405,50 @@ namespace WaylanOrigin.Client.Services
 
         public async Task<List<Product>> GetProductosActivosAsync()
         {
-            var result = new List<Product>();
             try
             {
                 var dtos = await _http.GetFromJsonAsync<List<ProductoReadDto>>($"{ApiBaseUrl}api/Producto/Lista de productos");
                 if (dtos != null && dtos.Any())
                 {
-                    result = dtos.Select(MapToProduct).Where(p => p.Activo).ToList();
+                    return dtos.Select(MapToProduct).Where(p => p.Activo).ToList();
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error GetProductosActivosAsync: {ex.Message}");
             }
-
-            foreach (var cp in _customProducts.Where(p => p.Activo))
-            {
-                if (!result.Any(p => p.Id == cp.Id))
-                {
-                    result.Add(cp);
-                }
-            }
-
-            return result;
+            return new List<Product>();
         }
 
         public async Task<List<Product>> GetTodosProductosAsync()
         {
-            var result = new List<Product>();
             try
             {
                 SetAuthHeader();
                 var dtos = await _http.GetFromJsonAsync<List<ProductoReadAdminDto>>($"{ApiBaseUrl}api/Producto/Lista de productos Admin");
                 if (dtos != null && dtos.Any())
                 {
-                    result = dtos.Select(MapToProduct).ToList();
+                    return dtos.Select(MapToProduct).ToList();
                 }
             }
             catch
             {
             }
 
-            if (!result.Any())
+            try
             {
-                try
+                var publicDtos = await _http.GetFromJsonAsync<List<ProductoReadDto>>($"{ApiBaseUrl}api/Producto/Lista de productos");
+                if (publicDtos != null && publicDtos.Any())
                 {
-                    var publicDtos = await _http.GetFromJsonAsync<List<ProductoReadDto>>($"{ApiBaseUrl}api/Producto/Lista de productos");
-                    if (publicDtos != null && publicDtos.Any())
-                    {
-                        result = publicDtos.Select(MapToProduct).ToList();
-                    }
-                }
-                catch
-                {
+                    return publicDtos.Select(MapToProduct).ToList();
                 }
             }
-
-            foreach (var cp in _customProducts)
+            catch (Exception ex)
             {
-                var existingIndex = result.FindIndex(p => p.Id == cp.Id);
-                if (existingIndex >= 0)
-                {
-                    result[existingIndex] = cp;
-                }
-                else
-                {
-                    result.Add(cp);
-                }
+                Console.WriteLine($"Error GetTodosProductosAsync: {ex.Message}");
             }
 
-            return result;
+            return new List<Product>();
         }
 
         public async Task<Product?> GetProductoPorIdAsync(string id)
@@ -653,111 +544,6 @@ namespace WaylanOrigin.Client.Services
             return true;
         }
 
-        private Product ParseProductFromMultipart(string id, MultipartFormDataContent content)
-        {
-            string nombre = "Producto Waylan";
-            int idCat = 1;
-            string tueste = "Medio";
-            string proceso = "Lavado";
-            decimal precio = 35000;
-            int stock = 10;
-            string desc = "Café de especialidad Waylan Origin.";
-            string imgUrl = "imagenes/Gemini_Generated_Image_9hfuk69hfuk69hfu.png";
-            List<Note> notes = new();
-
-            try
-            {
-                foreach (var item in content)
-                {
-                    string name = item.Headers.ContentDisposition?.Name?.Trim('"') ?? "";
-                    if (name.Equals("Nombre", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var str = item.ReadAsStringAsync().Result;
-                        if (!string.IsNullOrEmpty(str)) nombre = str;
-                    }
-                    else if (name.Equals("IdCategoria", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var str = item.ReadAsStringAsync().Result;
-                        if (int.TryParse(str, out var cval)) idCat = cval;
-                    }
-                    else if (name.Equals("Tueste", StringComparison.OrdinalIgnoreCase) || name.Equals("tueste", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var str = item.ReadAsStringAsync().Result;
-                        tueste = FormatTueste(str);
-                    }
-                    else if (name.Equals("Proceso", StringComparison.OrdinalIgnoreCase) || name.Equals("proceso", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var str = item.ReadAsStringAsync().Result;
-                        proceso = FormatProceso(str);
-                    }
-                    else if (name.Equals("Precio", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var str = item.ReadAsStringAsync().Result;
-                        if (decimal.TryParse(str, out var pval)) precio = pval;
-                    }
-                    else if (name.Equals("Stock", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var str = item.ReadAsStringAsync().Result;
-                        if (int.TryParse(str, out var sval)) stock = sval;
-                    }
-                    else if (name.Equals("Descripcion", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var str = item.ReadAsStringAsync().Result;
-                        if (!string.IsNullOrEmpty(str)) desc = str;
-                    }
-                    else if (name.Equals("ImagenBase64", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var str = item.ReadAsStringAsync().Result;
-                        if (!string.IsNullOrEmpty(str)) imgUrl = str;
-                    }
-                    else if (name.Equals("IdNotas", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var str = item.ReadAsStringAsync().Result;
-                        if (int.TryParse(str, out var nid))
-                        {
-                            var foundNote = _customNotes.FirstOrDefault(n => n.Id == nid);
-                            if (foundNote != null && !notes.Any(n => n.Id == nid))
-                            {
-                                notes.Add(foundNote);
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"ParseProductFromMultipart error: {ex.Message}");
-            }
-
-            if (!notes.Any())
-            {
-                notes = _customNotes.Take(2).ToList();
-            }
-
-            string catName = idCat == 2 ? "Molido" : idCat == 3 ? "Ediciones Especiales" : idCat == 4 ? "Kits y Regalos" : "Grano";
-
-            return new Product
-            {
-                Id = id,
-                Nombre = nombre,
-                IdCategoria = idCat,
-                CategoriaNombre = catName,
-                Tueste = tueste,
-                Proceso = proceso,
-                Descripcion = desc,
-                Precio = precio,
-                Stock = stock,
-                ImagenUrl = imgUrl,
-                Activo = true,
-                Notas = notes,
-                Formato = catName,
-                Region = "Tolima, Colombia",
-                PerfilSabor = tueste,
-                MetodoRecomendado = "Filtrado",
-                Intensidad = 3
-            };
-        }
-
         public async Task<bool> CrearProductoAsync(MultipartFormDataContent content)
         {
             try
@@ -769,18 +555,15 @@ namespace WaylanOrigin.Client.Services
                     OnDataChanged?.Invoke();
                     return true;
                 }
+                var errStr = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"CrearProductoAsync API error {response.StatusCode}: {errStr}");
+                return false;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"CrearProductoAsync exception: {ex.Message}");
+                return false;
             }
-
-            string newId = (1000 + _customProducts.Count + 1).ToString();
-            var localProd = ParseProductFromMultipart(newId, content);
-            _customProducts.Add(localProd);
-            _ = PersistCustomDataAsync();
-            OnDataChanged?.Invoke();
-            return true;
         }
 
         public async Task<bool> ActualizarProductoAsync(string id, MultipartFormDataContent content)
@@ -794,18 +577,15 @@ namespace WaylanOrigin.Client.Services
                     OnDataChanged?.Invoke();
                     return true;
                 }
+                var errStr = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"ActualizarProductoAsync API error {response.StatusCode}: {errStr}");
+                return false;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"ActualizarProductoAsync exception: {ex.Message}");
+                return false;
             }
-
-            var localProd = ParseProductFromMultipart(id, content);
-            _customProducts.RemoveAll(p => p.Id == id);
-            _customProducts.Add(localProd);
-            _ = PersistCustomDataAsync();
-            OnDataChanged?.Invoke();
-            return true;
         }
 
         public async Task<bool> CambiarEstadoProductoAsync(string id, bool nuevoEstado)
@@ -814,20 +594,15 @@ namespace WaylanOrigin.Client.Services
             {
                 SetAuthHeader();
                 string queryBool = nuevoEstado.ToString().ToLowerInvariant();
-                await _http.PatchAsync($"{ApiBaseUrl}api/Producto/{id}/cambiar-estado?nuevoEstado={queryBool}", null);
+                var response = await _http.PatchAsync($"{ApiBaseUrl}api/Producto/{id}/cambiar-estado?nuevoEstado={queryBool}", null);
+                OnDataChanged?.Invoke();
+                return response.IsSuccessStatusCode;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error CambiarEstadoProductoAsync: {ex.Message}");
+                return false;
             }
-
-            var local = _customProducts.FirstOrDefault(p => p.Id == id);
-            if (local != null)
-            {
-                local.Activo = nuevoEstado;
-            }
-            OnDataChanged?.Invoke();
-            return true;
         }
 
         // --- CATEGORIAS ---
