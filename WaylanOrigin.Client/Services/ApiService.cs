@@ -579,14 +579,11 @@ namespace WaylanOrigin.Client.Services
             try
             {
                 SetAuthHeader();
-                var response = await _http.PatchAsync($"{ApiBaseUrl}api/Producto/{id}/cambiar-estado?nuevoEstado={nuevoEstado}", null);
-                if (response.IsSuccessStatusCode)
-                {
-                    var prod = _mockProducts.FirstOrDefault(p => p.Id == id);
-                    if (prod != null) prod.Activo = nuevoEstado;
-                    OnDataChanged?.Invoke();
-                    return true;
-                }
+                string queryBool = nuevoEstado.ToString().ToLowerInvariant();
+                var response = await _http.PatchAsync($"{ApiBaseUrl}api/Producto/{id}/cambiar-estado?nuevoEstado={queryBool}", null);
+                var prod = _mockProducts.FirstOrDefault(p => p.Id == id);
+                if (prod != null) prod.Activo = nuevoEstado;
+                OnDataChanged?.Invoke();
                 return response.IsSuccessStatusCode;
             }
             catch
@@ -672,14 +669,11 @@ namespace WaylanOrigin.Client.Services
             try
             {
                 SetAuthHeader();
-                var response = await _http.PatchAsync($"{ApiBaseUrl}api/Categoria/{id}/cambiar-estado?nuevoEstado={nuevoEstado}", null);
-                if (response.IsSuccessStatusCode)
-                {
-                    var cat = _mockCategories.FirstOrDefault(c => c.Id == id);
-                    if (cat != null) cat.Activo = nuevoEstado;
-                    OnDataChanged?.Invoke();
-                    return true;
-                }
+                string queryBool = nuevoEstado.ToString().ToLowerInvariant();
+                var response = await _http.PatchAsync($"{ApiBaseUrl}api/Categoria/{id}/cambiar-estado?nuevoEstado={queryBool}", null);
+                var cat = _mockCategories.FirstOrDefault(c => c.Id == id);
+                if (cat != null) cat.Activo = nuevoEstado;
+                OnDataChanged?.Invoke();
                 return response.IsSuccessStatusCode;
             }
             catch

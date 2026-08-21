@@ -86,26 +86,46 @@
 
                         @if (isDropdownOpen && ApiService.IsLoggedIn)
                         {
-                            <div class="user-dropdown-menu login-form-dropdown">
-                                <h4 class="dropdown-form-title">Mi Cuenta</h4>
-                                <p class="dropdown-text">Hola, <strong>@ApiService.CurrentUser?.Nombre</strong>
-                                </p>
-                                <p class="dropdown-text" style="font-size: 0.7rem; margin-bottom: 10px;">Rol:
-                                    @ApiService.CurrentUser?.Rol</p>
+                            <div class="luxury-profile-dropdown">
+                                <div class="profile-avatar-header">
+                                    <div class="avatar-circle">
+                                        @((ApiService.CurrentUser?.Nombre ?? "U").Substring(0, 1).ToUpper())
+                                    </div>
+                                    <div class="user-main-details">
+                                        <span class="user-name">@(ApiService.CurrentUser?.Nombre ?? "Usuario Activo")</span>
+                                        <span class="user-email">@(ApiService.CurrentUser?.Email ?? "correo@ejemplo.com")</span>
+                                    </div>
+                                </div>
 
+                                <div class="profile-info-grid">
+                                    <div class="info-item">
+                                        <span class="info-label">ROL DE ACCESO</span>
+                                        <span class="info-badge @(ApiService.IsAdmin ? "role-admin" : "role-client")">
+                                            @(ApiService.IsAdmin ? "👑 Administrador" : "👤 Cliente")
+                                        </span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">ESTADO DE CUENTA</span>
+                                        <span class="info-badge @(ApiService.CurrentUser?.Activo == false ? "status-inactive" : "status-active")">
+                                            @(ApiService.CurrentUser?.Activo == false ? "🔴 Inactivo" : "🟢 Activo")
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="profile-actions">
                                     @if (ApiService.IsAdmin)
                                     {
-                                        <a href="admin" @onclick="CloseDropdown" class="btn-submit-login"
-                                           style="text-decoration:none; text-align:center; display:block; margin-bottom:8px;">Panel de
-                                            Control</a>
-                                        }
+                                        <a href="admin" @onclick="CloseDropdown" class="btn-profile-action btn-admin-panel">
+                                            ⚡ PANEL ADMINISTRATIVO
+                                        </a>
+                                    }
 
-                                        <button type="button" class="btn-submit-login" style="background-color:#8C2424;"
-                                                @onclick="ProcesarLogout">
-                                            Cerrar Sesión
-                                        </button>
-                                    </div>
-                                }
+                                    <button type="button" class="btn-profile-action btn-logout-action" @onclick="ProcesarLogout">
+                                        🚪 Cerrar Sesión
+                                    </button>
+                                </div>
+                            </div>
+                        }
                             </div>
                             <button type="button" @onclick="OpenCart" class="nav-icon-btn" title="Ver carrito de compras"
                                     style="background:transparent; border:none; outline:none; cursor:pointer; position:relative; padding:0; display:inline-flex; align-items:center;">

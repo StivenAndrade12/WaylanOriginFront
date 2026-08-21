@@ -704,11 +704,12 @@
 
     private async Task ToggleProductStatus(Product p)
     {
-        var success = await ApiService.CambiarEstadoProductoAsync(p.Id, !p.Activo);
-        if (success)
-        {
-            await LoadActiveTabData();
-        }
+        bool nextState = !p.Activo;
+        p.Activo = nextState;
+        StateHasChanged();
+        await ApiService.CambiarEstadoProductoAsync(p.Id, nextState);
+        await LoadActiveTabData();
+        StateHasChanged();
     }
 
     // --- CATEGORIES OPERATIONS ---
@@ -749,11 +750,12 @@
 
     private async Task ToggleCategoryStatus(Category c)
     {
-        var success = await ApiService.CambiarEstadoCategoriaAsync(c.Id, !c.Activo);
-        if (success)
-        {
-            await LoadActiveTabData();
-        }
+        bool nextState = !c.Activo;
+        c.Activo = nextState;
+        StateHasChanged();
+        await ApiService.CambiarEstadoCategoriaAsync(c.Id, nextState);
+        await LoadActiveTabData();
+        StateHasChanged();
     }
 
     // --- ORDERS OPERATIONS ---
