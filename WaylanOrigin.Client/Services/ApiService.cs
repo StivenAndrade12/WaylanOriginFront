@@ -73,6 +73,8 @@ namespace WaylanOrigin.Client.Services
                     SetAuthHeader();
                     OnAuthStateChanged?.Invoke();
                 }
+
+                await LoadUsersFromLocalStorageAsync();
             }
             catch
             {
@@ -110,6 +112,52 @@ namespace WaylanOrigin.Client.Services
                 await _js.InvokeVoidAsync("localStorage.removeItem", "waylan_user_email");
                 await _js.InvokeVoidAsync("localStorage.removeItem", "waylan_user_nombre");
                 await _js.InvokeVoidAsync("localStorage.removeItem", "waylan_user_rol");
+            }
+            catch
+            {
+                // Ignore JS Interop errors
+            }
+        }
+
+        private async Task LoadUsersFromLocalStorageAsync()
+        {
+            try
+            {
+                var json = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_registered_users");
+                if (!string.IsNullOrEmpty(json))
+                {
+                    var users = System.Text.Json.JsonSerializer.Deserialize<List<User>>(json);
+                    if (users != null && users.Any())
+                    {
+                        foreach (var u in users)
+                        {
+                            var existing = _mockUsers.FirstOrDefault(m => m.Email.Equals(u.Email, StringComparison.OrdinalIgnoreCase));
+                            if (existing != null)
+                            {
+                                existing.Nombre = u.Nombre;
+                                existing.Activo = u.Activo;
+                                existing.Rol = u.Rol;
+                            }
+                            else
+                            {
+                                _mockUsers.Add(u);
+                            }
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Ignore JS Interop errors
+            }
+        }
+
+        private async Task SaveUsersToLocalStorageAsync()
+        {
+            try
+            {
+                var json = System.Text.Json.JsonSerializer.Serialize(_mockUsers);
+                await _js.InvokeVoidAsync("localStorage.setItem", "waylan_registered_users", json);
             }
             catch
             {
@@ -277,6 +325,7 @@ namespace WaylanOrigin.Client.Services
                         int maxId = _mockUsers.Any() ? _mockUsers.Max(u => u.Id) + 1 : 1;
                         _mockUsers.Add(new User { Id = maxId, Nombre = nombre, Email = email, Rol = "Cliente", Activo = false });
                     }
+                    await SaveUsersToLocalStorageAsync();
                     OnDataChanged?.Invoke();
                     return (true, "Registro exitoso.");
                 }
@@ -292,6 +341,7 @@ namespace WaylanOrigin.Client.Services
                     int maxId = _mockUsers.Any() ? _mockUsers.Max(u => u.Id) + 1 : 1;
                     _mockUsers.Add(new User { Id = maxId, Nombre = nombre, Email = email, Rol = "Cliente", Activo = false });
                 }
+                await SaveUsersToLocalStorageAsync();
                 OnDataChanged?.Invoke();
                 return (true, "Registro completado.");
             }
@@ -305,6 +355,10 @@ namespace WaylanOrigin.Client.Services
                 var response = await _http.PostAsync($"{ApiBaseUrl}api/Auth/Verificacion-Email?Email={Uri.EscapeDataString(email)}&Codigo={Uri.EscapeDataString(codigo)}", null);
                 if (response.IsSuccessStatusCode)
                 {
+                    var u = _mockUsers.FirstOrDefault(usr => usr.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+                    if (u != null) u.Activo = true;
+                    await SaveUsersToLocalStorageAsync();
+                    OnDataChanged?.Invoke();
                     return (true, "Cuenta verificada correctamente.");
                 }
 
@@ -314,11 +368,13 @@ namespace WaylanOrigin.Client.Services
             catch
             {
                 // In mock mode, activate the user
-                var user = _mockUsers.FirstOrDefault(u => u.Email == email);
+                var user = _mockUsers.FirstOrDefault(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
                 if (user != null)
                 {
                     user.Activo = true;
                 }
+                await SaveUsersToLocalStorageAsync();
+                OnDataChanged?.Invoke();
                 return (true, "Cuenta activada.");
             }
         }
@@ -1030,6 +1086,7 @@ namespace WaylanOrigin.Client.Services
 
         public async Task<List<User>> GetUsuariosAsync()
         {
+            await LoadUsersFromLocalStorageAsync();
             try
             {
                 SetAuthHeader();
@@ -1063,6 +1120,7 @@ namespace WaylanOrigin.Client.Services
                                 _mockUsers.Add(u);
                             }
                         }
+                        await SaveUsersToLocalStorageAsync();
                     }
                 }
                 else
@@ -1088,6 +1146,7 @@ namespace WaylanOrigin.Client.Services
                 var response = await _http.PatchAsync($"{ApiBaseUrl}api/Usuarios/{id}/cambiar-estado?nuevoEstado={queryBool}", null);
                 var usr = _mockUsers.FirstOrDefault(u => u.Id == id);
                 if (usr != null) usr.Activo = nuevoEstado;
+                await SaveUsersToLocalStorageAsync();
                 OnDataChanged?.Invoke();
                 return response.IsSuccessStatusCode;
             }
@@ -1095,6 +1154,7 @@ namespace WaylanOrigin.Client.Services
             {
                 var usr = _mockUsers.FirstOrDefault(u => u.Id == id);
                 if (usr != null) usr.Activo = nuevoEstado;
+                await SaveUsersToLocalStorageAsync();
                 OnDataChanged?.Invoke();
                 return true;
             }
