@@ -172,13 +172,19 @@ namespace WaylanOrigin.Client.Services
             OnAuthStateChanged?.Invoke();
         }
 
-        public async Task<bool> RegistroAsync(string nombre, string email, string password)
+        public async Task<(bool Success, string Message)> RegistroAsync(string nombre, string email, string password)
         {
             try
             {
                 // Matches AuthController [HttpPost("Registrar")] expecting UsuarioCreateDto { Nombre, Email, Password }
                 var response = await _http.PostAsJsonAsync($"{ApiBaseUrl}api/Auth/Registrar", new { Nombre = nombre, Email = email, Password = password });
-                return response.IsSuccessStatusCode;
+                if (response.IsSuccessStatusCode)
+                {
+                    return (true, "Registro exitoso.");
+                }
+
+                var errorText = await response.Content.ReadAsStringAsync();
+                return (false, !string.IsNullOrWhiteSpace(errorText) ? errorText.Trim('"') : "No se pudo realizar el registro. Es posible que el correo electrónico ya esté registrado.");
             }
             catch
             {
@@ -187,17 +193,23 @@ namespace WaylanOrigin.Client.Services
                 {
                     _mockUsers.Add(new User { Id = _mockUsers.Max(u => u.Id) + 1, Nombre = nombre, Email = email, Rol = "Cliente", Activo = false });
                 }
-                return true;
+                return (true, "Registro completado.");
             }
         }
 
-        public async Task<bool> VerificarEmailAsync(string email, string codigo)
+        public async Task<(bool Success, string Message)> VerificarEmailAsync(string email, string codigo)
         {
             try
             {
                 // Matches AuthController [HttpPost("Verificacion-Email")] expecting Email and Codigo as Query params
                 var response = await _http.PostAsync($"{ApiBaseUrl}api/Auth/Verificacion-Email?Email={Uri.EscapeDataString(email)}&Codigo={Uri.EscapeDataString(codigo)}", null);
-                return response.IsSuccessStatusCode;
+                if (response.IsSuccessStatusCode)
+                {
+                    return (true, "Cuenta verificada correctamente.");
+                }
+
+                var errorText = await response.Content.ReadAsStringAsync();
+                return (false, !string.IsNullOrWhiteSpace(errorText) ? errorText.Trim('"') : "El código de activación ingresado es incorrecto o ha expirado.");
             }
             catch
             {
@@ -207,7 +219,7 @@ namespace WaylanOrigin.Client.Services
                 {
                     user.Activo = true;
                 }
-                return true;
+                return (true, "Cuenta activada.");
             }
         }
 

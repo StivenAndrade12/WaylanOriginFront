@@ -78,139 +78,142 @@
                     </form>
                 }
         else if (authMode == AuthMode.Register)
-                {
-                    <!-- 2. REGISTRATION FORM (STEPPED) -->
-                    @if (registerStep == 1)
-                    {
-                        <form @onsubmit="HandleRegister" class="auth-form">
-                            <div class="form-group-lux">
-                                <label>Nombre Completo</label>
-                                <div class="input-wrapper">
-                                    <input type="text" @bind="registerNombre" placeholder="Tu Nombre" required
-                                           class="form-control-lux" />
-                                </div>
-                            </div>
+        {
+            <!-- 2. REGISTRATION FORM (STEPPED) -->
+            @if (registerStep == 1)
+            {
+                <form @onsubmit="HandleRegister" class="auth-form">
+                    <div class="form-group-lux">
+                        <label>Nombre Completo</label>
+                        <div class="input-wrapper">
+                            <input type="text" @bind="registerNombre" placeholder="Tu Nombre y Apellido" required
+                                   class="form-control-lux" />
+                        </div>
+                    </div>
 
-                            <div class="form-group-lux">
-                                <label>Correo Electrónico</label>
-                                <div class="input-wrapper">
-                                    <input type="email" @bind="registerEmail" placeholder="ejemplo@correo.com" required
-                                           class="form-control-lux" />
-                                </div>
-                            </div>
+                    <div class="form-group-lux">
+                        <label>Correo Electrónico</label>
+                        <div class="input-wrapper">
+                            <input type="email" @bind="registerEmail" placeholder="ejemplo@correo.com" required
+                                   class="form-control-lux" />
+                        </div>
+                    </div>
 
-                            <div class="form-group-lux">
-                                <label>Contraseña (Mínimo 8 caracteres)</label>
-                                <div class="input-wrapper">
-                                    <input type="password" @bind="registerPassword" placeholder="••••••••" required
-                                           class="form-control-lux" />
-                                </div>
-                            </div>
+                    <div class="form-group-lux">
+                        <label>Contraseña (Mínimo 8 caracteres)</label>
+                        <div class="input-wrapper">
+                            <input type="password" @bind="registerPassword" placeholder="••••••••" required
+                                   class="form-control-lux" />
+                        </div>
+                    </div>
 
-                            <button type="submit" class="btn-submit-lux" disabled="@isSubmitting">
-                                @if (isSubmitting)
-                                {
-                                    <span class="spinner"></span>
-                                }
-                                else
-                                {
-                                    <span>CREAR CUENTA</span>
-                                }
-                            </button>
-
-                            <div class="auth-switch-links">
-                                <button type="button" class="btn-link-lux" @onclick='() => ChangeMode(AuthMode.Login)'>¿Ya tienes
-                                    cuenta? Inicia Sesión</button>
-                                </div>
-                            </form>
-                        }
-            else if (registerStep == 2)
+                    <button type="submit" class="btn-submit-lux" disabled="@isSubmitting">
+                        @if (isSubmitting)
                         {
-                            <form @onsubmit="HandleRegisterVerify" class="auth-form">
-                                <div class="demo-info-badge">
-                                    <span>💡 <strong>Modo Demo:</strong> Si el backend está apagado, cualquier código de 6 letras activará
-                                        tu cuenta ficticia localmente.</span>
-                                    </div>
+                            <span class="spinner"></span>
+                        }
+                        else
+                        {
+                            <span>CREAR CUENTA Y ENVIAR CÓDIGO</span>
+                        }
+                    </button>
 
-                                    <div class="form-group-lux">
-                                        <label>Correo Electrónico Registrado</label>
-                                        <div class="input-wrapper">
-                                            <input type="email" value="@registerEmail" readonly class="form-control-lux"
-                                                   style="opacity: 0.7; cursor: not-allowed;" />
-                                        </div>
-                                    </div>
+                    <div class="auth-switch-links">
+                        <button type="button" class="btn-link-lux" @onclick='() => ChangeMode(AuthMode.Login)'>¿Ya tienes cuenta? Inicia Sesión</button>
+                    </div>
+                </form>
+            }
+            else if (registerStep == 2)
+            {
+                <form @onsubmit="HandleRegisterVerify" class="auth-form">
+                    <div class="email-verify-notice">
+                        <div class="notice-icon">✉️</div>
+                        <div class="notice-text">
+                            <strong>Verifica tu correo electrónico</strong>
+                            <p>Hemos enviado un código de activación a <strong>@registerEmail</strong>. Revisa tu bandeja de entrada o carpeta de no deseados (Spam).</p>
+                        </div>
+                    </div>
 
-                                    <div class="form-group-lux">
-                                        <label>Introduce el PIN enviado a tu correo</label>
-                                        <div class="input-wrapper">
-                                            <input type="text" @bind="verifyCodigo" placeholder="E.g. A3F89C" maxlength="10" required
-                                                   class="form-control-lux code-input" />
-                                        </div>
-                                    </div>
+                    <div class="form-group-lux">
+                        <label>Correo Electrónico Registrado</label>
+                        <div class="input-wrapper">
+                            <input type="email" value="@registerEmail" readonly class="form-control-lux"
+                                   style="opacity: 0.7; cursor: not-allowed;" />
+                        </div>
+                    </div>
 
-                                    <button type="submit" class="btn-submit-lux" disabled="@isSubmitting">
-                                        @if (isSubmitting)
-                                        {
-                                            <span class="spinner"></span>
-                                        }
-                                        else
-                                        {
-                                            <span>ACTIVAR CUENTA</span>
-                                        }
-                                    </button>
+                    <div class="form-group-lux">
+                        <label>Código de Activación (6 Caracteres / Números)</label>
+                        <div class="input-wrapper">
+                            <input type="text" @bind="verifyCodigo" placeholder="E.g. 123456" maxlength="12" required
+                                   class="form-control-lux code-input" />
+                        </div>
+                    </div>
 
-                                    <div class="auth-switch-links">
-                                        <button type="button" class="btn-link-lux" @onclick='() => registerStep = 1'>← Volver a modificar
-                                            datos</button>
-                                        </div>
-                                    </form>
-                                }
-                            }
+                    <button type="submit" class="btn-submit-lux" disabled="@isSubmitting">
+                        @if (isSubmitting)
+                        {
+                            <span class="spinner"></span>
+                        }
+                        else
+                        {
+                            <span>ACTIVAR CUENTA Y CONTINUAR</span>
+                        }
+                    </button>
+
+                    <div class="auth-switch-links">
+                        <button type="button" class="btn-link-lux" @onclick='() => registerStep = 1'>← Modificar correo o datos</button>
+                    </div>
+                </form>
+            }
+        }
         else if (authMode == AuthMode.Verify)
-                            {
-                                <!-- 3. EMAIL VERIFICATION FORM -->
-                                <form @onsubmit="HandleVerify" class="auth-form">
-                                    <div class="demo-info-badge">
-                                        <span>💡 <strong>Modo Demo:</strong> Si el backend está apagado, cualquier código de 6 letras activará
-                                            tu cuenta ficticia localmente.</span>
-                                        </div>
+        {
+            <!-- 3. EMAIL VERIFICATION FORM -->
+            <form @onsubmit="HandleVerify" class="auth-form">
+                <div class="email-verify-notice">
+                    <div class="notice-icon">🔐</div>
+                    <div class="notice-text">
+                        <strong>Activación de Cuenta Pendiente</strong>
+                        <p>Ingresa el correo electrónico con el que te registraste y el código de verificación recibido para activar tu acceso.</p>
+                    </div>
+                </div>
 
-                                        <div class="form-group-lux">
-                                            <label>Correo Electrónico Registrado</label>
-                                            <div class="input-wrapper">
-                                                <input type="email" @bind="verifyEmail" placeholder="ejemplo@correo.com" required
-                                                       class="form-control-lux" />
-                                            </div>
-                                        </div>
+                <div class="form-group-lux">
+                    <label>Correo Electrónico Registrado</label>
+                    <div class="input-wrapper">
+                        <input type="email" @bind="verifyEmail" placeholder="ejemplo@correo.com" required
+                               class="form-control-lux" />
+                    </div>
+                </div>
 
-                                        <div class="form-group-lux">
-                                            <label>Código de Verificación (6 Caracteres)</label>
-                                            <div class="input-wrapper">
-                                                <input type="text" @bind="verifyCodigo" placeholder="E.g. A3F89C" maxlength="10" required
-                                                       class="form-control-lux code-input" />
-                                            </div>
-                                        </div>
+                <div class="form-group-lux">
+                    <label>Código de Verificación</label>
+                    <div class="input-wrapper">
+                        <input type="text" @bind="verifyCodigo" placeholder="E.g. 123456" maxlength="12" required
+                               class="form-control-lux code-input" />
+                    </div>
+                </div>
 
-                                        <button type="submit" class="btn-submit-lux" disabled="@isSubmitting">
-                                            @if (isSubmitting)
-                                            {
-                                                <span class="spinner"></span>
-                                            }
-                                            else
-                                            {
-                                                <span>ACTIVAR CUENTA</span>
-                                            }
-                                        </button>
+                <button type="submit" class="btn-submit-lux" disabled="@isSubmitting">
+                    @if (isSubmitting)
+                    {
+                        <span class="spinner"></span>
+                    }
+                    else
+                    {
+                        <span>ACTIVAR CUENTA</span>
+                    }
+                </button>
 
-                                        <div class="auth-switch-links">
-                                            <button type="button" class="btn-link-lux" @onclick='() => ChangeMode(AuthMode.Login)'>Volver al
-                                                Login</button>
-                                            </div>
-                                        </form>
-                                    }
+                <div class="auth-switch-links">
+                    <button type="button" class="btn-link-lux" @onclick='() => ChangeMode(AuthMode.Login)'>Volver al Inicio de Sesión</button>
+                </div>
+            </form>
+        }
 
-                                </div>
-                            </div>
+    </div>
+</div>
 
 @code {
     private enum AuthMode { Login, Register, Verify }
@@ -287,7 +290,7 @@
         }
         else
         {
-            errorMessage = "Correo o contraseña incorrectos, o cuenta no activada aún.";
+            errorMessage = "Correo o contraseña incorrectos, o la cuenta aún no ha sido activada mediante el código del correo.";
         }
     }
 
@@ -303,20 +306,20 @@
         }
 
         isSubmitting = true;
-        var success = await ApiService.RegistroAsync(registerNombre, registerEmail, registerPassword);
+        var (success, message) = await ApiService.RegistroAsync(registerNombre, registerEmail, registerPassword);
         isSubmitting = false;
 
         if (success)
         {
-            successMessage = "¡Registro exitoso! Un código PIN de activación ha sido enviado a tu correo.";
+            successMessage = "¡Registro creado con éxito! Hemos enviado un código de activación a tu correo electrónico.";
             verifyEmail = registerEmail;
-
-            // Advance to PIN step on the same card immediately
             registerStep = 2;
+            pageTitle = "Activar Cuenta";
+            pageSubtitle = "Ingresa el código enviado a tu correo para habilitar tu inicio de sesión.";
         }
         else
         {
-            errorMessage = "Error en el registro. Es posible que el correo electrónico ya esté en uso.";
+            errorMessage = message;
         }
     }
 
@@ -332,12 +335,12 @@
         }
 
         isSubmitting = true;
-        var success = await ApiService.VerificarEmailAsync(registerEmail, verifyCodigo);
+        var (success, message) = await ApiService.VerificarEmailAsync(registerEmail, verifyCodigo);
         isSubmitting = false;
 
         if (success)
         {
-            successMessage = "¡Tu cuenta ha sido activada correctamente! Redirigiendo al login...";
+            successMessage = "¡Tu cuenta ha sido activada correctamente! Redirigiendo al inicio de sesión...";
             loginEmail = registerEmail;
             loginPassword = registerPassword; // Autofill for convenience
 
@@ -346,7 +349,7 @@
         }
         else
         {
-            errorMessage = "El código PIN ingresado es incorrecto o ha expirado.";
+            errorMessage = message;
         }
     }
 
@@ -362,7 +365,7 @@
         }
 
         isSubmitting = true;
-        var success = await ApiService.VerificarEmailAsync(verifyEmail, verifyCodigo);
+        var (success, message) = await ApiService.VerificarEmailAsync(verifyEmail, verifyCodigo);
         isSubmitting = false;
 
         if (success)
@@ -375,7 +378,7 @@
         }
         else
         {
-            errorMessage = "El código ingresado es incorrecto o ha expirado.";
+            errorMessage = message;
         }
     }
 }
@@ -580,15 +583,34 @@
         border-left: 4px solid var(--lux-red);
     }
 
-    .demo-info-badge {
-        background-color: rgba(184, 154, 94, 0.1);
-        border: 1px solid rgba(184, 154, 94, 0.25);
-        color: #7A6237;
-        padding: 10px 14px;
-        border-radius: 6px;
-        font-size: 0.75rem;
+    .email-verify-notice {
+        background-color: rgba(184, 154, 94, 0.08);
+        border: 1px dashed rgba(184, 154, 94, 0.4);
+        border-radius: 8px;
+        padding: 16px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 10px;
+    }
+
+    .notice-icon {
+        font-size: 1.4rem;
+        line-height: 1;
+    }
+
+    .notice-text strong {
+        display: block;
+        font-size: 0.85rem;
+        color: var(--lux-brown);
+        margin-bottom: 4px;
+    }
+
+    .notice-text p {
+        font-size: 0.78rem;
+        color: #666;
+        margin: 0;
         line-height: 1.4;
-        margin-bottom: 5px;
     }
 
     /* SPINNER */
