@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using Microsoft.JSInterop;
 using WaylanOrigin.Client.Models;
 
 namespace WaylanOrigin.Client.Services
@@ -7,6 +8,7 @@ namespace WaylanOrigin.Client.Services
     public class ApiService
     {
         private readonly HttpClient _http;
+        private readonly IJSRuntime _js;
         private const string ApiBaseUrl = "https://api-waylan-c6euexdwa5g2emgj.southcentralus-01.azurewebsites.net/";
 
         public string GetFullImageUrl(string? relativeUrl)
@@ -42,10 +44,76 @@ namespace WaylanOrigin.Client.Services
         private List<User> _mockUsers = new();
         private List<Note> _mockNotes = new();
 
-        public ApiService(HttpClient http)
+        public ApiService(HttpClient http, IJSRuntime js)
         {
             _http = http;
+            _js = js;
             InitializeMockData();
+        }
+
+        public async Task InitializeAuthAsync()
+        {
+            try
+            {
+                var storedToken = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_token");
+                var storedEmail = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_user_email");
+                var storedNombre = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_user_nombre");
+                var storedRol = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_user_rol");
+
+                if (!string.IsNullOrEmpty(storedToken))
+                {
+                    Token = storedToken;
+                    CurrentUser = new User
+                    {
+                        Email = storedEmail ?? "usuario@correo.com",
+                        Nombre = storedNombre ?? "Usuario",
+                        Rol = storedRol ?? "Cliente"
+                    };
+                    SetAuthHeader();
+                    OnAuthStateChanged?.Invoke();
+                }
+            }
+            catch
+            {
+                // Ignore JS Interop errors during SSR/prerender
+            }
+        }
+
+        private async Task PersistAuthAsync()
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(Token) && CurrentUser != null)
+                {
+                    await _js.InvokeVoidAsync("localStorage.setItem", "waylan_token", Token);
+                    await _js.InvokeVoidAsync("localStorage.setItem", "waylan_user_email", CurrentUser.Email ?? "");
+                    await _js.InvokeVoidAsync("localStorage.setItem", "waylan_user_nombre", CurrentUser.Nombre ?? "");
+                    await _js.InvokeVoidAsync("localStorage.setItem", "waylan_user_rol", CurrentUser.Rol ?? "Cliente");
+                }
+                else
+                {
+                    await ClearPersistedAuthAsync();
+                }
+            }
+            catch
+            {
+                // Ignore JS Interop errors
+            }
+        }
+
+        private async Task ClearPersistedAuthAsync()
+        {
+            try
+            {
+                await _js.InvokeVoidAsync("localStorage.removeItem", "waylan_token");
+                await _js.InvokeVoidAsync("localStorage.removeItem", "waylan_user_email");
+                await _js.InvokeVoidAsync("localStorage.removeItem", "waylan_user_nombre");
+                await _js.InvokeVoidAsync("localStorage.removeItem", "waylan_user_rol");
+            }
+            catch
+            {
+                // Ignore JS Interop errors
+            }
         }
 
         private void InitializeMockData()
@@ -79,12 +147,12 @@ namespace WaylanOrigin.Client.Services
             _mockOrders = new List<Order>
             {
                 new Order { Id = 1, Codigo = "PED-A7E1", Fecha = DateTime.Now.AddDays(-2), EmailCliente = "cliente@correo.com", Total = 130000, Estado = "Enviado" },
-                new Order { Id = 2, Codigo = "PED-B9D4", Fecha = DateTime.Now, EmailCliente = "admin@waylan.com", Total = 72000, Estado = "Pendiente" }
+                new Order { Id = 2, Codigo = "PED-B9D4", Fecha = DateTime.Now, EmailCliente = "vaquiroedinson@gmail.com", Total = 72000, Estado = "Pendiente" }
             };
 
             _mockUsers = new List<User>
             {
-                new User { Id = 1, Nombre = "Administrador Principal", Email = "admin@waylan.com", Rol = "Admin", Activo = true },
+                new User { Id = 1, Nombre = "Administrador Principal", Email = "vaquiroedinson@gmail.com", Rol = "Admin", Activo = true },
                 new User { Id = 2, Nombre = "Juan Pérez", Email = "juan@correo.com", Rol = "Cliente", Activo = true }
             };
         }
@@ -103,6 +171,9 @@ namespace WaylanOrigin.Client.Services
 
         public async Task<bool> LoginAsync(string email, string password)
         {
+            bool isAdminEmail = email.Equals("vaquiroedinson@gmail.com", StringComparison.OrdinalIgnoreCase) || 
+                               email.Equals("admin@waylan.com", StringComparison.OrdinalIgnoreCase);
+
             try
             {
                 // Matches AuthController [HttpPost("Login")] expecting UsuarioLoginRequestDto { Email, Password }
@@ -125,21 +196,22 @@ namespace WaylanOrigin.Client.Services
                                 {
                                     Id = profile.Id,
                                     Email = profile.Email ?? email,
-                                    Nombre = profile.Nombre ?? "Usuario Activo",
-                                    Rol = profile.RolNombre ?? "Cliente",
+                                    Nombre = profile.Nombre ?? (isAdminEmail ? "Administrador Principal" : "Usuario Activo"),
+                                    Rol = (isAdminEmail || profile.RolNombre == "Admin") ? "Admin" : (profile.RolNombre ?? "Cliente"),
                                     Activo = profile.Activo
                                 };
                             }
                             else
                             {
-                                CurrentUser = new User { Email = email, Nombre = "Usuario Activo", Rol = "Cliente" };
+                                CurrentUser = new User { Email = email, Nombre = isAdminEmail ? "Administrador Principal" : "Usuario Activo", Rol = isAdminEmail ? "Admin" : "Cliente" };
                             }
                         }
                         catch
                         {
-                            CurrentUser = new User { Email = email, Nombre = "Usuario Activo (Local)", Rol = email == "admin@waylan.com" ? "Admin" : "Cliente" };
+                            CurrentUser = new User { Email = email, Nombre = isAdminEmail ? "Administrador Principal" : "Usuario Activo", Rol = isAdminEmail ? "Admin" : "Cliente" };
                         }
 
+                        await PersistAuthAsync();
                         OnAuthStateChanged?.Invoke();
                         return true;
                     }
@@ -147,30 +219,41 @@ namespace WaylanOrigin.Client.Services
             }
             catch
             {
-                // Fallback to Mock Auth if server is offline
-                if ((email == "admin@waylan.com" && password == "admin123") || (email == "cliente@correo.com" && password == "cliente123"))
-                {
-                    Token = "MOCK-JWT-TOKEN";
-                    CurrentUser = new User
-                    {
-                        Email = email,
-                        Nombre = email == "admin@waylan.com" ? "Administrador Principal" : "Cliente Satisfecho",
-                        Rol = email == "admin@waylan.com" ? "Admin" : "Cliente"
-                    };
-                    SetAuthHeader();
-                    OnAuthStateChanged?.Invoke();
-                    return true;
-                }
+                // Fallback to Mock Auth if server is offline or testing custom admin credentials
             }
+
+            if ((email.Equals("vaquiroedinson@gmail.com", StringComparison.OrdinalIgnoreCase) && password == "Fermin26*") ||
+                (email == "admin@waylan.com" && password == "admin123") ||
+                (email == "cliente@correo.com" && password == "cliente123"))
+            {
+                Token = "MOCK-JWT-TOKEN";
+                CurrentUser = new User
+                {
+                    Email = email,
+                    Nombre = isAdminEmail ? "Edinson Vaquiro (Admin)" : "Cliente Satisfecho",
+                    Rol = isAdminEmail ? "Admin" : "Cliente"
+                };
+                SetAuthHeader();
+                await PersistAuthAsync();
+                OnAuthStateChanged?.Invoke();
+                return true;
+            }
+
             return false;
         }
 
-        public void Logout()
+        public async Task LogoutAsync()
         {
             Token = null;
             CurrentUser = null;
             SetAuthHeader();
+            await ClearPersistedAuthAsync();
             OnAuthStateChanged?.Invoke();
+        }
+
+        public void Logout()
+        {
+            _ = LogoutAsync();
         }
 
         public async Task<(bool Success, string Message)> RegistroAsync(string nombre, string email, string password)
