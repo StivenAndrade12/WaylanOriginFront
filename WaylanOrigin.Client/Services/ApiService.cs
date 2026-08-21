@@ -410,7 +410,20 @@ namespace WaylanOrigin.Client.Services
             {
                 SetAuthHeader();
                 var dtos = await _http.GetFromJsonAsync<List<ProductoReadAdminDto>>($"{ApiBaseUrl}api/Producto/Lista de productos Admin");
-                return dtos?.Select(MapToProduct).ToList() ?? new List<Product>();
+                var list = dtos?.Select(MapToProduct).ToList() ?? new List<Product>();
+                foreach (var mock in _mockProducts)
+                {
+                    var existing = list.FirstOrDefault(p => p.Id == mock.Id);
+                    if (existing != null)
+                    {
+                        existing.Activo = mock.Activo;
+                    }
+                    else
+                    {
+                        list.Add(mock);
+                    }
+                }
+                return list;
             }
             catch
             {
