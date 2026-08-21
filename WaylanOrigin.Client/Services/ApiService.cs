@@ -405,11 +405,76 @@ namespace WaylanOrigin.Client.Services
         {
             try
             {
+                SetAuthHeader();
                 return await _http.GetFromJsonAsync<List<Note>>($"{ApiBaseUrl}api/Nota") ?? new List<Note>();
             }
             catch
             {
                 return _mockNotes;
+            }
+        }
+
+        public async Task<bool> CrearNotaAsync(string nombre)
+        {
+            try
+            {
+                SetAuthHeader();
+                var response = await _http.PostAsJsonAsync($"{ApiBaseUrl}api/Nota", new { Nombre = nombre });
+                if (response.IsSuccessStatusCode)
+                {
+                    OnDataChanged?.Invoke();
+                    return true;
+                }
+                return false;
+            }
+            catch
+            {
+                _mockNotes.Add(new Note { Id = _mockNotes.Any() ? _mockNotes.Max(n => n.Id) + 1 : 1, Nombre = nombre });
+                OnDataChanged?.Invoke();
+                return true;
+            }
+        }
+
+        public async Task<bool> ActualizarNotaAsync(int id, string nombre)
+        {
+            try
+            {
+                SetAuthHeader();
+                var response = await _http.PutAsJsonAsync($"{ApiBaseUrl}api/Nota/{id}", new { Nombre = nombre });
+                if (response.IsSuccessStatusCode)
+                {
+                    OnDataChanged?.Invoke();
+                    return true;
+                }
+                return false;
+            }
+            catch
+            {
+                var note = _mockNotes.FirstOrDefault(n => n.Id == id);
+                if (note != null) note.Nombre = nombre;
+                OnDataChanged?.Invoke();
+                return true;
+            }
+        }
+
+        public async Task<bool> EliminarNotaAsync(int id)
+        {
+            try
+            {
+                SetAuthHeader();
+                var response = await _http.DeleteAsync($"{ApiBaseUrl}api/Nota/{id}");
+                if (response.IsSuccessStatusCode)
+                {
+                    OnDataChanged?.Invoke();
+                    return true;
+                }
+                return false;
+            }
+            catch
+            {
+                _mockNotes.RemoveAll(n => n.Id == id);
+                OnDataChanged?.Invoke();
+                return true;
             }
         }
 
