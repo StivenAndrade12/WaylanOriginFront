@@ -765,18 +765,25 @@ namespace WaylanOrigin.Client.Services
             {
                 Id = dto.Id,
                 Codigo = dto.CodigoSeguimiento ?? string.Empty,
-                Fecha = dto.FechaPedido,
+                Direccion = dto.Direccion ?? string.Empty,
+                IdUsuario = dto.IdUsuario,
+                NombreUsuario = dto.NombreUsuario ?? string.Empty,
                 EmailCliente = dto.EmailUsuario ?? string.Empty,
-                Total = (int)dto.Total,
+                Total = (double)dto.Total,
                 Estado = dto.Estado ?? "Pendiente",
+                EstadoPago = dto.EstadoPago ?? "APPROVED",
+                Fecha = dto.FechaPedido,
                 Detalles = dto.DetallesAdmin?.Select(d => new OrderDetail
                 {
                     Id = d.Id,
                     PedidoId = dto.Id,
+                    IdProducto = d.IdProducto,
                     ProductoId = d.IdProducto.ToString(),
                     NombreProducto = d.NombreProducto ?? string.Empty,
+                    ImagenProducto = d.ImagenProducto ?? string.Empty,
                     Cantidad = d.Cantidad,
-                    PrecioUnitario = (int)d.PrecioUnitario
+                    PrecioUnitario = (double)d.PrecioUnitario,
+                    SubTotal = (double)(d.SubTotal > 0 ? d.SubTotal : (d.Cantidad * d.PrecioUnitario))
                 }).ToList() ?? new List<OrderDetail>()
             };
         }
@@ -787,20 +794,41 @@ namespace WaylanOrigin.Client.Services
             {
                 Id = 0,
                 Codigo = dto.CodigoSeguimiento ?? string.Empty,
-                Fecha = dto.FechaPedido,
-                EmailCliente = "Cliente",
-                Total = (int)dto.Total,
+                Direccion = dto.Direccion ?? string.Empty,
+                IdUsuario = 0,
+                NombreUsuario = CurrentUser?.Nombre ?? "Cliente",
+                EmailCliente = CurrentUser?.Email ?? string.Empty,
+                Total = (double)dto.Total,
                 Estado = dto.Estado ?? "Pendiente",
+                EstadoPago = dto.EstadoPago ?? "APPROVED",
+                Fecha = dto.FechaPedido,
                 Detalles = dto.Detalles?.Select(d => new OrderDetail
                 {
                     Id = d.Id,
                     PedidoId = 0,
+                    IdProducto = d.IdProducto,
                     ProductoId = d.IdProducto.ToString(),
                     NombreProducto = d.NombreProducto ?? string.Empty,
+                    ImagenProducto = d.ImagenProducto ?? string.Empty,
                     Cantidad = d.Cantidad,
-                    PrecioUnitario = (int)d.PrecioUnitario
+                    PrecioUnitario = (double)d.PrecioUnitario,
+                    SubTotal = (double)(d.SubTotal > 0 ? d.SubTotal : (d.Cantidad * d.PrecioUnitario))
                 }).ToList() ?? new List<OrderDetail>()
             };
+        }
+
+        public async Task<List<Order>> GetMisPedidosAsync()
+        {
+            try
+            {
+                SetAuthHeader();
+                var dtos = await _http.GetFromJsonAsync<List<PedidoReadDto>>($"{ApiBaseUrl}api/Pedidos/Lista pedidos usuario");
+                return dtos?.Select(MapToOrder).ToList() ?? new List<Order>();
+            }
+            catch
+            {
+                return _mockOrders;
+            }
         }
 
         public async Task<List<Order>> GetTodosPedidosAsync()

@@ -113,6 +113,10 @@
                                 </div>
 
                                 <div class="profile-actions">
+                                    <a href="perfil" @onclick="CloseDropdown" class="btn-profile-action btn-my-profile">
+                                        📦 MI PERFIL Y PEDIDOS
+                                    </a>
+
                                     @if (ApiService.IsAdmin)
                                     {
                                         <a href="admin" @onclick="CloseDropdown" class="btn-profile-action btn-admin-panel">

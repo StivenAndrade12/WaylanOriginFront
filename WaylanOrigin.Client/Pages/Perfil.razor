@@ -1,0 +1,680 @@
+@page "/perfil"
+@inject ApiService ApiService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Mi Perfil - Waylan Origin</PageTitle>
+
+<div class="perfil-page">
+    <div class="perfil-container">
+        
+        @if (!ApiService.IsLoggedIn)
+        {
+            <div class="not-logged-box">
+                <h2>Inicia Sesión para ver tu Perfil</h2>
+                <p>Debes iniciar sesión con tu cuenta de Waylan Origin para acceder a tu historial de pedidos y datos personales.</p>
+                <button class="btn-gold-action" @onclick='() => NavigationManager.NavigateTo("auth")'>IR A INICIAR SESIÓN</button>
+            </div>
+        }
+        else
+        {
+            <!-- PROFILE HEADER -->
+            <div class="perfil-header-card">
+                <div class="avatar-large">
+                    @((ApiService.CurrentUser?.Nombre ?? "U").Substring(0, 1).ToUpper())
+                </div>
+                <div class="user-header-info">
+                    <h1>@ApiService.CurrentUser?.Nombre</h1>
+                    <span class="user-email-text">@ApiService.CurrentUser?.Email</span>
+                    <div class="user-badges">
+                        <span class="badge-role @(ApiService.IsAdmin ? "admin" : "client")">
+                            @(ApiService.IsAdmin ? "👑 Administrador" : "👤 Cliente Verificado")
+                        </span>
+                        <span class="badge-status @(ApiService.CurrentUser?.Activo == false ? "inactive" : "active")">
+                            @(ApiService.CurrentUser?.Activo == false ? "🔴 Inactivo" : "🟢 Cuenta Activa")
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROFILE MAIN CONTENT -->
+            <div class="perfil-body-grid">
+                
+                <!-- SIDE TABS NAVIGATION -->
+                <aside class="perfil-sidebar">
+                    <button class="tab-btn @(activeTab == "pedidos" ? "active" : "")" @onclick='() => SetTab("pedidos")'>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="9" cy="21" r="1"/>
+                            <circle cx="20" cy="21" r="1"/>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                        </svg>
+                        Mis Pedidos Realizados
+                    </button>
+                    <button class="tab-btn @(activeTab == "datos" ? "active" : "")" @onclick='() => SetTab("datos")'>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        Datos Personales
+                    </button>
+                </aside>
+
+                <!-- TAB CONTENT AREA -->
+                <main class="perfil-content-card">
+                    
+                    @if (activeTab == "pedidos")
+                    {
+                        <div class="section-header-row">
+                            <h2>Historial de Mis Pedidos</h2>
+                            <span class="orders-count-badge">@misPedidos.Count pedidos</span>
+                        </div>
+
+                        @if (isLoading)
+                        {
+                            <div class="loading-state">
+                                <div class="spinner"></div>
+                                <p>Cargando tus pedidos...</p>
+                            </div>
+                        }
+                        else if (!misPedidos.Any())
+                        {
+                            <div class="empty-orders-box">
+                                <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                                    <line x1="3" y1="6" x2="21" y2="6"/>
+                                    <path d="M16 10a4 4 0 0 1-8 0"/>
+                                </svg>
+                                <h3>Aún no has realizado pedidos</h3>
+                                <p>Explora nuestro catálogo de cafés especiales y realiza tu primera compra con envío a todo el país.</p>
+                                <button class="btn-gold-action" @onclick='() => NavigationManager.NavigateTo("productos")'>VER CATÁLOGO</button>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="orders-list">
+                                @foreach (var pedido in misPedidos)
+                                {
+                                    <div class="order-card-item">
+                                        <div class="order-card-header">
+                                            <div class="order-code-block">
+                                                <span class="order-label">CÓDIGO DE SEGUIMIENTO</span>
+                                                <strong class="order-code">@pedido.Codigo</strong>
+                                            </div>
+                                            <div class="order-date-block">
+                                                <span class="order-label">FECHA DE COMPRA</span>
+                                                <span class="order-value">@pedido.Fecha.ToLocalTime().ToString("g")</span>
+                                            </div>
+                                            <div class="order-status-block">
+                                                <span class="status-pill @(pedido.Estado.ToLower())">
+                                                    @pedido.Estado
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="order-card-body">
+                                            <div class="order-address-info">
+                                                <span class="info-icon">📍</span>
+                                                <span class="address-text"><strong>Dirección de Entrega:</strong> @(string.IsNullOrEmpty(pedido.Direccion) ? "Dirección registrada" : pedido.Direccion)</span>
+                                            </div>
+
+                                            <!-- ITEM DETAILS ACCORDION / LIST -->
+                                            @if (pedido.Detalles != null && pedido.Detalles.Any())
+                                            {
+                                                <div class="order-items-preview">
+                                                    @foreach (var detail in pedido.Detalles)
+                                                    {
+                                                        <div class="item-row">
+                                                            <img src="@ApiService.GetFullImageUrl(detail.ImagenProducto)" alt="@detail.NombreProducto" class="item-thumb" />
+                                                            <div class="item-info">
+                                                                <span class="item-name">@detail.NombreProducto</span>
+                                                                <span class="item-qty">Cantidad: <strong>@detail.Cantidad</strong></span>
+                                                            </div>
+                                                            <div class="item-price">
+                                                                $@(detail.SubTotal > 0 ? detail.SubTotal.ToString("N0") : (detail.Cantidad * detail.PrecioUnitario).ToString("N0")) COP
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                        </div>
+
+                                        <div class="order-card-footer">
+                                            <div class="payment-status">
+                                                <span>Estado del Pago:</span>
+                                                <span class="pay-badge approved">@pedido.EstadoPago</span>
+                                            </div>
+                                            <div class="order-total-block">
+                                                <span>Total Pagado:</span>
+                                                <strong class="total-price">$@pedido.Total.ToString("N0") COP</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    }
+                    else if (activeTab == "datos")
+                    {
+                        <div class="section-header-row">
+                            <h2>Mis Datos Personales</h2>
+                        </div>
+
+                        <div class="personal-data-card">
+                            <div class="data-row">
+                                <span class="data-label">Nombre Completo:</span>
+                                <span class="data-value">@ApiService.CurrentUser?.Nombre</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Correo Electrónico:</span>
+                                <span class="data-value">@ApiService.CurrentUser?.Email</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Rol en el Sistema:</span>
+                                <span class="data-value">@ApiService.CurrentUser?.Rol</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Estado de la Cuenta:</span>
+                                <span class="data-value">@(ApiService.CurrentUser?.Activo == false ? "Inactivo" : "Activo")</span>
+                            </div>
+                        </div>
+                    }
+
+                </main>
+            </div>
+        }
+
+    </div>
+</div>
+
+@code {
+    private string activeTab = "pedidos";
+    private bool isLoading = true;
+    private List<Order> misPedidos = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (ApiService.IsLoggedIn)
+        {
+            await CargarMisPedidos();
+        }
+        else
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task SetTab(string tab)
+    {
+        activeTab = tab;
+        if (activeTab == "pedidos")
+        {
+            await CargarMisPedidos();
+        }
+    }
+
+    private async Task CargarMisPedidos()
+    {
+        isLoading = true;
+        try
+        {
+            misPedidos = await ApiService.GetMisPedidosAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando mis pedidos: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
+
+<style>
+    .perfil-page {
+        background-color: #FAF6F0;
+        min-height: calc(100vh - 80px);
+        padding: 40px 20px;
+        font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+        color: #1A100A;
+    }
+
+    .perfil-container {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    /* NOT LOGGED IN */
+    .not-logged-box {
+        background: #FFFFFF;
+        padding: 50px 30px;
+        border-radius: 12px;
+        text-align: center;
+        max-width: 500px;
+        margin: 40px auto;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    .not-logged-box h2 {
+        font-family: 'Playfair Display', serif;
+        margin-bottom: 15px;
+    }
+
+    .not-logged-box p {
+        color: #706B64;
+        font-size: 0.9rem;
+        margin-bottom: 25px;
+    }
+
+    /* HEADER CARD */
+    .perfil-header-card {
+        background-color: #1A100A;
+        border: 1.5px solid #B89A5E;
+        border-radius: 12px;
+        padding: 30px 40px;
+        display: flex;
+        align-items: center;
+        gap: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+
+    .avatar-large {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background-color: #281A12;
+        color: #B89A5E;
+        font-size: 2rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #B89A5E;
+        flex-shrink: 0;
+    }
+
+    .user-header-info h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.8rem;
+        color: #FFFFFF;
+        margin: 0 0 4px 0;
+    }
+
+    .user-email-text {
+        color: #D2CFC9;
+        font-size: 0.9rem;
+        display: block;
+        margin-bottom: 12px;
+    }
+
+    .user-badges {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .badge-role {
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 6px;
+    }
+
+    .badge-role.admin {
+        background-color: #ECE7FF;
+        color: #5848C2;
+    }
+
+    .badge-role.client {
+        background-color: #E2F0FE;
+        color: #1F69C2;
+    }
+
+    .badge-status {
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 6px;
+    }
+
+    .badge-status.active {
+        background-color: #E2F3E7;
+        color: #2F6F4C;
+    }
+
+    .badge-status.inactive {
+        background-color: #FCE8E6;
+        color: #8C2424;
+    }
+
+    /* BODY GRID */
+    .perfil-body-grid {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 30px;
+    }
+
+    @@media (max-width: 850px) {
+        .perfil-body-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .perfil-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .tab-btn {
+        background-color: #FFFFFF;
+        border: 1px solid #E5E2DC;
+        color: #706B64;
+        padding: 14px 20px;
+        border-radius: 8px;
+        font-size: 0.88rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: left;
+    }
+
+    .tab-btn .icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .tab-btn:hover {
+        border-color: #B89A5E;
+        color: #1A100A;
+    }
+
+    .tab-btn.active {
+        background-color: #1A100A;
+        color: #B89A5E;
+        border-color: #1A100A;
+    }
+
+    .tab-btn.active .icon {
+        color: #B89A5E;
+    }
+
+    /* CONTENT CARD */
+    .perfil-content-card {
+        background-color: #FFFFFF;
+        border: 1px solid #E5E2DC;
+        border-radius: 12px;
+        padding: 35px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    }
+
+    .section-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        border-bottom: 2px solid #FAF6F0;
+        padding-bottom: 15px;
+    }
+
+    .section-header-row h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.4rem;
+        margin: 0;
+    }
+
+    .orders-count-badge {
+        font-size: 0.8rem;
+        font-weight: 800;
+        background-color: #FAF6F0;
+        color: #B89A5E;
+        padding: 4px 12px;
+        border-radius: 20px;
+        border: 1px solid rgba(184, 154, 94, 0.3);
+    }
+
+    /* EMPTY ORDERS */
+    .empty-orders-box {
+        text-align: center;
+        padding: 40px 20px;
+    }
+
+    .empty-icon {
+        width: 50px;
+        height: 50px;
+        color: #B89A5E;
+        margin-bottom: 15px;
+    }
+
+    .empty-orders-box h3 {
+        margin-bottom: 8px;
+    }
+
+    .empty-orders-box p {
+        color: #706B64;
+        font-size: 0.9rem;
+        margin-bottom: 25px;
+    }
+
+    .btn-gold-action {
+        background-color: #1A100A;
+        color: #B89A5E;
+        border: 1px solid #B89A5E;
+        padding: 12px 24px;
+        font-weight: 800;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-gold-action:hover {
+        background-color: #B89A5E;
+        color: #1A100A;
+    }
+
+    /* ORDER CARD ITEM */
+    .order-card-item {
+        border: 1.5px solid #E5E2DC;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        overflow: hidden;
+        transition: border-color 0.2s;
+    }
+
+    .order-card-item:hover {
+        border-color: #B89A5E;
+    }
+
+    .order-card-header {
+        background-color: #FAF6F0;
+        padding: 16px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        border-bottom: 1px solid #E5E2DC;
+    }
+
+    .order-label {
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: #706B64;
+        display: block;
+        letter-spacing: 0.5px;
+    }
+
+    .order-code {
+        font-size: 1rem;
+        color: #1A100A;
+    }
+
+    .order-value {
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .status-pill {
+        font-size: 0.75rem;
+        font-weight: 800;
+        padding: 4px 12px;
+        border-radius: 4px;
+        text-transform: capitalize;
+    }
+
+    .status-pill.pendiente {
+        background-color: #FEF3D6;
+        color: #C47A2B;
+    }
+
+    .status-pill.aprobado, .status-pill.enviado {
+        background-color: #E2F3E7;
+        color: #2F6F4C;
+    }
+
+    .status-pill.cancelado {
+        background-color: #FCE8E6;
+        color: #8C2424;
+    }
+
+    .order-card-body {
+        padding: 20px;
+    }
+
+    .order-address-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.85rem;
+        color: #55504A;
+        margin-bottom: 16px;
+        background-color: #FCFBF9;
+        padding: 10px 14px;
+        border-radius: 6px;
+    }
+
+    .order-items-preview {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .item-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #FAF6F0;
+    }
+
+    .item-row:last-child {
+        border-bottom: none;
+    }
+
+    .item-thumb {
+        width: 44px;
+        height: 44px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 1px solid #E5E2DC;
+    }
+
+    .item-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .item-name {
+        font-size: 0.88rem;
+        font-weight: 700;
+    }
+
+    .item-qty {
+        font-size: 0.78rem;
+        color: #706B64;
+    }
+
+    .item-price {
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #1A100A;
+    }
+
+    .order-card-footer {
+        background-color: #FCFBF9;
+        padding: 14px 20px;
+        border-top: 1px solid #E5E2DC;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.85rem;
+    }
+
+    .pay-badge.approved {
+        background-color: #E2F3E7;
+        color: #2F6F4C;
+        font-weight: 800;
+        font-size: 0.72rem;
+        padding: 2px 8px;
+        border-radius: 4px;
+        margin-left: 6px;
+    }
+
+    .total-price {
+        font-size: 1.1rem;
+        color: #1A100A;
+        margin-left: 8px;
+    }
+
+    /* PERSONAL DATA */
+    .personal-data-card {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .data-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 16px;
+        background-color: #FAF6F0;
+        border-radius: 8px;
+        font-size: 0.9rem;
+    }
+
+    .data-label {
+        font-weight: 700;
+        color: #706B64;
+    }
+
+    .data-value {
+        font-weight: 800;
+        color: #1A100A;
+    }
+
+    .loading-state {
+        text-align: center;
+        padding: 40px;
+        color: #706B64;
+    }
+
+    .spinner {
+        width: 30px;
+        height: 30px;
+        border: 3px solid #E5E2DC;
+        border-top-color: #B89A5E;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 12px auto;
+    }
+
+    @@keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>

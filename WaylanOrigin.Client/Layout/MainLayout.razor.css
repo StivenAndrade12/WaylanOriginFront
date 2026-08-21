@@ -366,6 +366,18 @@ header {
     outline: none;
 }
 
+.btn-my-profile {
+    background-color: #FAF6F0;
+    color: #1A100A !important;
+    border: 1px solid #D2CFC9;
+}
+
+.btn-my-profile:hover {
+    background-color: #1A100A;
+    color: #B89A5E !important;
+    border-color: #1A100A;
+}
+
 .btn-admin-panel {
     background-color: #1A100A;
     color: #B89A5E !important;
