@@ -329,7 +329,18 @@
         }
         else
         {
-            errorMessage = "Correo o contraseña incorrectos, o la cuenta aún no ha sido activada mediante el código del correo.";
+            if (!string.IsNullOrEmpty(ApiService.LastLoginError) && ApiService.LastLoginError.Contains("no ha sido activada"))
+            {
+                verifyEmail = loginEmail;
+                ChangeMode(AuthMode.Verify);
+                errorMessage = "Tu cuenta aún no ha sido activada. Hemos navegado a la pantalla de verificación. Por favor ingresa el código enviado a tu correo.";
+            }
+            else
+            {
+                errorMessage = !string.IsNullOrEmpty(ApiService.LastLoginError)
+                    ? ApiService.LastLoginError
+                    : "Correo o contraseña incorrectos.";
+            }
         }
     }
 

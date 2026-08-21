@@ -610,12 +610,21 @@
             else
             {
                 ApiService.Logout();
-                loginErrorMessage = "Acceso denegado. No eres administrador.";
+                loginErrorMessage = "Acceso denegado. Tu cuenta no tiene permisos de administrador.";
             }
         }
         else
         {
-            loginErrorMessage = "Credenciales incorrectas o usuario inactivo.";
+            if (!string.IsNullOrEmpty(ApiService.LastLoginError) && ApiService.LastLoginError.Contains("no ha sido activada"))
+            {
+                loginErrorMessage = "Tu cuenta aún no ha sido activada en la Base de Datos de Azure. Por favor ingresa el código de activación desde la pantalla de Verificación.";
+            }
+            else
+            {
+                loginErrorMessage = !string.IsNullOrEmpty(ApiService.LastLoginError)
+                    ? ApiService.LastLoginError
+                    : "Credenciales incorrectas o usuario inactivo.";
+            }
         }
     }
 

@@ -34,22 +34,15 @@ namespace WaylanOrigin.Client.Services
         public bool IsLoggedIn => !string.IsNullOrEmpty(Token);
         public bool IsAdmin => IsLoggedIn && CurrentUser?.Rol == "Admin";
         public string WompiPublicKey { get; set; } = "pub_test_W563zt7LZtn9qNMfSfZMSlY9ODRuw6bb";
+        public string? LastLoginError { get; private set; }
 
         public event Action? OnAuthStateChanged;
         public event Action? OnDataChanged;
-
-        // Mock state lists for standalone frontend execution
-        private List<Product> _mockProducts = new();
-        private List<Category> _mockCategories = new();
-        private List<Order> _mockOrders = new();
-        private List<User> _mockUsers = new();
-        private List<Note> _mockNotes = new();
 
         public ApiService(HttpClient http, IJSRuntime js)
         {
             _http = http;
             _js = js;
-            InitializeMockData();
         }
 
         public async Task InitializeAuthAsync()
@@ -71,13 +64,27 @@ namespace WaylanOrigin.Client.Services
                         Rol = storedRol ?? "Cliente"
                     };
                     SetAuthHeader();
+
+                    // Refresh user profile from Azure DB
+                    try
+                    {
+                        var profile = await _http.GetFromJsonAsync<UsuarioReadDto>($"{ApiBaseUrl}api/Usuarios/Perfil");
+                        if (profile != null)
+                        {
+                            CurrentUser.Id = profile.Id;
+                            CurrentUser.Email = profile.Email ?? CurrentUser.Email;
+                            CurrentUser.Nombre = string.IsNullOrWhiteSpace(profile.Nombre) ? CurrentUser.Nombre : profile.Nombre;
+                            CurrentUser.Rol = profile.GetEffectiveRol();
+                            CurrentUser.Activo = profile.Activo;
+                        }
+                    }
+                    catch
+                    {
+                        // Keep stored user state if transient network error
+                    }
+
                     OnAuthStateChanged?.Invoke();
                 }
-
-                await LoadUsersFromLocalStorageAsync();
-                await LoadProductsFromLocalStorageAsync();
-                await LoadOrdersFromLocalStorageAsync();
-                await LoadCategoriesFromLocalStorageAsync();
             }
             catch
             {
@@ -122,226 +129,6 @@ namespace WaylanOrigin.Client.Services
             }
         }
 
-        private async Task LoadUsersFromLocalStorageAsync()
-        {
-            try
-            {
-                var json = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_registered_users");
-                if (!string.IsNullOrEmpty(json))
-                {
-                    var users = System.Text.Json.JsonSerializer.Deserialize<List<User>>(json);
-                    if (users != null && users.Any())
-                    {
-                        foreach (var u in users)
-                        {
-                            var existing = _mockUsers.FirstOrDefault(m => m.Email.Equals(u.Email, StringComparison.OrdinalIgnoreCase));
-                            if (existing != null)
-                            {
-                                existing.Nombre = u.Nombre;
-                                existing.Activo = u.Activo;
-                                existing.Rol = u.Rol;
-                            }
-                            else
-                            {
-                                _mockUsers.Add(u);
-                            }
-                        }
-                    }
-                }
-            }
-            catch
-            {
-                // Ignore JS Interop errors
-            }
-        }
-
-        private async Task SaveUsersToLocalStorageAsync()
-        {
-            try
-            {
-                var json = System.Text.Json.JsonSerializer.Serialize(_mockUsers);
-                await _js.InvokeVoidAsync("localStorage.setItem", "waylan_registered_users", json);
-            }
-            catch
-            {
-                // Ignore JS Interop errors
-            }
-        }
-
-        private async Task LoadOrdersFromLocalStorageAsync()
-        {
-            try
-            {
-                var json = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_orders_cache");
-                if (!string.IsNullOrEmpty(json))
-                {
-                    var savedOrders = System.Text.Json.JsonSerializer.Deserialize<List<Order>>(json);
-                    if (savedOrders != null && savedOrders.Any())
-                    {
-                        foreach (var ord in savedOrders)
-                        {
-                            var existing = _mockOrders.FirstOrDefault(o => o.Codigo == ord.Codigo || (o.Id > 0 && o.Id == ord.Id));
-                            if (existing != null)
-                            {
-                                existing.Estado = ord.Estado;
-                                existing.EstadoPago = ord.EstadoPago;
-                                existing.Direccion = ord.Direccion;
-                                if (ord.Detalles != null && ord.Detalles.Any()) existing.Detalles = ord.Detalles;
-                            }
-                            else
-                            {
-                                _mockOrders.Add(ord);
-                            }
-                        }
-                    }
-                }
-            }
-            catch { }
-        }
-
-        private async Task SaveOrdersToLocalStorageAsync()
-        {
-            try
-            {
-                var json = System.Text.Json.JsonSerializer.Serialize(_mockOrders);
-                await _js.InvokeVoidAsync("localStorage.setItem", "waylan_orders_cache", json);
-            }
-            catch { }
-        }
-
-        private async Task LoadProductsFromLocalStorageAsync()
-        {
-            try
-            {
-                var json = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_products_cache");
-                if (!string.IsNullOrEmpty(json))
-                {
-                    var savedProds = System.Text.Json.JsonSerializer.Deserialize<List<Product>>(json);
-                    if (savedProds != null && savedProds.Any())
-                    {
-                        foreach (var p in savedProds)
-                        {
-                            var existing = _mockProducts.FirstOrDefault(m => m.Id == p.Id);
-                            if (existing != null)
-                            {
-                                existing.Nombre = p.Nombre;
-                                existing.Precio = p.Precio;
-                                existing.Stock = p.Stock;
-                                existing.Activo = p.Activo;
-                                existing.ImagenUrl = p.ImagenUrl;
-                                existing.Tueste = p.Tueste;
-                                existing.Proceso = p.Proceso;
-                                existing.Formato = p.Formato;
-                                existing.Descripcion = p.Descripcion;
-                            }
-                            else
-                            {
-                                _mockProducts.Add(p);
-                            }
-                        }
-                    }
-                }
-            }
-            catch { }
-        }
-
-        private async Task SaveProductsToLocalStorageAsync()
-        {
-            try
-            {
-                var json = System.Text.Json.JsonSerializer.Serialize(_mockProducts);
-                await _js.InvokeVoidAsync("localStorage.setItem", "waylan_products_cache", json);
-            }
-            catch { }
-        }
-
-        private async Task LoadCategoriesFromLocalStorageAsync()
-        {
-            try
-            {
-                var json = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_categories_cache");
-                if (!string.IsNullOrEmpty(json))
-                {
-                    var savedCats = System.Text.Json.JsonSerializer.Deserialize<List<Category>>(json);
-                    if (savedCats != null && savedCats.Any())
-                    {
-                        foreach (var c in savedCats)
-                        {
-                            var existing = _mockCategories.FirstOrDefault(m => m.Id == c.Id);
-                            if (existing != null)
-                            {
-                                existing.Nombre = c.Nombre;
-                                existing.Activo = c.Activo;
-                            }
-                            else
-                            {
-                                _mockCategories.Add(c);
-                            }
-                        }
-                    }
-                }
-            }
-            catch { }
-        }
-
-        private async Task SaveCategoriesToLocalStorageAsync()
-        {
-            try
-            {
-                var json = System.Text.Json.JsonSerializer.Serialize(_mockCategories);
-                await _js.InvokeVoidAsync("localStorage.setItem", "waylan_categories_cache", json);
-            }
-            catch { }
-        }
-
-        private void InitializeMockData()
-        {
-            _mockNotes = new List<Note>
-            {
-                new Note { Id = 1, Nombre = "Chocolate" },
-                new Note { Id = 2, Nombre = "Panela" },
-                new Note { Id = 3, Nombre = "Frutos Rojos" },
-                new Note { Id = 4, Nombre = "Caramelo" },
-                new Note { Id = 5, Nombre = "Avellana" },
-                new Note { Id = 6, Nombre = "Cítricos" },
-                new Note { Id = 7, Nombre = "Miel de caña" }
-            };
-
-            _mockCategories = new List<Category>
-            {
-                new Category { Id = 1, Nombre = "Grano", Activo = true },
-                new Category { Id = 2, Nombre = "Molido", Activo = true },
-                new Category { Id = 3, Nombre = "Especiales", Activo = true },
-                new Category { Id = 4, Nombre = "Regalos", Activo = true }
-            };
-
-            _mockProducts = new List<Product>
-            {
-                new Product { Id = "WAY-SEL", Nombre = "Waylan Selection", Region = "Tolima, Colombia", Formato = "Grano", PerfilSabor = "Dulce", MetodoRecomendado = "Filtrado", Intensidad = 4, Precio = 72000, Etiqueta = "NUEVO", ImagenUrl = "/images/coffee_bag_esperanza.png", Activo = true, Notas = new List<Note> { _mockNotes[0], _mockNotes[1], _mockNotes[2] } },
-                new Product { Id = "WAY-CLA", Nombre = "Waylan Classic", Region = "Tolima, Colombia", Formato = "Molido", PerfilSabor = "Balanceado", MetodoRecomendado = "Filtrado", Intensidad = 4, Precio = 58000, Etiqueta = "MÁS VENDIDO", ImagenUrl = "/images/coffee_bag_generic.png", Activo = true, Notas = new List<Note> { _mockNotes[3], _mockNotes[4], _mockNotes[5] } },
-                new Product { Id = "WAY-RES", Nombre = "Waylan Reserve", Region = "Tolima, Colombia", Formato = "Grano", PerfilSabor = "Dulce", MetodoRecomendado = "Espresso", Intensidad = 5, Precio = 95000, Etiqueta = "EDICIÓN LIMITADA", ImagenUrl = "/images/coffee_bag_esperanza.png", Activo = true, Notas = new List<Note> { _mockNotes[6], _mockNotes[1] } }
-            };
-
-            _mockOrders = new List<Order>
-            {
-                new Order { Id = 1, Codigo = "PED-A7E1", Fecha = DateTime.Now.AddDays(-2), EmailCliente = "cliente@correo.com", Total = 130000, Estado = "Enviado" },
-                new Order { Id = 2, Codigo = "PED-B9D4", Fecha = DateTime.Now, EmailCliente = "vaquiroedinson@gmail.com", Total = 72000, Estado = "Pendiente" }
-            };
-
-            _mockUsers = new List<User>
-            {
-                new User { Id = 1, Nombre = "Administrador Principal", Email = "vaquiroedinson@gmail.com", Rol = "Admin", Activo = true },
-                new User { Id = 2, Nombre = "Juan Pérez", Email = "juan@correo.com", Rol = "Cliente", Activo = true },
-                new User { Id = 3, Nombre = "María Camila Rodríguez", Email = "maria.rodriguez@gmail.com", Rol = "Cliente", Activo = true },
-                new User { Id = 4, Nombre = "Carlos Alberto Gómez", Email = "carlos.gomez@gmail.com", Rol = "Cliente", Activo = true },
-                new User { Id = 5, Nombre = "Laura Restrepo", Email = "laura.restrepo@gmail.com", Rol = "Cliente", Activo = false },
-                new User { Id = 6, Nombre = "Stiven Andrade", Email = "stivenandrade12@gmail.com", Rol = "Admin", Activo = true },
-                new User { Id = 7, Nombre = "Diana Marcela Torres", Email = "diana.torres@gmail.com", Rol = "Cliente", Activo = true },
-                new User { Id = 8, Nombre = "Felipe Jaramillo", Email = "felipe.jaramillo@gmail.com", Rol = "Cliente", Activo = true },
-                new User { Id = 9, Nombre = "Edinson Admin", Email = "edinson.admin@waylan.com", Rol = "Admin", Activo = true }
-            };
-        }
-
         private void SetAuthHeader()
         {
             if (IsLoggedIn)
@@ -356,8 +143,10 @@ namespace WaylanOrigin.Client.Services
 
         public async Task<bool> LoginAsync(string email, string password)
         {
+            LastLoginError = null;
             bool isAdminEmail = email.Equals("vaquiroedinson@gmail.com", StringComparison.OrdinalIgnoreCase) || 
-                               email.Equals("admin@waylan.com", StringComparison.OrdinalIgnoreCase);
+                               email.Equals("admin@waylan.com", StringComparison.OrdinalIgnoreCase) ||
+                               email.Equals("stivenandrade12@gmail.com", StringComparison.OrdinalIgnoreCase);
 
             try
             {
@@ -365,13 +154,13 @@ namespace WaylanOrigin.Client.Services
                 var response = await _http.PostAsJsonAsync($"{ApiBaseUrl}api/Auth/Login", new { Email = email, Password = password });
                 if (response.IsSuccessStatusCode)
                 {
-                    var token = await response.Content.ReadAsStringAsync();
-                    if (!string.IsNullOrEmpty(token))
+                    var rawToken = await response.Content.ReadAsStringAsync();
+                    if (!string.IsNullOrEmpty(rawToken))
                     {
-                        Token = token.Trim('"');
+                        Token = rawToken.Trim('"').Trim();
                         SetAuthHeader();
 
-                        // Fetch real user profile from backend
+                        // Fetch real user profile from Azure backend
                         try
                         {
                             var profile = await _http.GetFromJsonAsync<UsuarioReadDto>($"{ApiBaseUrl}api/Usuarios/Perfil");
@@ -381,8 +170,8 @@ namespace WaylanOrigin.Client.Services
                                 {
                                     Id = profile.Id,
                                     Email = profile.Email ?? email,
-                                    Nombre = profile.Nombre ?? (isAdminEmail ? "Administrador Principal" : "Usuario Activo"),
-                                    Rol = (isAdminEmail || profile.RolNombre == "Admin") ? "Admin" : (profile.RolNombre ?? "Cliente"),
+                                    Nombre = string.IsNullOrWhiteSpace(profile.Nombre) ? (isAdminEmail ? "Administrador Principal" : "Usuario Activo") : profile.Nombre,
+                                    Rol = (isAdminEmail || profile.GetEffectiveRol() == "Admin") ? "Admin" : profile.GetEffectiveRol(),
                                     Activo = profile.Activo
                                 };
                             }
@@ -401,29 +190,34 @@ namespace WaylanOrigin.Client.Services
                         return true;
                     }
                 }
-            }
-            catch
-            {
-                // Fallback to Mock Auth if server is offline or testing custom admin credentials
-            }
-
-            if ((email.Equals("vaquiroedinson@gmail.com", StringComparison.OrdinalIgnoreCase) && password == "Fermin26*") ||
-                (email == "admin@waylan.com" && password == "admin123") ||
-                (email == "cliente@correo.com" && password == "cliente123"))
-            {
-                Token = "MOCK-JWT-TOKEN";
-                CurrentUser = new User
+                else
                 {
-                    Email = email,
-                    Nombre = isAdminEmail ? "Edinson Vaquiro (Admin)" : "Cliente Satisfecho",
-                    Rol = isAdminEmail ? "Admin" : "Cliente"
-                };
-                SetAuthHeader();
-                await PersistAuthAsync();
-                OnAuthStateChanged?.Invoke();
-                return true;
+                    var errorText = await response.Content.ReadAsStringAsync();
+                    if (!string.IsNullOrWhiteSpace(errorText))
+                    {
+                        if (errorText.Contains("Tu cuenta aun no ha sido activada") || errorText.Contains("no ha sido activada"))
+                        {
+                            LastLoginError = "Tu cuenta aun no ha sido activada.";
+                        }
+                        else
+                        {
+                            LastLoginError = errorText.Trim('"');
+                        }
+                    }
+                    else
+                    {
+                        LastLoginError = "Correo o contraseña incorrectos.";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LastLoginError = ex.Message;
             }
 
+            Token = null;
+            CurrentUser = null;
+            SetAuthHeader();
             return false;
         }
 
@@ -445,34 +239,19 @@ namespace WaylanOrigin.Client.Services
         {
             try
             {
-                // Matches AuthController [HttpPost("Registrar")] expecting UsuarioCreateDto { Nombre, Email, Password }
                 var response = await _http.PostAsJsonAsync($"{ApiBaseUrl}api/Auth/Registrar", new { Nombre = nombre, Email = email, Password = password });
                 if (response.IsSuccessStatusCode)
                 {
-                    if (!_mockUsers.Any(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase)))
-                    {
-                        int maxId = _mockUsers.Any() ? _mockUsers.Max(u => u.Id) + 1 : 1;
-                        _mockUsers.Add(new User { Id = maxId, Nombre = nombre, Email = email, Rol = "Cliente", Activo = false });
-                    }
-                    await SaveUsersToLocalStorageAsync();
                     OnDataChanged?.Invoke();
-                    return (true, "Registro exitoso.");
+                    return (true, "Registro exitoso. Se ha enviado un código de verificación a tu correo.");
                 }
 
                 var errorText = await response.Content.ReadAsStringAsync();
-                return (false, !string.IsNullOrWhiteSpace(errorText) ? errorText.Trim('"') : "No se pudo realizar el registro. Es posible que el correo electrónico ya esté registrado.");
+                return (false, !string.IsNullOrWhiteSpace(errorText) ? errorText.Trim('"') : "No se pudo realizar el registro.");
             }
-            catch
+            catch (Exception ex)
             {
-                // In mock mode, add to local mock users list
-                if (!_mockUsers.Any(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase)))
-                {
-                    int maxId = _mockUsers.Any() ? _mockUsers.Max(u => u.Id) + 1 : 1;
-                    _mockUsers.Add(new User { Id = maxId, Nombre = nombre, Email = email, Rol = "Cliente", Activo = false });
-                }
-                await SaveUsersToLocalStorageAsync();
-                OnDataChanged?.Invoke();
-                return (true, "Registro completado.");
+                return (false, $"Error de conexión: {ex.Message}");
             }
         }
 
@@ -480,31 +259,19 @@ namespace WaylanOrigin.Client.Services
         {
             try
             {
-                // Matches AuthController [HttpPost("Verificacion-Email")] expecting Email and Codigo as Query params
                 var response = await _http.PostAsync($"{ApiBaseUrl}api/Auth/Verificacion-Email?Email={Uri.EscapeDataString(email)}&Codigo={Uri.EscapeDataString(codigo)}", null);
                 if (response.IsSuccessStatusCode)
                 {
-                    var u = _mockUsers.FirstOrDefault(usr => usr.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
-                    if (u != null) u.Activo = true;
-                    await SaveUsersToLocalStorageAsync();
                     OnDataChanged?.Invoke();
-                    return (true, "Cuenta verificada correctamente.");
+                    return (true, "Cuenta activada correctamente.");
                 }
 
                 var errorText = await response.Content.ReadAsStringAsync();
                 return (false, !string.IsNullOrWhiteSpace(errorText) ? errorText.Trim('"') : "El código de activación ingresado es incorrecto o ha expirado.");
             }
-            catch
+            catch (Exception ex)
             {
-                // In mock mode, activate the user
-                var user = _mockUsers.FirstOrDefault(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
-                if (user != null)
-                {
-                    user.Activo = true;
-                }
-                await SaveUsersToLocalStorageAsync();
-                OnDataChanged?.Invoke();
-                return (true, "Cuenta activada.");
+                return (false, $"Error al verificar cuenta: {ex.Message}");
             }
         }
 
@@ -550,8 +317,6 @@ namespace WaylanOrigin.Client.Services
                 ImagenUrl = dto.ImagenUrl,
                 Activo = true,
                 Notas = dto.Notas ?? new List<Note>(),
-                
-                // Fallbacks/Legacies
                 Formato = dto.CategoriaNombre,
                 Region = "Tolima, Colombia",
                 PerfilSabor = FormatTueste(dto.Tueste),
@@ -576,8 +341,6 @@ namespace WaylanOrigin.Client.Services
                 ImagenUrl = dto.ImagenUrl,
                 Activo = dto.Activo,
                 Notas = dto.Notas ?? new List<Note>(),
-                
-                // Fallbacks/Legacies
                 Formato = dto.CategoriaNombre,
                 Region = "Tolima, Colombia",
                 PerfilSabor = FormatTueste(dto.Tueste),
@@ -590,66 +353,62 @@ namespace WaylanOrigin.Client.Services
         {
             try
             {
-                var prods = await GetTodosProductosAsync();
-                if (prods != null && prods.Any())
-                {
-                    return prods.Where(p => p.Activo).ToList();
-                }
                 var dtos = await _http.GetFromJsonAsync<List<ProductoReadDto>>($"{ApiBaseUrl}api/Producto/Lista de productos");
-                return dtos?.Select(MapToProduct).Where(p => p.Activo).ToList() ?? new List<Product>();
+                if (dtos != null && dtos.Any())
+                {
+                    return dtos.Select(MapToProduct).Where(p => p.Activo).ToList();
+                }
             }
-            catch
+            catch (Exception ex)
             {
-                return _mockProducts.Where(p => p.Activo).ToList();
+                Console.WriteLine($"Error GetProductosActivosAsync: {ex.Message}");
             }
+            return new List<Product>();
         }
 
         public async Task<List<Product>> GetTodosProductosAsync()
         {
-            await LoadProductsFromLocalStorageAsync();
             try
             {
                 SetAuthHeader();
                 var dtos = await _http.GetFromJsonAsync<List<ProductoReadAdminDto>>($"{ApiBaseUrl}api/Producto/Lista de productos Admin");
                 if (dtos != null && dtos.Any())
                 {
-                    var apiProds = dtos.Select(MapToProduct).ToList();
-                    foreach (var ap in apiProds)
-                    {
-                        var existing = _mockProducts.FirstOrDefault(p => p.Id == ap.Id);
-                        if (existing != null)
-                        {
-                            existing.Nombre = ap.Nombre;
-                            existing.Precio = ap.Precio;
-                            existing.Stock = ap.Stock;
-                            existing.Activo = ap.Activo;
-                            existing.ImagenUrl = ap.ImagenUrl;
-                        }
-                        else
-                        {
-                            _mockProducts.Add(ap);
-                        }
-                    }
-                    await SaveProductsToLocalStorageAsync();
+                    return dtos.Select(MapToProduct).ToList();
                 }
-                return _mockProducts;
             }
             catch
             {
-                return _mockProducts;
+                // Fallback to public list endpoint if not admin or missing token
             }
+
+            try
+            {
+                var publicDtos = await _http.GetFromJsonAsync<List<ProductoReadDto>>($"{ApiBaseUrl}api/Producto/Lista de productos");
+                if (publicDtos != null && publicDtos.Any())
+                {
+                    return publicDtos.Select(MapToProduct).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error GetTodosProductosAsync: {ex.Message}");
+            }
+
+            return new List<Product>();
         }
 
         public async Task<Product?> GetProductoPorIdAsync(string id)
         {
             try
             {
-                var dtos = await GetTodosProductosAsync();
-                return dtos.FirstOrDefault(p => p.Id == id);
+                var prods = await GetTodosProductosAsync();
+                return prods.FirstOrDefault(p => p.Id == id);
             }
-            catch
+            catch (Exception ex)
             {
-                return _mockProducts.FirstOrDefault(p => p.Id == id);
+                Console.WriteLine($"Error GetProductoPorIdAsync: {ex.Message}");
+                return null;
             }
         }
 
@@ -660,9 +419,10 @@ namespace WaylanOrigin.Client.Services
                 SetAuthHeader();
                 return await _http.GetFromJsonAsync<List<Note>>($"{ApiBaseUrl}api/Nota") ?? new List<Note>();
             }
-            catch
+            catch (Exception ex)
             {
-                return _mockNotes;
+                Console.WriteLine($"Error GetNotasAsync: {ex.Message}");
+                return new List<Note>();
             }
         }
 
@@ -679,11 +439,10 @@ namespace WaylanOrigin.Client.Services
                 }
                 return false;
             }
-            catch
+            catch (Exception ex)
             {
-                _mockNotes.Add(new Note { Id = _mockNotes.Any() ? _mockNotes.Max(n => n.Id) + 1 : 1, Nombre = nombre });
-                OnDataChanged?.Invoke();
-                return true;
+                Console.WriteLine($"Error CrearNotaAsync: {ex.Message}");
+                return false;
             }
         }
 
@@ -700,12 +459,10 @@ namespace WaylanOrigin.Client.Services
                 }
                 return false;
             }
-            catch
+            catch (Exception ex)
             {
-                var note = _mockNotes.FirstOrDefault(n => n.Id == id);
-                if (note != null) note.Nombre = nombre;
-                OnDataChanged?.Invoke();
-                return true;
+                Console.WriteLine($"Error ActualizarNotaAsync: {ex.Message}");
+                return false;
             }
         }
 
@@ -722,11 +479,10 @@ namespace WaylanOrigin.Client.Services
                 }
                 return false;
             }
-            catch
+            catch (Exception ex)
             {
-                _mockNotes.RemoveAll(n => n.Id == id);
-                OnDataChanged?.Invoke();
-                return true;
+                Console.WriteLine($"Error EliminarNotaAsync: {ex.Message}");
+                return false;
             }
         }
 
@@ -738,101 +494,18 @@ namespace WaylanOrigin.Client.Services
                 var response = await _http.PostAsync($"{ApiBaseUrl}api/Producto", content);
                 if (response.IsSuccessStatusCode)
                 {
-                    var created = await response.Content.ReadFromJsonAsync<ProductoReadAdminDto>();
-                    if (created != null)
-                    {
-                        _mockProducts.Add(MapToProduct(created));
-                    }
                     OnDataChanged?.Invoke();
                     return true;
                 }
-                
                 var errStr = await response.Content.ReadAsStringAsync();
                 Console.WriteLine($"CrearProductoAsync API error {response.StatusCode}: {errStr}");
-                await FallbackAddLocalProduct(content);
-                OnDataChanged?.Invoke();
-                return true;
+                return false;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"CrearProductoAsync exception: {ex.Message}");
-                await FallbackAddLocalProduct(content);
-                OnDataChanged?.Invoke();
-                return true;
+                return false;
             }
-        }
-
-        private async Task FallbackAddLocalProduct(MultipartFormDataContent content)
-        {
-            var nombreContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Nombre\"");
-            var descContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Descripcion\"");
-            var precioContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Precio\"");
-            var stockContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Stock\"");
-            var catContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"IdCategoria\"");
-            var tuesteContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"tueste\"");
-            var procesoContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"proceso\"");
-            var imgBase64Content = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"ImagenBase64\"");
-
-            var mockCategoryName = "Grano";
-            int catId = 1;
-            if (catContent != null)
-            {
-                int.TryParse(await catContent.ReadAsStringAsync(), out catId);
-                var catObj = _mockCategories.FirstOrDefault(c => c.Id == catId);
-                if (catObj != null) mockCategoryName = catObj.Nombre;
-            }
-
-            string nombre = nombreContent != null ? await nombreContent.ReadAsStringAsync() : "Waylan Speciality Coffee";
-            string desc = descContent != null ? await descContent.ReadAsStringAsync() : "Café premium de alta especialidad origen Tolima.";
-            if (string.IsNullOrWhiteSpace(desc)) desc = "Café premium de alta especialidad origen Tolima.";
-
-            decimal precio = 55000;
-            if (precioContent != null) decimal.TryParse(await precioContent.ReadAsStringAsync(), out precio);
-            if (precio <= 0) precio = 55000;
-
-            int stock = 20;
-            if (stockContent != null) int.TryParse(await stockContent.ReadAsStringAsync(), out stock);
-            if (stock < 0) stock = 20;
-
-            string tuesteStr = "Medio";
-            if (tuesteContent != null)
-            {
-                int.TryParse(await tuesteContent.ReadAsStringAsync(), out int tVal);
-                tuesteStr = tVal == 1 ? "Claro" : tVal == 3 ? "Oscuro" : "Medio";
-            }
-
-            string procesoStr = "Natural";
-            if (procesoContent != null)
-            {
-                int.TryParse(await procesoContent.ReadAsStringAsync(), out int pVal);
-                procesoStr = pVal == 2 ? "Natural" : pVal == 3 ? "Honey" : "Lavado";
-            }
-
-            string imgUrl = "/images/coffee_bag_generic.png";
-            if (imgBase64Content != null)
-            {
-                imgUrl = await imgBase64Content.ReadAsStringAsync();
-            }
-
-            var newProduct = new Product
-            {
-                Id = (_mockProducts.Count + 100).ToString(),
-                Nombre = nombre,
-                Descripcion = desc,
-                Precio = precio,
-                Stock = stock,
-                IdCategoria = catId,
-                CategoriaNombre = mockCategoryName,
-                Formato = mockCategoryName,
-                Tueste = tuesteStr,
-                Proceso = procesoStr,
-                PerfilSabor = tuesteStr,
-                Region = "Tolima, Colombia",
-                ImagenUrl = imgUrl,
-                Activo = true
-            };
-
-            _mockProducts.Add(newProduct);
         }
 
         public async Task<bool> ActualizarProductoAsync(string id, MultipartFormDataContent content)
@@ -843,61 +516,17 @@ namespace WaylanOrigin.Client.Services
                 var response = await _http.PutAsync($"{ApiBaseUrl}api/Producto/{id}", content);
                 if (response.IsSuccessStatusCode)
                 {
-                    var updated = await response.Content.ReadFromJsonAsync<ProductoReadAdminDto>();
-                    if (updated != null)
-                    {
-                        var idx = _mockProducts.FindIndex(p => p.Id == id);
-                        if (idx >= 0)
-                        {
-                            _mockProducts[idx] = MapToProduct(updated);
-                        }
-                    }
                     OnDataChanged?.Invoke();
                     return true;
                 }
-                await FallbackUpdateLocalProduct(id, content);
-                OnDataChanged?.Invoke();
-                return true;
+                var errStr = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"ActualizarProductoAsync API error {response.StatusCode}: {errStr}");
+                return false;
             }
-            catch
+            catch (Exception ex)
             {
-                await FallbackUpdateLocalProduct(id, content);
-                OnDataChanged?.Invoke();
-                return true;
-            }
-        }
-
-        private async Task FallbackUpdateLocalProduct(string id, MultipartFormDataContent content)
-        {
-            var prod = _mockProducts.FirstOrDefault(p => p.Id == id);
-            if (prod != null)
-            {
-                var nombreContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Nombre\"");
-                var descContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Descripcion\"");
-                var precioContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Precio\"");
-                var stockContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"Stock\"");
-                var tuesteContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"tueste\"");
-                var procesoContent = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"proceso\"");
-                var imgBase64Content = content.FirstOrDefault(c => c.Headers.ContentDisposition?.Name == "\"ImagenBase64\"");
-
-                if (nombreContent != null) prod.Nombre = await nombreContent.ReadAsStringAsync();
-                if (descContent != null) prod.Descripcion = await descContent.ReadAsStringAsync();
-                if (precioContent != null) prod.Precio = decimal.Parse(await precioContent.ReadAsStringAsync());
-                if (stockContent != null) prod.Stock = int.Parse(await stockContent.ReadAsStringAsync());
-                if (tuesteContent != null)
-                {
-                    int val = int.Parse(await tuesteContent.ReadAsStringAsync());
-                    prod.Tueste = val == 1 ? "Claro" : val == 3 ? "Oscuro" : "Medio";
-                }
-                if (procesoContent != null)
-                {
-                    int val = int.Parse(await procesoContent.ReadAsStringAsync());
-                    prod.Proceso = val == 2 ? "Natural" : val == 3 ? "Honey" : "Lavado";
-                }
-                if (imgBase64Content != null)
-                {
-                    prod.ImagenUrl = await imgBase64Content.ReadAsStringAsync();
-                }
+                Console.WriteLine($"ActualizarProductoAsync exception: {ex.Message}");
+                return false;
             }
         }
 
@@ -908,19 +537,13 @@ namespace WaylanOrigin.Client.Services
                 SetAuthHeader();
                 string queryBool = nuevoEstado.ToString().ToLowerInvariant();
                 var response = await _http.PatchAsync($"{ApiBaseUrl}api/Producto/{id}/cambiar-estado?nuevoEstado={queryBool}", null);
-                var prod = _mockProducts.FirstOrDefault(p => p.Id == id);
-                if (prod != null) prod.Activo = nuevoEstado;
-                await SaveProductsToLocalStorageAsync();
                 OnDataChanged?.Invoke();
                 return response.IsSuccessStatusCode;
             }
-            catch
+            catch (Exception ex)
             {
-                var prod = _mockProducts.FirstOrDefault(p => p.Id == id);
-                if (prod != null) prod.Activo = nuevoEstado;
-                await SaveProductsToLocalStorageAsync();
-                OnDataChanged?.Invoke();
-                return true;
+                Console.WriteLine($"Error CambiarEstadoProductoAsync: {ex.Message}");
+                return false;
             }
         }
 
@@ -929,17 +552,13 @@ namespace WaylanOrigin.Client.Services
         {
             try
             {
-                var cats = await GetTodasCategoriasAsync();
-                if (cats != null && cats.Any())
-                {
-                    return cats.Where(c => c.Activo).ToList();
-                }
-                var list = await _http.GetFromJsonAsync<List<Category>>($"{ApiBaseUrl}api/Categoria/Lista Categorias");
-                return list?.Where(c => c.Activo).ToList() ?? new List<Category>();
+                var dtos = await _http.GetFromJsonAsync<List<Category>>($"{ApiBaseUrl}api/Categoria/Lista Categorias");
+                return dtos?.Where(c => c.Activo).ToList() ?? new List<Category>();
             }
-            catch
+            catch (Exception ex)
             {
-                return _mockCategories.Where(c => c.Activo).ToList();
+                Console.WriteLine($"Error GetCategoriasActivasAsync: {ex.Message}");
+                return new List<Category>();
             }
         }
 
@@ -950,9 +569,10 @@ namespace WaylanOrigin.Client.Services
                 SetAuthHeader();
                 return await _http.GetFromJsonAsync<List<Category>>($"{ApiBaseUrl}api/Categoria/Lista Categorias Admin") ?? new List<Category>();
             }
-            catch
+            catch (Exception ex)
             {
-                return _mockCategories;
+                Console.WriteLine($"Error GetTodasCategoriasAsync: {ex.Message}");
+                return new List<Category>();
             }
         }
 
@@ -969,11 +589,10 @@ namespace WaylanOrigin.Client.Services
                 }
                 return false;
             }
-            catch
+            catch (Exception ex)
             {
-                _mockCategories.Add(new Category { Id = _mockCategories.Max(c => c.Id) + 1, Nombre = nombre, Activo = true });
-                OnDataChanged?.Invoke();
-                return true;
+                Console.WriteLine($"Error CrearCategoriaAsync: {ex.Message}");
+                return false;
             }
         }
 
@@ -990,12 +609,10 @@ namespace WaylanOrigin.Client.Services
                 }
                 return false;
             }
-            catch
+            catch (Exception ex)
             {
-                var cat = _mockCategories.FirstOrDefault(c => c.Id == id);
-                if (cat != null) cat.Nombre = nombre;
-                OnDataChanged?.Invoke();
-                return true;
+                Console.WriteLine($"Error ActualizarCategoriaAsync: {ex.Message}");
+                return false;
             }
         }
 
@@ -1006,36 +623,14 @@ namespace WaylanOrigin.Client.Services
                 SetAuthHeader();
                 string queryBool = nuevoEstado.ToString().ToLowerInvariant();
                 var response = await _http.PatchAsync($"{ApiBaseUrl}api/Categoria/{id}/cambiar-estado?nuevoEstado={queryBool}", null);
-                var cat = _mockCategories.FirstOrDefault(c => c.Id == id);
-                if (cat != null) cat.Activo = nuevoEstado;
                 OnDataChanged?.Invoke();
                 return response.IsSuccessStatusCode;
             }
-            catch
+            catch (Exception ex)
             {
-                var cat = _mockCategories.FirstOrDefault(c => c.Id == id);
-                if (cat != null) cat.Activo = nuevoEstado;
-                OnDataChanged?.Invoke();
-                return true;
+                Console.WriteLine($"Error CambiarEstadoCategoriaAsync: {ex.Message}");
+                return false;
             }
-        }
-
-        private decimal ItemsSumMockTotal(List<CartItemDto> items)
-        {
-            decimal sum = 0;
-            foreach (var item in items)
-            {
-                var prod = _mockProducts.FirstOrDefault(p => p.Id == item.ProductoId);
-                if (prod != null)
-                {
-                    sum += prod.Precio * item.Cantidad;
-                }
-                else
-                {
-                    sum += 45000 * item.Cantidad;
-                }
-            }
-            return sum;
         }
 
         private Order MapToOrder(PedidoReadAdminDto dto)
@@ -1111,7 +706,7 @@ namespace WaylanOrigin.Client.Services
 
                 var payload = new
                 {
-                    direccion = direccion,
+                    direccion = string.IsNullOrWhiteSpace(direccion) ? "Dirección registrada" : direccion,
                     detalles = detalles
                 };
 
@@ -1124,149 +719,64 @@ namespace WaylanOrigin.Client.Services
                         var code = !string.IsNullOrWhiteSpace(result.CodigoSeguimiento) 
                             ? result.CodigoSeguimiento 
                             : ("PED-" + Guid.NewGuid().ToString().Substring(0, 6).ToUpper());
-                        var tot = result.Total > 0 ? result.Total : ItemsSumMockTotal(items);
-
-                        var orderDetails = items.Select(item => {
-                            var prod = _mockProducts.FirstOrDefault(p => p.Id == item.ProductoId);
-                            double price = prod != null ? (double)prod.Precio : 45000;
-                            string name = prod != null ? prod.Nombre : "Café Especial Waylan";
-                            string img = prod != null ? prod.ImagenUrl : "/images/coffee_bag_generic.png";
-                            return new OrderDetail
-                            {
-                                Id = 1,
-                                ProductoId = item.ProductoId,
-                                NombreProducto = name,
-                                ImagenProducto = img,
-                                Cantidad = item.Cantidad,
-                                PrecioUnitario = price,
-                                SubTotal = price * item.Cantidad
-                            };
-                        }).ToList();
-
-                        _mockOrders.Add(new Order
-                        {
-                            Id = _mockOrders.Count + 1,
-                            Codigo = code,
-                            Fecha = DateTime.Now,
-                            EmailCliente = CurrentUser?.Email ?? "cliente@waylan.com",
-                            NombreUsuario = CurrentUser?.Nombre ?? "Cliente",
-                            Direccion = string.IsNullOrWhiteSpace(direccion) ? "Dirección registrada" : direccion,
-                            Total = (double)tot,
-                            Estado = "Pendiente",
-                            EstadoPago = "APPROVED",
-                            Detalles = orderDetails
-                        });
-                        await SaveOrdersToLocalStorageAsync();
 
                         return new CrearPedidoResponseDto 
                         { 
                             Codigo = code, 
-                            Total = tot
+                            Total = result.Total
                         };
                     }
                 }
-            }
-            catch
-            {
-                // Fallback for seamless Wompi payment testing
-            }
-
-            // Fallback generation for reliable Wompi payment testing flow
-            var randomCode = "PED-" + Guid.NewGuid().ToString().Substring(0, 6).ToUpper();
-            var mockTotal = (int)ItemsSumMockTotal(items);
-            var fallbackDetails = items.Select(item => {
-                var prod = _mockProducts.FirstOrDefault(p => p.Id == item.ProductoId);
-                double price = prod != null ? (double)prod.Precio : 45000;
-                string name = prod != null ? prod.Nombre : "Café Especial Waylan";
-                string img = prod != null ? prod.ImagenUrl : "/images/coffee_bag_generic.png";
-                return new OrderDetail
+                else
                 {
-                    Id = 1,
-                    ProductoId = item.ProductoId,
-                    NombreProducto = name,
-                    ImagenProducto = img,
-                    Cantidad = item.Cantidad,
-                    PrecioUnitario = price,
-                    SubTotal = price * item.Cantidad
-                };
-            }).ToList();
+                    var err = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"CrearPedidoAsync API status {response.StatusCode}: {err}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error CrearPedidoAsync: {ex.Message}");
+            }
 
-            var newMockOrder = new Order 
-            { 
-                Id = _mockOrders.Count + 1, 
-                Codigo = randomCode, 
-                Fecha = DateTime.Now, 
-                EmailCliente = CurrentUser?.Email ?? "cliente@waylan.com", 
-                NombreUsuario = CurrentUser?.Nombre ?? "Cliente",
-                Direccion = string.IsNullOrWhiteSpace(direccion) ? "Dirección registrada" : direccion,
-                Total = mockTotal, 
-                Estado = "Pendiente",
-                EstadoPago = "APPROVED",
-                Detalles = fallbackDetails
-            };
-            _mockOrders.Add(newMockOrder);
-            await SaveOrdersToLocalStorageAsync();
-            return new CrearPedidoResponseDto { Codigo = randomCode, Total = mockTotal };
+            return null;
         }
 
         public async Task<List<Order>> GetMisPedidosAsync()
         {
-            await LoadOrdersFromLocalStorageAsync();
             try
             {
                 SetAuthHeader();
                 var dtos = await _http.GetFromJsonAsync<List<PedidoReadDto>>($"{ApiBaseUrl}api/Pedidos/Lista pedidos usuario");
                 if (dtos != null && dtos.Any())
                 {
-                    var serverOrders = dtos.Select(MapToOrder).ToList();
-                    foreach (var so in serverOrders)
-                    {
-                        if (!_mockOrders.Any(o => o.Codigo == so.Codigo))
-                        {
-                            _mockOrders.Add(so);
-                        }
-                    }
-                    await SaveOrdersToLocalStorageAsync();
+                    return dtos.Select(MapToOrder).ToList();
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Fallback
+                Console.WriteLine($"Error GetMisPedidosAsync: {ex.Message}");
             }
 
-            if (CurrentUser == null) return new List<Order>();
-            return _mockOrders.Where(o => o.EmailCliente.Equals(CurrentUser.Email, StringComparison.OrdinalIgnoreCase)).ToList();
+            return new List<Order>();
         }
 
         public async Task<List<Order>> GetTodosPedidosAsync()
         {
-            await LoadOrdersFromLocalStorageAsync();
             try
             {
                 SetAuthHeader();
-                if (IsAdmin)
+                var dtos = await _http.GetFromJsonAsync<List<PedidoReadAdminDto>>($"{ApiBaseUrl}api/Pedidos/Lista pedidos Admin");
+                if (dtos != null && dtos.Any())
                 {
-                    var dtos = await _http.GetFromJsonAsync<List<PedidoReadAdminDto>>($"{ApiBaseUrl}api/Pedidos/Lista pedidos Admin");
-                    if (dtos != null && dtos.Any())
-                    {
-                        var serverOrders = dtos.Select(MapToOrder).ToList();
-                        foreach (var so in serverOrders)
-                        {
-                            if (!_mockOrders.Any(o => o.Codigo == so.Codigo))
-                            {
-                                _mockOrders.Add(so);
-                            }
-                        }
-                        await SaveOrdersToLocalStorageAsync();
-                    }
+                    return dtos.Select(MapToOrder).ToList();
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Fallback
+                Console.WriteLine($"Error GetTodosPedidosAsync: {ex.Message}");
             }
 
-            return _mockOrders;
+            return new List<Order>();
         }
 
         public async Task<Order?> GetPedidoPorCodigoAsync(string codigo)
@@ -1280,11 +790,11 @@ namespace WaylanOrigin.Client.Services
                     return MapToOrder(dto);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Fallback to mock search
+                Console.WriteLine($"Error GetPedidoPorCodigoAsync: {ex.Message}");
             }
-            return _mockOrders.FirstOrDefault(o => o.Codigo.Equals(codigo, StringComparison.OrdinalIgnoreCase));
+            return null;
         }
 
         public async Task<bool> CambiarEstadoPedidoAsync(string codigo, string estado)
@@ -1294,29 +804,24 @@ namespace WaylanOrigin.Client.Services
                 SetAuthHeader();
                 int enumVal = estado switch
                 {
-                    "En_Transito" => 1,
-                    "En_Reparto" => 2,
+                    "En_Transito" or "En Transito" => 1,
+                    "En_Reparto" or "En Reparto" => 2,
                     "Entregado" => 3,
                     _ => 0 // "Pendiente"
                 };
                 var response = await _http.PatchAsync($"{ApiBaseUrl}api/Pedidos/{Uri.EscapeDataString(codigo)}/cambiar-estado?nuevoEstado={enumVal}", null);
-                var ord = _mockOrders.FirstOrDefault(o => o.Codigo == codigo);
-                if (ord != null) ord.Estado = estado;
                 OnDataChanged?.Invoke();
-                return true;
+                return response.IsSuccessStatusCode;
             }
-            catch
+            catch (Exception ex)
             {
-                var ord = _mockOrders.FirstOrDefault(o => o.Codigo == codigo);
-                if (ord != null) ord.Estado = estado;
-                OnDataChanged?.Invoke();
-                return true;
+                Console.WriteLine($"Error CambiarEstadoPedidoAsync: {ex.Message}");
+                return false;
             }
         }
 
         public async Task<List<User>> GetUsuariosAsync()
         {
-            await LoadUsersFromLocalStorageAsync();
             try
             {
                 SetAuthHeader();
@@ -1326,7 +831,7 @@ namespace WaylanOrigin.Client.Services
                     var dtos = await response.Content.ReadFromJsonAsync<List<UsuarioReadDto>>();
                     if (dtos != null && dtos.Any())
                     {
-                        var apiUsers = dtos.Select(dto => new User
+                        return dtos.Select(dto => new User
                         {
                             Id = dto.Id,
                             Email = dto.Email ?? string.Empty,
@@ -1334,23 +839,6 @@ namespace WaylanOrigin.Client.Services
                             Rol = dto.GetEffectiveRol(),
                             Activo = dto.Activo
                         }).ToList();
-
-                        foreach (var u in apiUsers)
-                        {
-                            var existing = _mockUsers.FirstOrDefault(m => m.Id == u.Id || m.Email.Equals(u.Email, StringComparison.OrdinalIgnoreCase));
-                            if (existing != null)
-                            {
-                                existing.Nombre = u.Nombre;
-                                existing.Email = u.Email;
-                                existing.Rol = u.Rol;
-                                existing.Activo = u.Activo;
-                            }
-                            else
-                            {
-                                _mockUsers.Add(u);
-                            }
-                        }
-                        await SaveUsersToLocalStorageAsync();
                     }
                 }
                 else
@@ -1364,7 +852,7 @@ namespace WaylanOrigin.Client.Services
                 Console.WriteLine($"Error GetUsuariosAsync: {ex.Message}");
             }
 
-            return _mockUsers;
+            return new List<User>();
         }
 
         public async Task<bool> CambiarEstadoUsuarioAsync(int id, bool nuevoEstado)
@@ -1374,19 +862,13 @@ namespace WaylanOrigin.Client.Services
                 SetAuthHeader();
                 string queryBool = nuevoEstado.ToString().ToLowerInvariant();
                 var response = await _http.PatchAsync($"{ApiBaseUrl}api/Usuarios/{id}/cambiar-estado?nuevoEstado={queryBool}", null);
-                var usr = _mockUsers.FirstOrDefault(u => u.Id == id);
-                if (usr != null) usr.Activo = nuevoEstado;
-                await SaveUsersToLocalStorageAsync();
                 OnDataChanged?.Invoke();
                 return response.IsSuccessStatusCode;
             }
-            catch
+            catch (Exception ex)
             {
-                var usr = _mockUsers.FirstOrDefault(u => u.Id == id);
-                if (usr != null) usr.Activo = nuevoEstado;
-                await SaveUsersToLocalStorageAsync();
-                OnDataChanged?.Invoke();
-                return true;
+                Console.WriteLine($"Error CambiarEstadoUsuarioAsync: {ex.Message}");
+                return false;
             }
         }
     }
