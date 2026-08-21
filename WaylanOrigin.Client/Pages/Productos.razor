@@ -7,557 +7,589 @@
 @implements IDisposable
 
 <div class="productos-page">
-<!-- 1. HERO SECTION -->
-<section class="store-hero">
-<img src="imagenes/Gemini_Generated_Image_9hfuk69hfuk69hfu.png" alt="Tienda Waylan Origin" class="store-hero-bg-img" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0;" />
-<div class="hero-bg-overlay">
-</div>
-<div class="store-hero-container">
-<span class="hero-tag">--- TIENDA WAYLAN ORIGIN ---</span>
-<h1 class="hero-title">
+    <!-- 1. HERO SECTION -->
+    <section class="store-hero">
+        <img src="imagenes/Gemini_Generated_Image_9hfuk69hfuk69hfu.png" alt="Tienda Waylan Origin"
+             class="store-hero-bg-img"
+             style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0;" />
+        <div class="hero-bg-overlay">
+        </div>
+        <div class="store-hero-container">
+            <span class="hero-tag">--- TIENDA WAYLAN ORIGIN ---</span>
+            <h1 class="hero-title">
                 Descubre cafés <br />
-<span class="serif-gold">que cuentan historias</span>
-</h1>
-<p class="hero-desc">
+                <span class="serif-gold">que cuentan historias</span>
+            </h1>
+            <p class="hero-desc">
                 Desde nuestras montañas hasta tu taza. <br />
                 Cada grano refleja origen, cuidado y excelencia.
             </p>
-<div class="hero-buttons">
-<a href="#catalogo" class="btn-buy-now">COMPRAR AHORA <span class="arrow-gold">›</span>
-</a>
-<a href="#categorias" class="btn-collections-outline">VER COLECCIONES</a>
-</div>
-</div>
-</section>
-<!-- 2. HIGHLIGHTS BAR (Dark) -->
-<div class="highlights-bar-dark">
-<div class="highlights-container">
-<div class="highlight-item">
-<div class="highlight-icon">
-<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#B89A5E" stroke-width="1.5">
-<rect x="1" y="3" width="15" height="13" />
-<polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
-<circle cx="5.5" cy="18.5" r="2.5" />
-<circle cx="18.5" cy="18.5" r="2.5" />
-</svg>
-</div>
-<div class="highlight-text">
-<h4>Envíos nacionales</h4>
-<p>e internacionales</p>
-</div>
-</div>
-<div class="highlight-item">
-<div class="highlight-icon">
-<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#B89A5E" stroke-width="1.5">
-<path d="M12 22C12 22 20 18 20 12C20 6 12 2 12 2C12 2 4 6 4 12C4 18 12 22 12 22Z" />
-<path d="M12 2V22" />
-<path d="M12 12C12 12 16 10 18 10" />
-<path d="M12 15C12 15 8 13 6 13" />
-</svg>
-</div>
-<div class="highlight-text">
-<h4>Producción</h4>
-<p>sostenible</p>
-</div>
-</div>
-<div class="highlight-item">
-<div class="highlight-icon">
-<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#B89A5E" stroke-width="1.5">
-<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-<polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-<line x1="12" y1="22.08" x2="12" y2="12" />
-</svg>
-</div>
-<div class="highlight-text">
-<h4>Empaque premium</h4>
-<p>y responsable</p>
-</div>
-</div>
-</div>
-</div>
-<!-- 3. CATEGORÍAS SECTION (COMPACT & ICON-BASED) -->
-<section id="categorias" class="categories-section">
-<div class="categories-container">
-<div class="categories-grid">
-<!-- Category 1 -->
-<div class="category-card" @onclick='() => FilterByCategory("Grano")'>
-<div class="category-icon-wrapper">
-<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#B89A5E" stroke-width="1.5">
-<ellipse cx="12" cy="12" rx="5" ry="9" transform="rotate(-30 12 12)" />
-<path d="M11 4c1 3.5-1 5.5 0 9s1 5.5 0 9" />
-</svg>
-</div>
-<div class="category-text-wrapper">
-<h3>Café en grano</h3>
-<p>Granos enteros seleccionados</p>
-</div>
-</div>
-<!-- Category 2 -->
-<div class="category-card" @onclick='() => FilterByCategory("Molido")'>
-<div class="category-icon-wrapper">
-<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#B89A5E" stroke-width="1.5">
-<path d="M18 8h1a3 3 0 0 1 0 6h-1" />
-<path d="M4 8h14v7a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V8z" />
-<path d="M7 3v2M11 3v2M15 3v2" />
-</svg>
-</div>
-<div class="category-text-wrapper">
-<h3>Café molido</h3>
-<p>Molienda media para filtrados</p>
-</div>
-</div>
-<!-- Category 3 -->
-<div class="category-card" @onclick="ClearAllFilters">
-<div class="category-icon-wrapper">
-<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#B89A5E" stroke-width="1.5">
-<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-</svg>
-</div>
-<div class="category-text-wrapper">
-<h3>Ediciones especiales</h3>
-<p>Lotes de perfiles exóticos</p>
-</div>
-</div>
-<!-- Category 4 -->
-<div class="category-card" @onclick="ClearAllFilters">
-<div class="category-icon-wrapper">
-<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#B89A5E" stroke-width="1.5">
-<polyline points="20 12 20 22 4 22 4 12" />
-<rect x="2" y="7" width="20" height="5" />
-<line x1="12" y1="22" x2="12" y2="7" />
-<path d="M12 7c-1.5-2.5-3.5-2.5-3.5 0S12 7 12 7z" />
-</svg>
-</div>
-<div class="category-text-wrapper">
-<h3>Kits y regalos</h3>
-<p>Cajas exclusivas para obsequio</p>
-</div>
-</div>
-</div>
-</div>
-</section>
-<!-- 4. CATALOG SECTION -->
-<section id="catalogo" class="catalog-section">
-<!-- Premium Minimalist Divider -->
-<div class="premium-divider">
-<div class="divider-line">
-</div>
-<div class="divider-badge">
-<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#B89A5E" stroke-width="2">
-<polygon points="12 2 15 9 22 12 15 15 12 22 9 15 2 12 9 9 12 2" />
-</svg>
-</div>
-<div class="divider-line">
-</div>
-</div>
-<div class="catalog-container">
-<!-- SIDEBAR FILTERS -->
-<aside class="filter-sidebar">
-<div class="filter-header">
-<h3>
-<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block; vertical-align:middle; margin-right:8px;">
-<line x1="4" y1="21" x2="4" y2="14" />
-<line x1="4" y1="10" x2="4" y2="3" />
-<line x1="12" y1="21" x2="12" y2="12" />
-<line x1="12" y1="8" x2="12" y2="3" />
-<line x1="20" y1="21" x2="20" y2="16" />
-<line x1="20" y1="12" x2="20" y2="3" />
-<line x1="1" y1="14" x2="7" y2="14" />
-<line x1="9" y1="8" x2="15" y2="8" />
-<line x1="17" y1="16" x2="23" y2="16" />
-</svg>
+            <div class="hero-buttons">
+                <a href="#catalogo" class="btn-buy-now">COMPRAR AHORA <span class="arrow-gold">›</span>
+                </a>
+                <a href="#categorias" class="btn-collections-outline">VER COLECCIONES</a>
+            </div>
+        </div>
+    </section>
+    <!-- 2. HIGHLIGHTS BAR (Dark) -->
+    <div class="highlights-bar-dark">
+        <div class="highlights-container">
+            <div class="highlight-item">
+                <div class="highlight-icon">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#B89A5E" stroke-width="1.5">
+                        <rect x="1" y="3" width="15" height="13" />
+                        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                        <circle cx="5.5" cy="18.5" r="2.5" />
+                        <circle cx="18.5" cy="18.5" r="2.5" />
+                    </svg>
+                </div>
+                <div class="highlight-text">
+                    <h4>Envíos nacionales</h4>
+                    <p>e internacionales</p>
+                </div>
+            </div>
+            <div class="highlight-item">
+                <div class="highlight-icon">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#B89A5E" stroke-width="1.5">
+                        <path d="M12 22C12 22 20 18 20 12C20 6 12 2 12 2C12 2 4 6 4 12C4 18 12 22 12 22Z" />
+                        <path d="M12 2V22" />
+                        <path d="M12 12C12 12 16 10 18 10" />
+                        <path d="M12 15C12 15 8 13 6 13" />
+                    </svg>
+                </div>
+                <div class="highlight-text">
+                    <h4>Producción</h4>
+                    <p>sostenible</p>
+                </div>
+            </div>
+            <div class="highlight-item">
+                <div class="highlight-icon">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#B89A5E" stroke-width="1.5">
+                        <path
+                        d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                        <line x1="12" y1="22.08" x2="12" y2="12" />
+                    </svg>
+                </div>
+                <div class="highlight-text">
+                    <h4>Empaque premium</h4>
+                    <p>y responsable</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 3. CATEGORÍAS SECTION (COMPACT & ICON-BASED) -->
+    <section id="categorias" class="categories-section">
+        <div class="categories-container">
+            <div class="categories-grid">
+                <!-- Category 1 -->
+                <div class="category-card" @onclick='() => FilterByCategory("Grano")'>
+                    <div class="category-icon-wrapper">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#B89A5E" stroke-width="1.5">
+                            <ellipse cx="12" cy="12" rx="5" ry="9" transform="rotate(-30 12 12)" />
+                            <path d="M11 4c1 3.5-1 5.5 0 9s1 5.5 0 9" />
+                        </svg>
+                    </div>
+                    <div class="category-text-wrapper">
+                        <h3>Café en grano</h3>
+                        <p>Granos enteros seleccionados</p>
+                    </div>
+                </div>
+                <!-- Category 2 -->
+                <div class="category-card" @onclick='() => FilterByCategory("Molido")'>
+                    <div class="category-icon-wrapper">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#B89A5E" stroke-width="1.5">
+                            <path d="M18 8h1a3 3 0 0 1 0 6h-1" />
+                            <path d="M4 8h14v7a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V8z" />
+                            <path d="M7 3v2M11 3v2M15 3v2" />
+                        </svg>
+                    </div>
+                    <div class="category-text-wrapper">
+                        <h3>Café molido</h3>
+                        <p>Molienda media para filtrados</p>
+                    </div>
+                </div>
+                <!-- Category 3 -->
+                <div class="category-card" @onclick="ClearAllFilters">
+                    <div class="category-icon-wrapper">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#B89A5E" stroke-width="1.5">
+                            <polygon
+                            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                    </div>
+                    <div class="category-text-wrapper">
+                        <h3>Ediciones especiales</h3>
+                        <p>Lotes de perfiles exóticos</p>
+                    </div>
+                </div>
+                <!-- Category 4 -->
+                <div class="category-card" @onclick="ClearAllFilters">
+                    <div class="category-icon-wrapper">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#B89A5E" stroke-width="1.5">
+                            <polyline points="20 12 20 22 4 22 4 12" />
+                            <rect x="2" y="7" width="20" height="5" />
+                            <line x1="12" y1="22" x2="12" y2="7" />
+                            <path d="M12 7c-1.5-2.5-3.5-2.5-3.5 0S12 7 12 7z" />
+                        </svg>
+                    </div>
+                    <div class="category-text-wrapper">
+                        <h3>Kits y regalos</h3>
+                        <p>Cajas exclusivas para obsequio</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- 4. CATALOG SECTION -->
+    <section id="catalogo" class="catalog-section">
+        <!-- Premium Minimalist Divider -->
+        <div class="premium-divider">
+            <div class="divider-line">
+            </div>
+            <div class="divider-badge">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#B89A5E" stroke-width="2">
+                    <polygon points="12 2 15 9 22 12 15 15 12 22 9 15 2 12 9 9 12 2" />
+                </svg>
+            </div>
+            <div class="divider-line">
+            </div>
+        </div>
+        <div class="catalog-container">
+            <!-- SIDEBAR FILTERS -->
+            <aside class="filter-sidebar">
+                <div class="filter-header">
+                    <h3>
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                             stroke-width="2" style="display:inline-block; vertical-align:middle; margin-right:8px;">
+                            <line x1="4" y1="21" x2="4" y2="14" />
+                            <line x1="4" y1="10" x2="4" y2="3" />
+                            <line x1="12" y1="21" x2="12" y2="12" />
+                            <line x1="12" y1="8" x2="12" y2="3" />
+                            <line x1="20" y1="21" x2="20" y2="16" />
+                            <line x1="20" y1="12" x2="20" y2="3" />
+                            <line x1="1" y1="14" x2="7" y2="14" />
+                            <line x1="9" y1="8" x2="15" y2="8" />
+                            <line x1="17" y1="16" x2="23" y2="16" />
+                        </svg>
                         FILTRAR PRODUCTOS
                     </h3>
-</div>
-<!-- TYPE FILTER (TIPO) -->
-<div class="filter-group">
-<div class="filter-group-header" @onclick="ToggleTypeContent">
-<span>TIPO</span>
-<span class="arrow-indicator">@(isTypeExpanded ? "▲" : "▼")</span>
-</div>
+                </div>
+                <!-- TYPE FILTER (TIPO) -->
+                <div class="filter-group">
+                    <div class="filter-group-header" @onclick="ToggleTypeContent">
+                        <span>TIPO</span>
+                        <span class="arrow-indicator">@(isTypeExpanded ? "▲" : "▼")</span>
+                    </div>
                     @if (isTypeExpanded)
                     {
                         <div class="filter-group-content">
-<label class="checkbox-container">
-<input type="checkbox" checked='@SelectedFormats.Contains("Grano")' @onchange='() => ToggleFormatFilter("Grano")' />
-<span class="checkmark">
-</span>
-<span class="filter-label-text">En grano</span>
-<span class="filter-count">(@GetFormatCount("Grano"))</span>
-</label>
-<label class="checkbox-container">
-<input type="checkbox" checked='@SelectedFormats.Contains("Molido")' @onchange='() => ToggleFormatFilter("Molido")' />
-<span class="checkmark">
-</span>
-<span class="filter-label-text">Molido</span>
-<span class="filter-count">(@GetFormatCount("Molido"))</span>
-</label>
-</div>
+                            <label class="checkbox-container">
+                                <input type="checkbox" checked='@SelectedFormats.Contains("Grano")'
+                                       @onchange='() => ToggleFormatFilter("Grano")' />
+                                <span class="checkmark">
+                                </span>
+                                <span class="filter-label-text">En grano</span>
+                                <span class="filter-count">(@GetFormatCount("Grano"))</span>
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" checked='@SelectedFormats.Contains("Molido")'
+                                       @onchange='() => ToggleFormatFilter("Molido")' />
+                                <span class="checkmark">
+                                </span>
+                                <span class="filter-label-text">Molido</span>
+                                <span class="filter-count">(@GetFormatCount("Molido"))</span>
+                            </label>
+                        </div>
                     }
                 </div>
-<!-- FLAVOR PROFILE (PERFIL DE SABOR) -->
-<div class="filter-group">
-<div class="filter-group-header" @onclick="ToggleProfileContent">
-<span>PERFIL DE SABOR</span>
-<span class="arrow-indicator">@(isProfileExpanded ? "▲" : "▼")</span>
-</div>
+                <!-- FLAVOR PROFILE (PERFIL DE SABOR) -->
+                <div class="filter-group">
+                    <div class="filter-group-header" @onclick="ToggleProfileContent">
+                        <span>PERFIL DE SABOR</span>
+                        <span class="arrow-indicator">@(isProfileExpanded ? "▲" : "▼")</span>
+                    </div>
                     @if (isProfileExpanded)
                     {
                         <div class="filter-group-content">
-<label class="checkbox-container">
-<input type="checkbox" checked='@SelectedProfiles.Contains("Dulce")' @onchange='() => ToggleProfileFilter("Dulce")' />
-<span class="checkmark">
-</span>
-<span class="filter-label-text">Dulce</span>
-<span class="filter-count">(@GetProfileCount("Dulce"))</span>
-</label>
-<label class="checkbox-container">
-<input type="checkbox" checked='@SelectedProfiles.Contains("Balanceado")' @onchange='() => ToggleProfileFilter("Balanceado")' />
-<span class="checkmark">
-</span>
-<span class="filter-label-text">Balanceado</span>
-<span class="filter-count">(@GetProfileCount("Balanceado"))</span>
-</label>
-<label class="checkbox-container">
-<input type="checkbox" checked='@SelectedProfiles.Contains("Ácido")' @onchange='() => ToggleProfileFilter("Ácido")' />
-<span class="checkmark">
-</span>
-<span class="filter-label-text">Ácido</span>
-<span class="filter-count">(@GetProfileCount("Ácido"))</span>
-</label>
-</div>
+                            <label class="checkbox-container">
+                                <input type="checkbox" checked='@SelectedProfiles.Contains("Dulce")'
+                                       @onchange='() => ToggleProfileFilter("Dulce")' />
+                                <span class="checkmark">
+                                </span>
+                                <span class="filter-label-text">Dulce</span>
+                                <span class="filter-count">(@GetProfileCount("Dulce"))</span>
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" checked='@SelectedProfiles.Contains("Balanceado")'
+                                       @onchange='() => ToggleProfileFilter("Balanceado")' />
+                                <span class="checkmark">
+                                </span>
+                                <span class="filter-label-text">Balanceado</span>
+                                <span class="filter-count">(@GetProfileCount("Balanceado"))</span>
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" checked='@SelectedProfiles.Contains("Ácido")'
+                                       @onchange='() => ToggleProfileFilter("Ácido")' />
+                                <span class="checkmark">
+                                </span>
+                                <span class="filter-label-text">Ácido</span>
+                                <span class="filter-count">(@GetProfileCount("Ácido"))</span>
+                            </label>
+                        </div>
                     }
                 </div>
-<!-- INTENSITY (INTENSIDAD) -->
-<div class="filter-group">
-<div class="filter-group-header" @onclick="ToggleIntensityContent">
-<span>INTENSIDAD</span>
-<span class="arrow-indicator">@(isIntensityExpanded ? "▲" : "▼")</span>
-</div>
+                <!-- INTENSITY (INTENSIDAD) -->
+                <div class="filter-group">
+                    <div class="filter-group-header" @onclick="ToggleIntensityContent">
+                        <span>INTENSIDAD</span>
+                        <span class="arrow-indicator">@(isIntensityExpanded ? "▲" : "▼")</span>
+                    </div>
                     @if (isIntensityExpanded)
                     {
                         <div class="filter-group-content">
-<div class="intensity-dots-filter">
+                            <div class="intensity-dots-filter">
                                 @for (int i = 1; i <= 5; i++)
                                 {
                                     int level = i;
-                                    <button class="intensity-dot-btn @(SelectedIntensity == level ? "active" : "")" 
-                                            @onclick="() => FilterByIntensity(level)" 
-                                            type="button" 
+                                    <button class="intensity-dot-btn @(SelectedIntensity == level ? "active" : "")"
+                                            @onclick="() => FilterByIntensity(level)" type="button"
                                             title="Filtrar por intensidad @level">
-</button>
+                                    </button>
                                 }
                                 @if (SelectedIntensity > 0)
                                 {
                                     <button class="btn-clear-intensity" @onclick="ClearIntensityFilter" type="button">×</button>
                                 }
                             </div>
-</div>
+                        </div>
                     }
                 </div>
-<!-- RECOMMENDED METHOD (MÉTODO RECOMENDADO) -->
-<div class="filter-group">
-<div class="filter-group-header" @onclick="ToggleMethodContent">
-<span>MÉTODO RECOMENDADO</span>
-<span class="arrow-indicator">@(isMethodExpanded ? "▲" : "▼")</span>
-</div>
+                <!-- RECOMMENDED METHOD (MÉTODO RECOMENDADO) -->
+                <div class="filter-group">
+                    <div class="filter-group-header" @onclick="ToggleMethodContent">
+                        <span>MÉTODO RECOMENDADO</span>
+                        <span class="arrow-indicator">@(isMethodExpanded ? "▲" : "▼")</span>
+                    </div>
                     @if (isMethodExpanded)
                     {
                         <div class="filter-group-content">
-<label class="checkbox-container">
-<input type="checkbox" checked='@SelectedMethods.Contains("Espresso")' @onchange='() => ToggleMethodFilter("Espresso")' />
-<span class="checkmark">
-</span>
-<span class="filter-label-text">Espresso</span>
-<span class="filter-count">(@GetMethodCount("Espresso"))</span>
-</label>
-<label class="checkbox-container">
-<input type="checkbox" checked='@SelectedMethods.Contains("Filtrado")' @onchange='() => ToggleMethodFilter("Filtrado")' />
-<span class="checkmark">
-</span>
-<span class="filter-label-text">Filtrado</span>
-<span class="filter-count">(@GetMethodCount("Filtrado"))</span>
-</label>
-<label class="checkbox-container">
-<input type="checkbox" checked='@SelectedMethods.Contains("Prensa francesa")' @onchange='() => ToggleMethodFilter("Prensa francesa")' />
-<span class="checkmark">
-</span>
-<span class="filter-label-text">Prensa francesa</span>
-<span class="filter-count">(@GetMethodCount("Prensa francesa"))</span>
-</label>
-<label class="checkbox-container">
-<input type="checkbox" checked='@SelectedMethods.Contains("Cold brew")' @onchange='() => ToggleMethodFilter("Cold brew")' />
-<span class="checkmark">
-</span>
-<span class="filter-label-text">Cold brew</span>
-<span class="filter-count">(@GetMethodCount("Cold brew"))</span>
-</label>
-</div>
+                            <label class="checkbox-container">
+                                <input type="checkbox" checked='@SelectedMethods.Contains("Espresso")'
+                                       @onchange='() => ToggleMethodFilter("Espresso")' />
+                                <span class="checkmark">
+                                </span>
+                                <span class="filter-label-text">Espresso</span>
+                                <span class="filter-count">(@GetMethodCount("Espresso"))</span>
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" checked='@SelectedMethods.Contains("Filtrado")'
+                                       @onchange='() => ToggleMethodFilter("Filtrado")' />
+                                <span class="checkmark">
+                                </span>
+                                <span class="filter-label-text">Filtrado</span>
+                                <span class="filter-count">(@GetMethodCount("Filtrado"))</span>
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" checked='@SelectedMethods.Contains("Prensa francesa")'
+                                       @onchange='() => ToggleMethodFilter("Prensa francesa")' />
+                                <span class="checkmark">
+                                </span>
+                                <span class="filter-label-text">Prensa francesa</span>
+                                <span class="filter-count">(@GetMethodCount("Prensa francesa"))</span>
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" checked='@SelectedMethods.Contains("Cold brew")'
+                                       @onchange='() => ToggleMethodFilter("Cold brew")' />
+                                <span class="checkmark">
+                                </span>
+                                <span class="filter-label-text">Cold brew</span>
+                                <span class="filter-count">(@GetMethodCount("Cold brew"))</span>
+                            </label>
+                        </div>
                     }
                 </div>
-<!-- PRICE RANGE SLIDER (RANGO DE PRECIO) -->
-<div class="filter-group">
-<div class="filter-group-header">
-<span>RANGO DE PRECIO</span>
-<span class="arrow-indicator">▲</span>
-</div>
-<div class="filter-group-content price-slider-box">
-<input type="range" min="25000" max="150000" step="5000" @bind="MaxPrice" @bind:event="oninput" class="range-slider" />
-<div class="price-labels">
-<span>$25.000</span>
-<span class="current-price">$@MaxPrice.ToString("N0") COP</span>
-<span>$150.000+</span>
-</div>
-</div>
-</div>
-<button class="btn-clear-filters" @onclick="ClearAllFilters">LIMPIAR FILTROS</button>
-</aside>
-<!-- PRODUCTS PANEL -->
-<main class="products-panel">
-<!-- GRID HEADER -->
-<div class="products-header">
-<div class="results-count">
-<h3>Cafés destacados</h3>
-</div>
-<div class="sort-container">
-<button class="btn-view-all" @onclick="ClearAllFilters" type="button">Ver todos los productos <span class="arrow-arrow">→</span>
-</button>
-</div>
-</div>
-<!-- REGULAR PRODUCT LIST -->
-<div class="regular-products-list">
+                <!-- PRICE RANGE SLIDER (RANGO DE PRECIO) -->
+                <div class="filter-group">
+                    <div class="filter-group-header">
+                        <span>RANGO DE PRECIO</span>
+                        <span class="arrow-indicator">▲</span>
+                    </div>
+                    <div class="filter-group-content price-slider-box">
+                        <input type="range" min="25000" max="150000" step="5000" @bind="MaxPrice" @bind:event="oninput"
+                               class="range-slider" />
+                        <div class="price-labels">
+                            <span>$25.000</span>
+                            <span class="current-price">$@MaxPrice.ToString("N0") COP</span>
+                            <span>$150.000+</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-clear-filters" @onclick="ClearAllFilters">LIMPIAR FILTROS</button>
+            </aside>
+            <!-- PRODUCTS PANEL -->
+            <main class="products-panel">
+                <!-- GRID HEADER -->
+                <div class="products-header">
+                    <div class="results-count">
+                        <h3>Cafés destacados</h3>
+                    </div>
+                    <div class="sort-container">
+                        <button class="btn-view-all" @onclick="ClearAllFilters" type="button">Ver todos los productos
+                            <span class="arrow-arrow">→</span>
+                        </button>
+                    </div>
+                </div>
+                <!-- REGULAR PRODUCT LIST -->
+                <div class="regular-products-list">
                     @foreach (var p in GetFilteredProducts())
                     {
                         <div class="product-card">
-<!-- Header Bag tag -->
+                            <!-- Header Bag tag -->
                             @if (!string.IsNullOrEmpty(p.Etiqueta))
                             {
-                                <span class="card-status-badge @(p.Etiqueta == "NUEVO" ? "badge-new" : p.Etiqueta == "MÁS VENDIDO" ? "badge-best" : "badge-limit")">@p.Etiqueta</span>
+                                <span
+                                class="card-status-badge @(p.Etiqueta == "NUEVO" ? "badge-new" : p.Etiqueta == "MÁS VENDIDO" ? "badge-best" : "badge-limit")">@p.Etiqueta</span>
                             }
 
                             <div class="product-image-container">
-<img src="@GetProductImage(p)" alt="@p.Nombre" class="product-img" />
-<!-- Favorite Heart Icon Overlay -->
-<button class="favorite-btn" @onclick="() => ToggleFavorite(p)" type="button">
+                                <img src="@GetProductImage(p)" alt="@p.Nombre" class="product-img" />
+                                <!-- Favorite Heart Icon Overlay -->
+                                <button class="favorite-btn" @onclick="() => ToggleFavorite(p)" type="button">
                                     @if (p.IsFavorite)
                                     {
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#B89A5E" class="bi bi-heart-fill" viewBox="0 0 16 16">
-<path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
-</svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#B89A5E"
+                                             class="bi bi-heart-fill" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd"
+                                                  d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z" />
+                                        </svg>
                                     }
                                     else
                                     {
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
-<path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
-</svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                             class="bi bi-heart" viewBox="0 0 16 16">
+                                            <path
+                                            d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z" />
+                                        </svg>
                                     }
                                 </button>
-</div>
-<div class="product-card-body">
-<h3 class="product-title">@p.Nombre</h3>
-<span class="product-region">@p.Region</span>
-<p class="product-notes">Notas: @string.Join(", ", p.Notas.Select(n => n.Nombre))</p>
-<!-- Intensity circles -->
-<div class="product-intensity-row">
+                            </div>
+                            <div class="product-card-body">
+                                <h3 class="product-title">@p.Nombre</h3>
+                                <span class="product-region">@p.Region</span>
+                                <p class="product-notes">Notas: @string.Join(", ", p.Notas.Select(n => n.Nombre))</p>
+                                <!-- Intensity circles -->
+                                <div class="product-intensity-row">
                                     @for (int i = 1; i <= 5; i++)
                                     {
                                         <span class="intensity-circle @(i <= p.Intensidad ? "filled" : "")">
-</span>
+                                        </span>
                                     }
                                 </div>
-<span class="product-price">$@p.Precio.ToString("N0") COP</span>
-<div class="product-card-action">
-<button class="btn-add-to-cart-red" @onclick="() => AgregarAlCarrito(p)" type="button">
+                                <span class="product-price">$@p.Precio.ToString("N0") COP</span>
+                                <div class="product-card-action">
+                                    <button class="btn-add-to-cart-red" @onclick="() => AgregarAlCarrito(p)" type="button">
                                         AÑADIR AL CARRITO
                                     </button>
-<button class="btn-heart-action-only" @onclick="() => ToggleFavorite(p)" type="button">
+                                    <button class="btn-heart-action-only" @onclick="() => ToggleFavorite(p)" type="button">
                                         @if (p.IsFavorite)
                                         {
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#B89A5E" class="bi bi-heart-fill" viewBox="0 0 16 16">
-<path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
-</svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#B89A5E"
+                                                 class="bi bi-heart-fill" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd"
+                                                      d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z" />
+                                            </svg>
                                         }
                                         else
                                         {
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
-<path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
-</svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                                 class="bi bi-heart" viewBox="0 0 16 16">
+                                                <path
+                                                d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z" />
+                                            </svg>
                                         }
                                     </button>
-</div>
-</div>
-</div>
+                                </div>
+                            </div>
+                        </div>
                     }
                 </div>
-</main>
-</div>
-</section>
-<!-- 5. ¿POR QUÉ ELEGIR WAYLAN ORIGIN? -->
-<section class="why-choose-section">
-<div class="why-choose-topography-overlay">
-</div>
-<div class="why-choose-container">
-<h2 class="why-choose-title">
+            </main>
+        </div>
+    </section>
+    <!-- 5. ¿POR QUÉ ELEGIR WAYLAN ORIGIN? -->
+    <section class="why-choose-section">
+        <div class="why-choose-topography-overlay">
+        </div>
+        <div class="why-choose-container">
+            <h2 class="why-choose-title">
                 ¿Por qué elegir <span class="serif-gold-italic">Waylan Origin?</span>
-</h2>
-<div class="why-choose-grid">
-<div class="why-item">
-<div class="why-icon">
-<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#B89A5E" stroke-width="1.5">
-<circle cx="12" cy="12" r="10" />
-<polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
-</svg>
-</div>
-<h3>Trazabilidad total</h3>
-<p>Conocemos cada paso de nuestro café, del cultivo a tu taza.</p>
-</div>
-<div class="why-item">
-<div class="why-icon">
-<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#B89A5E" stroke-width="1.5">
-<path d="M17 11V7a5 5 0 0 0-10 0v4M3 21h18v-8H3v8z" />
-</svg>
-</div>
-<h3>Comercio justo</h3>
-<p>Relaciones transparentes que reflejan bienestar en nuestras comunidades.</p>
-</div>
-<div class="why-item">
-<div class="why-icon">
-<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#B89A5E" stroke-width="1.5">
-<path d="M12 2L2 22h20L12 2z" />
-<path d="M12 2l4 8-8 3" />
-</svg>
-</div>
-<h3>Café de origen único</h3>
-<p>Perfiles de sabor auténticos que reflejan nuestra tierra y nuestro clima.</p>
-</div>
-<div class="why-item">
-<div class="why-icon">
-<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#B89A5E" stroke-width="1.5">
-<path d="M12 22V12m0 0c0-4 3-6 8-6m-8 6c0-4-3-6-8-6m8 6c2-3 5-4 8-4m-8 4C10 9 7 8 4 8" />
-</svg>
-</div>
-<h3>Producción sostenible</h3>
-<p>Cuidamos el planeta con prácticas responsables en cada etapa.</p>
-</div>
-</div>
-</div>
-</section>
-<!-- 6. TESTIMONIALES SECTION -->
-<section class="testimonials-section">
-<!-- Ripped Divider pointing down to Testimonials -->
-<div class="ripped-divider-top">
-<svg viewBox="0 0 1440 20" preserveAspectRatio="none" class="ripped-svg">
-<path d="M0,10 L8,9 L16,10 L24,8 L32,11 L40,9 L48,10 L56,8 L64,11 L72,9 L80,10 L88,11 L96,8 L104,10 L112,9 L120,11 L128,8 L136,10 L144,9 L152,11 L160,8 L168,10 L176,9 L184,11 L192,8 L200,10 L208,9 L216,11 L224,8 L232,10 L240,9 L248,11 L256,8 L264,10 L272,9 L280,11 L288,8 L296,10 L304,9 L312,11 L320,8 L328,10 L336,9 L344,11 L352,8 L360,10 L368,9 L376,11 L384,8 L392,10 L400,9 L408,11 L416,8 L424,10 L432,9 L440,11 L448,8 L456,10 L464,9 L472,11 L480,8 L488,10 L496,9 L504,11 L512,8 L520,10 L528,9 L536,11 L544,8 L552,10 L560,9 L568,11 L576,8 L584,10 L592,9 L600,11 L608,8 L616,10 L624,9 L632,11 L640,8 L648,10 L656,9 L664,11 L672,8 L680,10 L688,9 L696,11 L704,8 L712,10 L720,9 L728,11 L736,8 L744,10 L752,9 L760,11 L768,8 L776,10 L784,9 L792,11 L800,8 L808,10 L816,9 L824,11 L832,8 L840,10 L848,9 L856,11 L864,8 L872,10 L880,9 L888,11 L896,8 L904,10 L912,9 L920,11 L928,8 L936,10 L944,9 L952,11 L960,8 L968,10 L976,9 L984,11 L992,8 L1000,10 L1008,9 L1016,11 L1024,8 L1032,10 L1040,9 L1048,11 L1056,8 L1064,10 L1072,9 L1080,11 L1088,8 L1096,10 L1104,9 L1112,11 L1120,8 L1128,10 L1136,9 L1144,11 L1152,8 L1160,10 L1168,9 L1176,11 L1184,8 L1192,10 L1200,9 L1208,11 L1216,8 L1224,10 L1232,9 L1240,11 L1248,8 L1256,10 L1264,9 L1272,11 L1280,8 L1288,10 L1296,9 L1304,11 L1312,8 L1320,10 L1328,9 L1336,11 L1344,8 L1352,10 L1360,9 L1368,11 L1376,8 L1384,10 L1392,9 L1400,11 L1408,8 L1416,10 L1424,9 L1432,11 L1440,10 L1440,20 L0,20 Z" fill="#EDE4D9">
-</path>
-</svg>
-</div>
-<div class="testimonials-container">
-<!-- Card 1: Review -->
-<div class="testimonial-card-left">
-<h3>Lo que dicen nuestros clientes</h3>
-<div class="quote-box">
-<span class="quote-symbol">“</span>
-<p class="quote-text">El mejor café que he probado. Se siente el origen en cada sorbo.</p>
-</div>
-<div class="stars-row">
+            </h2>
+            <div class="why-choose-grid">
+                <div class="why-item">
+                    <div class="why-icon">
+                        <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#B89A5E" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+                        </svg>
+                    </div>
+                    <h3>Trazabilidad total</h3>
+                    <p>Conocemos cada paso de nuestro café, del cultivo a tu taza.</p>
+                </div>
+                <div class="why-item">
+                    <div class="why-icon">
+                        <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#B89A5E" stroke-width="1.5">
+                            <path d="M17 11V7a5 5 0 0 0-10 0v4M3 21h18v-8H3v8z" />
+                        </svg>
+                    </div>
+                    <h3>Comercio justo</h3>
+                    <p>Relaciones transparentes que reflejan bienestar en nuestras comunidades.</p>
+                </div>
+                <div class="why-item">
+                    <div class="why-icon">
+                        <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#B89A5E" stroke-width="1.5">
+                            <path d="M12 2L2 22h20L12 2z" />
+                            <path d="M12 2l4 8-8 3" />
+                        </svg>
+                    </div>
+                    <h3>Café de origen único</h3>
+                    <p>Perfiles de sabor auténticos que reflejan nuestra tierra y nuestro clima.</p>
+                </div>
+                <div class="why-item">
+                    <div class="why-icon">
+                        <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#B89A5E" stroke-width="1.5">
+                            <path d="M12 22V12m0 0c0-4 3-6 8-6m-8 6c0-4-3-6-8-6m8 6c2-3 5-4 8-4m-8 4C10 9 7 8 4 8" />
+                        </svg>
+                    </div>
+                    <h3>Producción sostenible</h3>
+                    <p>Cuidamos el planeta con prácticas responsables en cada etapa.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- 6. TESTIMONIALES SECTION -->
+    <section class="testimonials-section">
+        <!-- Ripped Divider pointing down to Testimonials -->
+        <div class="ripped-divider-top">
+            <svg viewBox="0 0 1440 20" preserveAspectRatio="none" class="ripped-svg">
+                <path
+                    d="M0,10 L8,9 L16,10 L24,8 L32,11 L40,9 L48,10 L56,8 L64,11 L72,9 L80,10 L88,11 L96,8 L104,10 L112,9 L120,11 L128,8 L136,10 L144,9 L152,11 L160,8 L168,10 L176,9 L184,11 L192,8 L200,10 L208,9 L216,11 L224,8 L232,10 L240,9 L248,11 L256,8 L264,10 L272,9 L280,11 L288,8 L296,10 L304,9 L312,11 L320,8 L328,10 L336,9 L344,11 L352,8 L360,10 L368,9 L376,11 L384,8 L392,10 L400,9 L408,11 L416,8 L424,10 L432,9 L440,11 L448,8 L456,10 L464,9 L472,11 L480,8 L488,10 L496,9 L504,11 L512,8 L520,10 L528,9 L536,11 L544,8 L552,10 L560,9 L568,11 L576,8 L584,10 L592,9 L600,11 L608,8 L616,10 L624,9 L632,11 L640,8 L648,10 L656,9 L664,11 L672,8 L680,10 L688,9 L696,11 L704,8 L712,10 L720,9 L728,11 L736,8 L744,10 L752,9 L760,11 L768,8 L776,10 L784,9 L792,11 L800,8 L808,10 L816,9 L824,11 L832,8 L840,10 L848,9 L856,11 L864,8 L872,10 L880,9 L888,11 L896,8 L904,10 L912,9 L920,11 L928,8 L936,10 L944,9 L952,11 L960,8 L968,10 L976,9 L984,11 L992,8 L1000,10 L1008,9 L1016,11 L1024,8 L1032,10 L1040,9 L1048,11 L1056,8 L1064,10 L1072,9 L1080,11 L1088,8 L1096,10 L1104,9 L1112,11 L1120,8 L1128,10 L1136,9 L1144,11 L1152,8 L1160,10 L1168,9 L1176,11 L1184,8 L1192,10 L1200,9 L1208,11 L1216,8 L1224,10 L1232,9 L1240,11 L1248,8 L1256,10 L1264,9 L1272,11 L1280,8 L1288,10 L1296,9 L1304,11 L1312,8 L1320,10 L1328,9 L1336,11 L1344,8 L1352,10 L1360,9 L1368,11 L1376,8 L1384,10 L1392,9 L1400,11 L1408,8 L1416,10 L1424,9 L1432,11 L1440,10 L1440,20 L0,20 Z"
+                    fill="#EDE4D9">
+                </path>
+            </svg>
+        </div>
+        <div class="testimonials-container">
+            <!-- Card 1: Review -->
+            <div class="testimonial-card-left">
+                <h3>Lo que dicen nuestros clientes</h3>
+                <div class="quote-box">
+                    <span class="quote-symbol">“</span>
+                    <p class="quote-text">El mejor café que he probado. Se siente el origen en cada sorbo.</p>
+                </div>
+                <div class="stars-row">
                     @for (int i = 0; i < 5; i++)
                     {
                         <span class="star-gold">★</span>
                     }
                 </div>
-<span class="client-name">Andrés M.</span>
-</div>
-<!-- Card 2: Impact -->
-<div class="testimonial-card-center">
-<div class="impact-icon-wrapper">
-<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#B89A5E" stroke-width="1.5">
-<path d="M12 22V12m0 0c0-4 3-6 8-6m-8 6c0-4-3-6-8-6m8 6c2-3 5-4 8-4m-8 4C10 9 7 8 4 8" />
-</svg>
-</div>
-<h3>Cada compra genera impacto</h3>
-<p>Apoyas a más de 120 familias productoras y contribuyes a un futuro más sostenible.</p>
-</div>
-<!-- Card 3: Image / Button -->
-<div class="testimonial-card-right" style="position: relative; overflow: hidden;">
-<img src="imagenes/maduro.png" alt="Manos recolectando café" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0;" />
-<div class="card-bg-overlay" style="position: absolute; inset: 0; z-index: 1;">
-</div>
-<div class="card-right-content" style="position: relative; z-index: 2;">
-<p class="promo-text">No vendemos café, compartimos origen.</p>
-<a href="/" class="btn-discover-history">CONOCE NUESTRA HISTORIA <span class="arrow-arrow">›</span>
-</a>
-</div>
-</div>
-</div>
-</section>
-<!-- 7. DETAILED FOOTER -->
-<footer class="detailed-store-footer">
-<!-- Premium Minimalist Divider -->
-<div class="premium-divider">
-<div class="divider-line">
-</div>
-<div class="divider-badge">
-<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#B89A5E" stroke-width="2">
-<polygon points="12 2 15 9 22 12 15 15 12 22 9 15 2 12 9 9 12 2" />
-</svg>
-</div>
-<div class="divider-line">
-</div>
-</div>
-<div class="footer-grid-container">
-<!-- Col 1: Waylan brand -->
-<div class="footer-col-brand">
-<img src="logotipo/waylan.png" alt="Waylan Origin Logo" class="footer-logo-img" />
-<p class="brand-sub">Café de origen colombiano con propósito y pasión.</p>
-<div class="social-row">
-<a href="https://www.instagram.com/waylan.origin/" target="_blank" title="Instagram">
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-instagram" viewBox="0 0 16 16">
-<path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.917 3.917 0 0 0-1.417.923A3.927 3.927 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.916 3.916 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.926 3.926 0 0 0-.923-1.417A3.911 3.911 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.999 0h.002zm-.008 1.441c2.111 0 2.36.008 3.194.047.773.035 1.192.164 1.472.273.371.143.636.315.914.593.28.28.453.546.593.914.11.279.24.698.275 1.47.038.834.047 1.083.047 3.194 0 2.113-.009 2.36-.047 3.194-.035.772-.164 1.191-.275 1.47-.143.37-.315.637-.593.915-.28.279-.546.452-.914.593-.28.11-.698.24-1.47.275-.834.038-1.083.047-3.194.047-2.11 0-2.36-.009-3.194-.047-.772-.035-1.191-.164-1.47-.275a2.735 2.735 0 0 1-.915-.593 2.73 2.73 0 0 1-.593-.914c-.11-.279-.24-.699-.275-1.47-.038-.834-.047-1.083-.047-3.194 0-2.111.009-2.36.047-3.194.035-.772.164-1.192.275-1.47.143-.37.315-.636.593-.914.28-.28.546-.453.914-.593.28-.11.698-.24 1.47-.275.834-.037 1.083-.047 3.194-.047h.002zm0 2.22a3.441 3.441 0 1 0 0 6.882 3.441 3.441 0 0 0 0-6.882zM8 9.773a1.773 1.773 0 1 1 0-3.546 1.773 1.773 0 0 1 0 3.546z"/>
-</svg>
-</a>
-<a href="https://www.facebook.com/tiendawaylan" target="_blank" title="Facebook">
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-facebook" viewBox="0 0 16 16">
-<path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.02-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951z"/>
-</svg>
-</a>
-</div>
-</div>
-<!-- Col 2: Tienda -->
-<div class="footer-col-links">
-<h4>TIENDA</h4>
-<a href="#catalogo" @onclick="ClearAllFilters">Todos los productos</a>
-<a href="#catalogo" @onclick='() => FilterByCategory("Grano")'>Café en grano</a>
-<a href="#catalogo" @onclick='() => FilterByCategory("Molido")'>Café molido</a>
-</div>
-<!-- Col 3: Informacion -->
-<div class="footer-col-links">
-<h4>INFORMACIÓN</h4>
-<a href="/">Sobre nosotros</a>
-<a href="nuestro-proceso">Nuestro proceso</a>
-<a href="exportaciones">Exportaciones</a>
-</div>
-<!-- Col 4: Newsletter -->
-<div class="footer-col-newsletter">
-<h4>NEWSLETTER</h4>
-<p>Recibe historias, lanzamientos y ofertas especiales.</p>
-<div class="newsletter-form-row">
-<input type="email" placeholder="Tu correo electrónico" />
-<button class="btn-newsletter-submit" type="button">
-<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-<line x1="5" y1="12" x2="19" y2="12" />
-<polyline points="12 5 19 12 12 19" />
-</svg>
-</button>
-</div>
-</div>
-</div>
-<div class="footer-bottom-bar">
-<div class="bottom-bar-content">
-<span>© 2026 Waylan Origin. Todos los derechos reservados.</span>
-<span class="colombia-tribute">Hecho en Colombia con ❤️ por nuestras familias cafeteras.</span>
-</div>
-</div>
-</footer>
+                <span class="client-name">Andrés M.</span>
+            </div>
+            <!-- Card 2: Impact -->
+            <div class="testimonial-card-center">
+                <div class="impact-icon-wrapper">
+                    <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#B89A5E" stroke-width="1.5">
+                        <path d="M12 22V12m0 0c0-4 3-6 8-6m-8 6c0-4-3-6-8-6m8 6c2-3 5-4 8-4m-8 4C10 9 7 8 4 8" />
+                    </svg>
+                </div>
+                <h3>Cada compra genera impacto</h3>
+                <p>Apoyas a más de 120 familias productoras y contribuyes a un futuro más sostenible.</p>
+            </div>
+            <!-- Card 3: Image / Button -->
+            <div class="testimonial-card-right" style="position: relative; overflow: hidden;">
+                <img src="imagenes/maduro.png" alt="Manos recolectando café"
+                     style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0;" />
+                <div class="card-bg-overlay" style="position: absolute; inset: 0; z-index: 1;">
+                </div>
+                <div class="card-right-content" style="position: relative; z-index: 2;">
+                    <p class="promo-text">No vendemos café, compartimos origen.</p>
+                    <a href="/" class="btn-discover-history">CONOCE NUESTRA HISTORIA <span class="arrow-arrow">›</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- 7. DETAILED FOOTER -->
+    <footer class="detailed-store-footer">
+        <!-- Premium Minimalist Divider -->
+        <div class="premium-divider">
+            <div class="divider-line">
+            </div>
+            <div class="divider-badge">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#B89A5E" stroke-width="2">
+                    <polygon points="12 2 15 9 22 12 15 15 12 22 9 15 2 12 9 9 12 2" />
+                </svg>
+            </div>
+            <div class="divider-line">
+            </div>
+        </div>
+        <div class="footer-grid-container">
+            <!-- Col 1: Waylan brand -->
+            <div class="footer-col-brand">
+                <img src="logotipo/waylan.png" alt="Waylan Origin Logo" class="footer-logo-img" />
+                <p class="brand-sub">Café de origen colombiano con propósito y pasión.</p>
+                <div class="social-row">
+                    <a href="https://www.instagram.com/waylan.origin/" target="_blank" title="Instagram">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                             class="bi bi-instagram" viewBox="0 0 16 16">
+                            <path
+                            d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.917 3.917 0 0 0-1.417.923A3.927 3.927 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.916 3.916 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.926 3.926 0 0 0-.923-1.417A3.911 3.911 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.999 0h.002zm-.008 1.441c2.111 0 2.36.008 3.194.047.773.035 1.192.164 1.472.273.371.143.636.315.914.593.28.28.453.546.593.914.11.279.24.698.275 1.47.038.834.047 1.083.047 3.194 0 2.113-.009 2.36-.047 3.194-.035.772-.164 1.191-.275 1.47-.143.37-.315.637-.593.915-.28.279-.546.452-.914.593-.28.11-.698.24-1.47.275-.834.038-1.083.047-3.194.047-2.11 0-2.36-.009-3.194-.047-.772-.035-1.191-.164-1.47-.275a2.735 2.735 0 0 1-.915-.593 2.73 2.73 0 0 1-.593-.914c-.11-.279-.24-.699-.275-1.47-.038-.834-.047-1.083-.047-3.194 0-2.111.009-2.36.047-3.194.035-.772.164-1.192.275-1.47.143-.37.315-.636.593-.914.28-.28.546-.453.914-.593.28-.11.698-.24 1.47-.275.834-.037 1.083-.047 3.194-.047h.002zm0 2.22a3.441 3.441 0 1 0 0 6.882 3.441 3.441 0 0 0 0-6.882zM8 9.773a1.773 1.773 0 1 1 0-3.546 1.773 1.773 0 0 1 0 3.546z" />
+                        </svg>
+                    </a>
+                    <a href="https://www.facebook.com/tiendawaylan" target="_blank" title="Facebook">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                             class="bi bi-facebook" viewBox="0 0 16 16">
+                            <path
+                            d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.02-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951z" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <!-- Col 2: Tienda -->
+            <div class="footer-col-links">
+                <h4>TIENDA</h4>
+                <a href="#catalogo" @onclick="ClearAllFilters">Todos los productos</a>
+                <a href="#catalogo" @onclick='() => FilterByCategory("Grano")'>Café en grano</a>
+                <a href="#catalogo" @onclick='() => FilterByCategory("Molido")'>Café molido</a>
+            </div>
+            <!-- Col 3: Informacion -->
+            <div class="footer-col-links">
+                <h4>INFORMACIÓN</h4>
+                <a href="/">Sobre nosotros</a>
+                <a href="nuestro-proceso">Nuestro proceso</a>
+                <a href="exportaciones">Exportaciones</a>
+            </div>
+            <!-- Col 4: Newsletter -->
+            <div class="footer-col-newsletter">
+                <h4>NEWSLETTER</h4>
+                <p>Recibe historias, lanzamientos y ofertas especiales.</p>
+                <div class="newsletter-form-row">
+                    <input type="email" placeholder="Tu correo electrónico" />
+                    <button class="btn-newsletter-submit" type="button">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                             stroke-width="2">
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                            <polyline points="12 5 19 12 12 19" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom-bar">
+            <div class="bottom-bar-content">
+                <span>© 2026 Waylan Origin. Todos los derechos reservados.</span>
+                <span class="colombia-tribute">Hecho en Colombia con ❤️ por nuestras familias cafeteras.</span>
+            </div>
+        </div>
+    </footer>
 </div>
 
 @code {
@@ -711,7 +743,7 @@
         --text-light: #E6E1DA;
         --text-muted: #A39B94;
         --border-color: #E2DBD3;
-        
+
         font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
         background-color: var(--cream-bg);
         color: var(--dark-coffee);
@@ -719,11 +751,11 @@
         padding-top: 0;
     }
 
-    .productos-page h1, 
-    .productos-page h2, 
-    .productos-page h3, 
-    .serif-gold, 
-    .serif-gold-light, 
+    .productos-page h1,
+    .productos-page h2,
+    .productos-page h3,
+    .serif-gold,
+    .serif-gold-light,
     .serif-gold-footer {
         font-family: 'Playfair Display', Georgia, serif;
     }
@@ -737,7 +769,7 @@
         height: 20px;
         overflow: visible;
         z-index: 10;
-        filter: drop-shadow(0 2px 2px rgba(0,0,0,0.18));
+        filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.18));
     }
 
     .ripped-svg {
@@ -896,7 +928,8 @@
 
     /* 3. CATEGORÍAS SECTION (COMPACT & MODERN WITH LINE-ART ICONS) */
     .categories-section {
-        background-color: #FFFFFF; /* Pure, clean white */
+        background-color: #FFFFFF;
+        /* Pure, clean white */
         padding: 40px 0;
         width: 100%;
         border-bottom: 1px solid rgba(184, 154, 94, 0.15);
@@ -915,7 +948,8 @@
     }
 
     .category-card {
-        background: #FAF6F0; /* Soft cream background */
+        background: #FAF6F0;
+        /* Soft cream background */
         border: 1px solid rgba(184, 154, 94, 0.15);
         border-radius: 8px;
         padding: 16px 20px;
@@ -951,7 +985,8 @@
     }
 
     .category-card:hover .category-icon-wrapper svg {
-        stroke: #2F190E; /* Change icon color on hover to dark coffee */
+        stroke: #2F190E;
+        /* Change icon color on hover to dark coffee */
     }
 
     .category-text-wrapper {
@@ -980,7 +1015,7 @@
     .catalog-section {
         background-color: #FAF6F0;
         background-image: radial-gradient(circle at 10% 20%, rgba(184, 154, 94, 0.04) 0%, transparent 60%),
-                          radial-gradient(circle at 90% 80%, rgba(58, 18, 13, 0.03) 0%, transparent 60%);
+            radial-gradient(circle at 90% 80%, rgba(58, 18, 13, 0.03) 0%, transparent 60%);
         padding: 90px 0 120px 0;
         position: relative;
     }
@@ -1074,8 +1109,15 @@
     }
 
     @@keyframes slideDownFilter {
-        from { opacity: 0; transform: translateY(-4px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(-4px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     /* Checkboxes styling */
@@ -1111,11 +1153,11 @@
         transition: all 0.2s;
     }
 
-    .checkbox-container:hover input ~ .checkmark {
+    .checkbox-container:hover input~.checkmark {
         border-color: var(--luxury-gold);
     }
 
-    .checkbox-container input:checked ~ .checkmark {
+    .checkbox-container input:checked~.checkmark {
         background-color: var(--deep-brown);
         border-color: var(--deep-brown);
     }
@@ -1126,7 +1168,7 @@
         display: none;
     }
 
-    .checkbox-container input:checked ~ .checkmark:after {
+    .checkbox-container input:checked~.checkmark:after {
         display: block;
     }
 
@@ -1214,7 +1256,8 @@
         outline: none;
     }
 
-    .intensity-dot-btn:hover, .intensity-dot-btn.active {
+    .intensity-dot-btn:hover,
+    .intensity-dot-btn.active {
         background-color: var(--deep-brown);
         border-color: var(--deep-brown);
     }
@@ -1309,12 +1352,12 @@
         display: flex;
         flex-direction: column;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
     }
 
     .product-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
         border-color: var(--luxury-gold);
     }
 
@@ -1331,9 +1374,17 @@
         z-index: 5;
     }
 
-    .badge-new { background-color: #2F6F4C; }
-    .badge-best { background-color: #C47A2B; }
-    .badge-limit { background-color: #8C2424; }
+    .badge-new {
+        background-color: #2F6F4C;
+    }
+
+    .badge-best {
+        background-color: #C47A2B;
+    }
+
+    .badge-limit {
+        background-color: #8C2424;
+    }
 
     .product-image-container {
         background-color: #F3ECE2;
@@ -1349,7 +1400,7 @@
         max-height: 85%;
         max-width: 85%;
         object-fit: contain;
-        filter: drop-shadow(0 8px 16px rgba(0,0,0,0.15));
+        filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
     }
 
     .favorite-btn {
@@ -1366,7 +1417,7 @@
         justify-content: center;
         color: var(--text-muted);
         cursor: pointer;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         transition: all 0.2s;
         z-index: 5;
         outline: none;
@@ -1571,7 +1622,7 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
     }
 
     .testimonial-card-left h3 {
@@ -1634,7 +1685,7 @@
         flex-direction: column;
         justify-content: center;
         text-align: center;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
     }
 
     .impact-icon-wrapper {
@@ -1671,7 +1722,7 @@
         flex-direction: column;
         justify-content: center;
         min-height: 320px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     }
 
     .card-bg-overlay {
@@ -1765,7 +1816,8 @@
         color: var(--luxury-gold);
     }
 
-    .footer-col-links h4, .footer-col-newsletter h4 {
+    .footer-col-links h4,
+    .footer-col-newsletter h4 {
         color: var(--white-pure);
         font-size: 0.8rem;
         font-weight: 700;
