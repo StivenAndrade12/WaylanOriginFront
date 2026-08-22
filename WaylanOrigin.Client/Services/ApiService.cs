@@ -482,27 +482,46 @@ namespace WaylanOrigin.Client.Services
 
         public async Task<List<Note>> GetNotasAsync()
         {
+            var resultList = new List<Note>();
+            int nextId = 1;
+
+            foreach (var cn in _customNotes)
+            {
+                resultList.Add(new Note { Id = cn.Id, Nombre = cn.Nombre });
+                if (cn.Id >= nextId) nextId = cn.Id + 1;
+            }
+
             try
             {
                 SetAuthHeader();
-                var notes = await _http.GetFromJsonAsync<List<Note>>($"{ApiBaseUrl}api/Nota");
-                if (notes != null && notes.Any())
+                var apiNotes = await _http.GetFromJsonAsync<List<Note>>($"{ApiBaseUrl}api/Nota");
+                if (apiNotes != null && apiNotes.Any())
                 {
-                    foreach (var cn in _customNotes)
+                    foreach (var an in apiNotes)
                     {
-                        if (!notes.Any(n => n.Nombre.Equals(cn.Nombre, StringComparison.OrdinalIgnoreCase)))
+                        if (string.IsNullOrWhiteSpace(an.Nombre)) continue;
+                        var existing = resultList.FirstOrDefault(r => r.Nombre.Equals(an.Nombre, StringComparison.OrdinalIgnoreCase));
+                        if (existing == null)
                         {
-                            notes.Add(cn);
+                            resultList.Add(new Note
+                            {
+                                Id = an.Id > 0 ? an.Id : nextId++,
+                                Nombre = an.Nombre
+                            });
+                        }
+                        else if (an.Id > 0)
+                        {
+                            existing.Id = an.Id;
                         }
                     }
-                    return notes;
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error GetNotasAsync: {ex.Message}");
             }
-            return _customNotes;
+
+            return resultList;
         }
 
         public async Task<bool> CrearNotaAsync(string nombre)
@@ -518,12 +537,7 @@ namespace WaylanOrigin.Client.Services
                 Console.WriteLine($"Error CrearNotaAsync: {ex.Message}");
             }
 
-            if (!_customNotes.Any(n => n.Nombre.Equals(nombre.Trim(), StringComparison.OrdinalIgnoreCase)))
-            {
-                _customNotes.Add(new Note { Id = _customNotes.Count + 100, Nombre = nombre.Trim() });
-            }
-            OnDataChanged?.Invoke();
-            return true;
+            return false;
         }
 
         public async Task<bool> ActualizarNotaAsync(int id, string nombre)
@@ -641,6 +655,52 @@ namespace WaylanOrigin.Client.Services
                 }
                 var errStr = await response.Content.ReadAsStringAsync();
                 Console.WriteLine($"ActualizarProductoAsync API error {response.StatusCode}: {errStr}");
+
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound || errStr.Contains("NO existe") || errStr.Contains("IdCategoria"))
+                {
+                    var validCategories = await GetTodasCategoriasAsync();
+                    int validCatId = 1;
+                    if (validCategories != null && validCategories.Any())
+                    {
+                        validCatId = validCategories.First().Id;
+                    }
+
+                    var newContent = new MultipartFormDataContent();
+                    foreach (var item in content)
+                    {
+                        string name = item.Headers.ContentDisposition?.Name?.Trim('"') ?? "";
+                        if (name.Equals("IdCategoria", StringComparison.OrdinalIgnoreCase))
+                        {
+                            newContent.Add(new StringContent(validCatId.ToString()), "IdCategoria");
+                        }
+                        else
+                        {
+                            var bytes = await item.ReadAsByteArrayAsync();
+                            var byteContent = new ByteArrayContent(bytes);
+                            if (item.Headers.ContentType != null)
+                            {
+                                byteContent.Headers.ContentType = item.Headers.ContentType;
+                            }
+                            string fileName = item.Headers.ContentDisposition?.FileName?.Trim('"') ?? "";
+                            if (!string.IsNullOrEmpty(fileName))
+                            {
+                                newContent.Add(byteContent, name, fileName);
+                            }
+                            else
+                            {
+                                newContent.Add(byteContent, name);
+                            }
+                        }
+                    }
+
+                    var retryResponse = await _http.PutAsync($"{ApiBaseUrl}api/Producto/{id}", newContent);
+                    if (retryResponse.IsSuccessStatusCode)
+                    {
+                        OnDataChanged?.Invoke();
+                        return true;
+                    }
+                }
+
                 return false;
             }
             catch (Exception ex)

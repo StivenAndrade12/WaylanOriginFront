@@ -713,13 +713,16 @@
         productFormEtiqueta = p.Etiqueta;
         editingProductImageUrl = p.ImagenUrl;
         
-        productFormIdCategoria = p.IdCategoria > 0 ? p.IdCategoria : (categories.FirstOrDefault(c => c.Nombre == p.Formato)?.Id ?? 1);
+        productFormIdCategoria = (p.IdCategoria > 0 && categories.Any(c => c.Id == p.IdCategoria)) 
+            ? p.IdCategoria 
+            : (categories.FirstOrDefault(c => c.Nombre.Equals(p.Formato, StringComparison.OrdinalIgnoreCase))?.Id ?? (categories.FirstOrDefault()?.Id ?? 1));
+
         productFormTueste = p.Tueste == "Claro" ? 1 : p.Tueste == "Oscuro" ? 3 : 2;
         productFormProceso = p.Proceso == "Natural" ? 2 : p.Proceso == "Honey" ? 3 : 1;
         productFormStock = p.Stock;
         productFormDescripcion = p.Descripcion ?? "";
         
-        productFormSelectedNoteIds = p.Notas.Select(n => n.Id).ToList();
+        productFormSelectedNoteIds = p.Notas.Where(n => n.Id > 0).Select(n => n.Id).ToList();
         selectedImageFile = null;
         showProductModal = true;
     }
@@ -736,6 +739,7 @@
 
     private void ToggleFormNoteSelection(int noteId)
     {
+        if (noteId <= 0) return;
         if (productFormSelectedNoteIds.Contains(noteId))
             productFormSelectedNoteIds.Remove(noteId);
         else
@@ -792,16 +796,17 @@
             content.Add(fileContent, "Imagen", selectedImageFile.Name);
         }
 
-        if (productFormSelectedNoteIds.Any())
+        var validNoteIds = productFormSelectedNoteIds.Where(id => id > 0).Distinct().ToList();
+        if (validNoteIds.Any())
         {
-            foreach (var nid in productFormSelectedNoteIds)
+            foreach (var nid in validNoteIds)
             {
                 content.Add(new StringContent(nid.ToString()), "IdNotas");
             }
         }
         else
         {
-            int defaultNoteId = availableNotes.FirstOrDefault()?.Id ?? 1;
+            int defaultNoteId = availableNotes.FirstOrDefault(n => n.Id > 0)?.Id ?? 1;
             content.Add(new StringContent(defaultNoteId.ToString()), "IdNotas");
         }
 
