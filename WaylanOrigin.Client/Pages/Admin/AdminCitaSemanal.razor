@@ -1,0 +1,178 @@
+@page "/admin/cita-semanal"
+@inject ApiService ApiService
+@inject NavigationManager NavigationManager
+
+<div class="admin-dashboard-page">
+
+    <header class="admin-header">
+        <div class="admin-header-container">
+            <div class="brand-info">
+                <img src="logotipo/waylan.png" alt="Waylan Logo" class="admin-logo" />
+                <span class="admin-badge">EDITAR CITA SEMANAL</span>
+            </div>
+
+            <div class="user-info-bar">
+                <span>Hola, <strong>@ApiService.CurrentUser?.Nombre</strong></span>
+                <button class="btn-logout" @onclick="HandleLogout">Cerrar Sesión</button>
+            </div>
+        </div>
+    </header>
+
+    @if (!ApiService.IsLoggedIn)
+    {
+        <div class="admin-login-box">
+            <div class="login-card">
+                <h2>Iniciar Sesión</h2>
+                <p>Acceso exclusivo para administradores Waylan Origin.</p>
+
+                @if (!string.IsNullOrEmpty(loginErrorMessage))
+                {
+                    <div class="error-alert">@loginErrorMessage</div>
+                }
+
+                <div class="form-group">
+                    <label>Correo</label>
+                    <input type="email" @bind="loginEmail" class="form-control-admin" />
+                </div>
+
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" @bind="loginPassword" class="form-control-admin" />
+                </div>
+
+                <button class="btn-admin-submit" @onclick="HandleLogin">INGRESAR</button>
+            </div>
+        </div>
+    }
+    else if (!ApiService.IsAdmin)
+    {
+        <div class="unauthorized-box">
+            <div class="unauthorized-card">
+                <h2>Acceso Denegado</h2>
+                <p>No tienes permisos de administrador.</p>
+                <button class="btn-admin-submit" @onclick='() => NavigationManager.NavigateTo("/")'>IR AL INICIO</button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="dashboard-body" style="padding: 40px; max-width: 900px; margin: 0 auto;">
+
+            <h2 style="font-family: 'Playfair Display', serif; margin-bottom: 20px;">
+                Editar Cita Semanal
+            </h2>
+
+            <div class="admin-form-container">
+
+                <div class="form-group">
+                    <label>Título</label>
+                    <input class="form-control-admin" @bind="Cita.Titulo" />
+                </div>
+
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea class="form-control-admin" @bind="Cita.Descripcion"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Fecha</label>
+                    <input class="form-control-admin" @bind="Cita.Fecha" />
+                </div>
+
+                <div class="form-group">
+                    <label>Ubicación</label>
+                    <input class="form-control-admin" @bind="Cita.Ubicacion" />
+                </div>
+
+                <div class="form-group">
+                    <label>Historia - Párrafo 1</label>
+                    <textarea class="form-control-admin" @bind="Cita.HistoriaParrafo1"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Historia - Párrafo 2</label>
+                    <textarea class="form-control-admin" @bind="Cita.HistoriaParrafo2"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Testimonio</label>
+                    <textarea class="form-control-admin" @bind="Cita.Testimonio"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Autor - Nombre</label>
+                    <input class="form-control-admin" @bind="Cita.AutorNombre" />
+                </div>
+
+                <div class="form-group">
+                    <label>Autor - Rol</label>
+                    <input class="form-control-admin" @bind="Cita.AutorRol" />
+                </div>
+
+                <div class="form-group">
+                    <label>Foto del Autor (URL)</label>
+                    <input class="form-control-admin" @bind="Cita.AutorFoto" />
+                </div>
+
+                <button class="btn-save" @onclick="GuardarCita">GUARDAR CAMBIOS</button>
+
+                @if (Mensaje != null)
+                {
+                    <p class="admin-message">@Mensaje</p>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    CitaDto Cita = new();
+    string? Mensaje;
+
+    private string loginEmail = "";
+    private string loginPassword = "";
+    private string loginErrorMessage = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (ApiService.IsLoggedIn && ApiService.IsAdmin)
+        {
+            var data = await ApiService.GetCitaSemanalAsync();
+            if (data != null)
+            {
+                Cita = data;
+            }
+        }
+    }
+
+    private async Task HandleLogin()
+    {
+        var ok = await ApiService.LoginAsync(loginEmail, loginPassword);
+        if (!ok)
+        {
+            loginErrorMessage = "Credenciales incorrectas.";
+            return;
+        }
+
+        if (!ApiService.IsAdmin)
+        {
+            loginErrorMessage = "No tienes permisos de administrador.";
+            ApiService.Logout();
+            return;
+        }
+
+        NavigationManager.NavigateTo("/admin/cita-semanal", true);
+    }
+
+    private void HandleLogout()
+    {
+        ApiService.Logout();
+        NavigationManager.NavigateTo("/admin", true);
+    }
+
+    private async Task GuardarCita()
+    {
+        var ok = await ApiService.ActualizarCitaSemanalAsync(Cita);
+        Mensaje = ok ? "Cita actualizada correctamente." : "Error al actualizar la cita.";
+    }
+}

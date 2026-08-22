@@ -1,5 +1,8 @@
 @page "/cita-semanal"
 
+@inject ApiService ApiService
+
+
 <div class="cita-page-wrapper">
     <!-- HERO / BANNER PRINCIPAL DE LA CITA SEMANAL -->
     <section class="cita-hero-section"
@@ -19,13 +22,10 @@
 
                     <h1 class="cita-hero-title">
                         Cita Semanal:<br />
-                        <span class="serif-gold-italic">Optimizando los procesos de secado en origen</span>
+                        <span class="serif-gold-italic">@CitaTitulo</span>
                     </h1>
 
-                    <p class="cita-hero-subtitle">
-                        Un espacio semanal para compartir experiencias, resolver retos y seguir construyendo juntos
-                        cafés de excelencia.
-                    </p>
+                    <p class="cita-hero-subtitle">@CitaDescripcion</p>
 
                     <!-- Meta Info: Fecha, Ubicación, Tiempo de lectura -->
                     <div class="cita-meta-info-row">
@@ -37,7 +37,7 @@
                                 <line x1="8" y1="2" x2="8" y2="6"></line>
                                 <line x1="3" y1="10" x2="21" y2="10"></line>
                             </svg>
-                            <span>22 de mayo, 2024</span>
+                            <span>@CitaFecha</span>
                         </div>
 
                         <div class="meta-item">
@@ -46,7 +46,7 @@
                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                                 <circle cx="12" cy="10" r="3"></circle>
                             </svg>
-                            <span>Finca La Esperanza, Tolima</span>
+                            <span>@CitaUbicacion</span>
                         </div>
 
                         <div class="meta-item">
@@ -75,32 +75,29 @@
         <div class="cita-container">
             <div class="cita-two-columns-layout">
 
-                <!-- Columna Izquierda: Texto de la Historia y Testimonio -->
+                <!-- Columna Izquierda: Texto de la Historia y Testimonio Dinámicos -->
                 <div class="cita-story-column">
                     <h2 class="section-title-dark">Construimos calidad desde el origen</h2>
                     <div class="gold-divider-line"></div>
 
                     <p class="story-paragraph">
-                        Cada semana visitamos a nuestras familias productoras para acompañar de cerca sus procesos y
-                        garantizar que cada café cumpla con los más altos estándares de calidad.
+                        @CitaHistoriaParrafo1
                     </p>
                     <p class="story-paragraph">
-                        En esta cita, trabajamos de la mano con Don José Alberto para optimizar el secado del café, una
-                        etapa clave que define el perfil y la consistencia en taza.
+                        @CitaHistoriaParrafo2
                     </p>
 
-                    <!-- Quote Block / Testimonio -->
+                    <!-- Quote Block / Testimonio Dinámico -->
                     <div class="quote-card">
                         <div class="quote-icon">“</div>
                         <blockquote class="quote-text">
-                            El secado es donde el café cuenta su historia. Si lo hacemos bien, el resultado es un café
-                            limpio, dulce y con carácter.
+                            @CitaTestimonio
                         </blockquote>
                         <div class="quote-author">
-                            <img src="imagenes/1f.png" alt="José Alberto Gómez" class="author-avatar" />
+                            <img src="@CitaAutorFoto" alt="@CitaAutorNombre" class="author-avatar" />
                             <div class="author-details">
-                                <h5 class="author-name">JOSÉ ALBERTO GÓMEZ</h5>
-                                <span class="author-title">Productor de café · Tolima, Colombia</span>
+                                <h5 class="author-name">@CitaAutorNombre</h5>
+                                <span class="author-title">@CitaAutorRol</span>
                             </div>
                         </div>
                     </div>
@@ -143,7 +140,7 @@
                             </div>
                             <div class="reason-content">
                                 <h4>Evita defectos</h4>
-                                <p>El control de humedad previene fermentaciones mefastas y sabores planos.</p>
+                                <p>El control de humedad previene fermentaciones nefastas y sabores planos.</p>
                             </div>
                         </div>
 
@@ -183,7 +180,6 @@
             </div>
 
             <div class="optimization-cards-grid">
-
                 <div class="opt-card">
                     <div class="opt-card-image-box">
                         <img src="imagenes/maduro.png" alt="Secado uniforme y controlado" />
@@ -211,17 +207,15 @@
                                 </div>
                             </div>
                         </div>
-
                     </div>
 
                 </div>
             </section>
 
-            <!-- SECCIÓN PRINCIPAL: NUESTRO PROCESO (LANDING HORIZONTAL SOLICITADA) -->
+            <!-- SECCIÓN PRINCIPAL: NUESTRO PROCESO -->
             <section class="proceso-landing-section">
                 <div class="cita-container">
 
-                    <!-- Título Principal y Subtítulo Explicativo -->
                     <div class="proceso-header">
                         <span class="proceso-section-badge">ETAPAS DEL CAFÉ DE ESPECIALIDAD</span>
                         <h2 class="proceso-section-title">Nuestro Proceso</h2>
@@ -232,10 +226,7 @@
                         <div class="proceso-title-separator"></div>
                     </div>
 
-                    <!-- Layout Horizontal Dividido en Tarjetas (Cards) -->
                     <div class="proceso-cards-container">
-
-                        <!-- Tarjeta 1: Cultivo -->
                         <div class="proceso-card fade-up-item">
                             <div class="card-step-badge">01</div>
                             <div class="card-icon-container">
@@ -252,7 +243,6 @@
                             </p>
                         </div>
 
-                        <!-- Tarjeta 2: Recolección -->
                         <div class="proceso-card fade-up-item">
                             <div class="card-step-badge">02</div>
                             <div class="card-icon-container">
@@ -270,7 +260,6 @@
                             </p>
                         </div>
 
-                        <!-- Tarjeta 3: Lavado -->
                         <div class="proceso-card fade-up-item">
                             <div class="card-step-badge">03</div>
                             <div class="card-icon-container">
@@ -286,7 +275,6 @@
                             </p>
                         </div>
 
-                        <!-- Tarjeta 4: Secado -->
                         <div class="proceso-card fade-up-item">
                             <div class="card-step-badge">04</div>
                             <div class="card-icon-container">
@@ -309,7 +297,6 @@
                             </p>
                         </div>
 
-                        <!-- Tarjeta 5: Tostión -->
                         <div class="proceso-card fade-up-item">
                             <div class="card-step-badge">05</div>
                             <div class="card-icon-container">
@@ -325,13 +312,12 @@
                                 origen.
                             </p>
                         </div>
-
                     </div>
 
                 </div>
             </section>
 
-            <!-- BANNER DE CIERRE Y BOTÓN "VER PRÓXIMA CITA" -->
+            <!-- BANNER DE CIERRE Y BOTÓN -->
             <section class="cita-callout-section">
                 <div class="cita-container">
                     <div class="callout-box">
@@ -420,3 +406,40 @@
                     </div>
                 </footer>
             </div>
+
+@code {
+    // Declaración de variables para dinamizar la vista
+    public string CitaTitulo { get; set; } = "";
+    public string CitaDescripcion { get; set; } = "";
+    public string CitaFecha { get; set; } = "";
+    public string CitaUbicacion { get; set; } = "";
+
+    public string CitaHistoriaParrafo1 { get; set; } = "";
+    public string CitaHistoriaParrafo2 { get; set; } = "";
+    public string CitaTestimonio { get; set; } = "";
+    public string CitaAutorNombre { get; set; } = "";
+    public string CitaAutorRol { get; set; } = "";
+    public string CitaAutorFoto { get; set; } = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var data = await ApiService.GetCitaSemanalAsync();
+
+        if (data != null)
+        {
+            CitaTitulo = data.Titulo;
+            CitaDescripcion = data.Descripcion;
+            CitaFecha = data.Fecha;
+            CitaUbicacion = data.Ubicacion;
+
+            CitaHistoriaParrafo1 = data.HistoriaParrafo1;
+            CitaHistoriaParrafo2 = data.HistoriaParrafo2;
+            CitaTestimonio = data.Testimonio;
+
+            CitaAutorNombre = data.AutorNombre;
+            CitaAutorRol = data.AutorRol;
+            CitaAutorFoto = data.AutorFoto;
+        }
+    }
+
+}

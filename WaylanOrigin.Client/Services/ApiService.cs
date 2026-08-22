@@ -208,7 +208,7 @@ namespace WaylanOrigin.Client.Services
         {
             LastLoginError = null;
             bool isAdminEmail = email.Equals("sebastiancam74@gmail.com", StringComparison.OrdinalIgnoreCase) ||
-                               email.Equals("vaquiroedinson@gmail.com", StringComparison.OrdinalIgnoreCase) || 
+                               email.Equals("vaquiroedinson@gmail.com", StringComparison.OrdinalIgnoreCase) ||
                                email.Equals("stivenandrade12@gmail.com", StringComparison.OrdinalIgnoreCase) ||
                                email.Equals("andradestiven1212@gmail.com", StringComparison.OrdinalIgnoreCase) ||
                                email.Equals("admin@waylan.com", StringComparison.OrdinalIgnoreCase);
@@ -941,7 +941,7 @@ namespace WaylanOrigin.Client.Services
             try
             {
                 SetAuthHeader();
-                
+
                 var detalles = items.Select(item => new
                 {
                     idProducto = int.TryParse(item.ProductoId, out var idVal) ? idVal : 1,
@@ -960,8 +960,8 @@ namespace WaylanOrigin.Client.Services
                     var result = await response.Content.ReadFromJsonAsync<PedidoReadDto>();
                     if (result != null)
                     {
-                        var code = !string.IsNullOrWhiteSpace(result.CodigoSeguimiento) 
-                            ? result.CodigoSeguimiento 
+                        var code = !string.IsNullOrWhiteSpace(result.CodigoSeguimiento)
+                            ? result.CodigoSeguimiento
                             : ("PED-" + Guid.NewGuid().ToString().Substring(0, 6).ToUpper());
 
                         var createdOrder = MapToOrder(result);
@@ -972,9 +972,9 @@ namespace WaylanOrigin.Client.Services
                         await SaveLocalOrdersToStorageAsync();
                         OnDataChanged?.Invoke();
 
-                        return new CrearPedidoResponseDto 
-                        { 
-                            Codigo = code, 
+                        return new CrearPedidoResponseDto
+                        {
+                            Codigo = code,
                             Total = result.Total
                         };
                     }
@@ -1214,6 +1214,47 @@ namespace WaylanOrigin.Client.Services
                 return false;
             }
         }
+
+
+        public async Task<CitaDto?> GetCitaSemanalAsync()
+        {
+            try
+            {
+                var cita = await _http.GetFromJsonAsync<CitaDto>($"{ApiBaseUrl}api/CitaSemanal");
+                return cita;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error GetCitaSemanalAsync: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<bool> ActualizarCitaSemanalAsync(CitaDto cita)
+        {
+            try
+            {
+                SetAuthHeader();
+                var response = await _http.PutAsJsonAsync($"{ApiBaseUrl}api/CitaSemanal", cita);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    OnDataChanged?.Invoke();
+                    return true;
+                }
+
+                var err = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error ActualizarCitaSemanalAsync: {err}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception ActualizarCitaSemanalAsync: {ex.Message}");
+            }
+
+            return false;
+        }
+
+
     }
 
     public class LoginResponseDto

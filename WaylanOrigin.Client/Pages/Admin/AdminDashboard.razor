@@ -3,7 +3,7 @@
 @inject NavigationManager NavigationManager
 
 <div class="admin-dashboard-page">
-    
+
     <!-- HEADER BAR -->
     <header class="admin-header">
         <div class="admin-header-container">
@@ -25,7 +25,7 @@
             <div class="login-card">
                 <h2>Iniciar Sesión como Administrador</h2>
                 <p>Ingresa tus credenciales autorizadas de Waylan Origin.</p>
-                
+
                 @if (!string.IsNullOrEmpty(loginErrorMessage))
                 {
                     <div class="error-alert">@loginErrorMessage</div>
@@ -57,16 +57,18 @@
     {
         <!-- MAIN DASHBOARD CONTENT -->
         <div class="dashboard-body">
-            
+
             <!-- SIDE NAVIGATION TABS -->
             <aside class="dashboard-sidebar">
-                <button class="sidebar-tab-btn @(activeTab == "productos" ? "active" : "")" @onclick='() => SetActiveTab("productos")'>
+                <button class="sidebar-tab-btn @(activeTab == "productos" ? "active" : "")"
+                        @onclick='() => SetActiveTab("productos")'>
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polygon points="12,2 2,22 22,22" />
                     </svg>
                     Gestión Productos
                 </button>
-                <button class="sidebar-tab-btn @(activeTab == "categorias" ? "active" : "")" @onclick='() => SetActiveTab("categorias")'>
+                <button class="sidebar-tab-btn @(activeTab == "categorias" ? "active" : "")"
+                        @onclick='() => SetActiveTab("categorias")'>
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="3" y="3" width="7" height="9" />
                         <rect x="14" y="3" width="7" height="5" />
@@ -75,7 +77,8 @@
                     </svg>
                     Gestión Categorías
                 </button>
-                <button class="sidebar-tab-btn @(activeTab == "pedidos" ? "active" : "")" @onclick='() => SetActiveTab("pedidos")'>
+                <button class="sidebar-tab-btn @(activeTab == "pedidos" ? "active" : "")"
+                        @onclick='() => SetActiveTab("pedidos")'>
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="9" cy="21" r="1" />
                         <circle cx="20" cy="21" r="1" />
@@ -83,7 +86,8 @@
                     </svg>
                     Pedidos de Clientes
                 </button>
-                <button class="sidebar-tab-btn @(activeTab == "usuarios" ? "active" : "")" @onclick='() => SetActiveTab("usuarios")'>
+                <button class="sidebar-tab-btn @(activeTab == "usuarios" ? "active" : "")"
+                        @onclick='() => SetActiveTab("usuarios")'>
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                         <circle cx="9" cy="7" r="4" />
@@ -92,11 +96,20 @@
                     </svg>
                     Control Usuarios
                 </button>
+                <button class="sidebar-tab-btn" @onclick='() => NavigationManager.NavigateTo("/admin/cita-semanal")'>
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="8" r="4" />
+                        <path d="M12 20v-8" />
+                        <path d="M9 14l3 3l3-3" />
+                    </svg>
+                    Editar Cita Semanal
+                </button>
+
             </aside>
 
             <!-- ACTION DISPLAY PANEL -->
             <main class="dashboard-content-panel">
-                
+
                 @if (activeTab == "productos")
                 {
                     <!-- TAB 1: PRODUCT MANAGEMENT -->
@@ -129,399 +142,428 @@
                                         <tr>
                                             <td><strong>#@p.Id</strong></td>
                                             <td>
-                                                <img src="@ApiService.GetFullImageUrl(p.ImagenUrl)" alt="@p.Nombre" class="admin-prod-img" />
+                                                <img src="@ApiService.GetFullImageUrl(p.ImagenUrl)" alt="@p.Nombre"
+                                                     class="admin-prod-img" />
                                             </td>
                                             <td><strong>@p.Nombre</strong></td>
                                             <td>@(string.IsNullOrEmpty(p.CategoriaNombre) ? p.Formato : p.CategoriaNombre)</td>
-                                            <td><span class="badge-tueste">@(string.IsNullOrEmpty(p.Tueste) ? "Medio" : p.Tueste)</span></td>
-                                            <td><span class="badge-proceso">@(string.IsNullOrEmpty(p.Proceso) ? "Lavado" : p.Proceso)</span></td>
-                                            <td><strong>$@p.Precio.ToString("N0") COP</strong></td>
-                                            <td>
-                                                <span class="stock-badge @(p.Stock > 10 ? "in-stock" : p.Stock > 0 ? "low-stock" : "out-of-stock")">
-                                                    @p.Stock un.
-                                                </span>
-                                            </td>
-                                            <td>
-                                                @if (p.Notas != null && p.Notas.Any())
-                                                {
-                                                    <div class="notes-pill-group">
-                                                        @foreach (var n in p.Notas)
+                                            <td><span class="badge-tueste">@(string.IsNullOrEmpty(p.Tueste) ? "Medio" :
+                                                                                        p.Tueste)</span></td>
+                                                <td><span class="badge-proceso">@(string.IsNullOrEmpty(p.Proceso) ? "Lavado" :
+                                                                                            p.Proceso)</span></td>
+                                                    <td><strong>$@p.Precio.ToString("N0") COP</strong></td>
+                                                    <td>
+                                                        <span
+                                                            class="stock-badge @(p.Stock > 10 ? "in-stock" : p.Stock > 0 ? "low-stock" : "out-of-stock")">
+                                                            @p.Stock un.
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        @if (p.Notas != null && p.Notas.Any())
                                                         {
-                                                            <span class="note-pill">@n.Nombre</span>
+                                                            <div class="notes-pill-group">
+                                                                @foreach (var n in p.Notas)
+                                                                {
+                                                                    <span class="note-pill">@n.Nombre</span>
+                                                                }
+                                                            </div>
                                                         }
-                                                    </div>
-                                                }
-                                                else
-                                                {
-                                                    <span class="text-muted">-</span>
-                                                }
-                                            </td>
-                                            <td>
-                                                <span class="status-badge @(p.Activo ? "active" : "inactive")">
-                                                    @(p.Activo ? "Activo" : "Inactivo")
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <button class="btn-action-edit" @onclick="() => OpenEditProductModal(p)">Editar</button>
-                                                <button class="btn-action-status" @onclick="() => ToggleProductStatus(p)">
-                                                    @(p.Activo ? "Desactivar" : "Activar")
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                }
-                else if (activeTab == "categorias")
-                {
-                    <!-- TAB 2: CATEGORIES MANAGEMENT -->
-                    <div class="panel-section">
-                        <div class="panel-header-row">
-                            <h2>Categorías de Productos</h2>
-                            <div class="add-category-inline">
-                                <input type="text" @bind="newCategoryName" placeholder="Nueva Categoría" class="form-control-inline" />
-                                <button class="btn-create-new" @onclick="CreateCategory">AGREGAR</button>
-                            </div>
-                        </div>
-
-                        <div class="table-container">
-                            <table class="admin-table">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Nombre</th>
-                                        <th>Estado</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var c in categories)
-                                    {
-                                        <tr>
-                                            <td><strong>#@c.Id</strong></td>
-                                            <td>
-                                                @if (editingCategoryId == c.Id)
-                                                {
-                                                    <input type="text" @bind="editingCategoryName" class="form-control-table" />
-                                                }
-                                                else
-                                                {
-                                                    @c.Nombre
-                                                }
-                                            </td>
-                                            <td>
-                                                <span class="status-badge @(c.Activo ? "active" : "inactive")">
-                                                    @(c.Activo ? "Activo" : "Inactivo")
-                                                </span>
-                                            </td>
-                                            <td>
-                                                @if (editingCategoryId == c.Id)
-                                                {
-                                                    <button class="btn-action-save" @onclick="() => SaveCategoryEdit(c)">Guardar</button>
-                                                    <button class="btn-action-cancel" @onclick="CancelCategoryEdit">Cancelar</button>
-                                                }
-                                                else
-                                                {
-                                                    <button class="btn-action-edit" @onclick="() => StartCategoryEdit(c)">Editar</button>
-                                                    <button class="btn-action-status" @onclick="() => ToggleCategoryStatus(c)">
-                                                        @(c.Activo ? "Desactivar" : "Activar")
-                                                    </button>
-                                                }
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                }
-                else if (activeTab == "pedidos")
-                {
-                    <!-- TAB 3: ORDERS MANAGEMENT -->
-                    <div class="panel-section">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
-                            <h2>Pedidos Recibidos</h2>
-                            @if (pendingOrderStateChanges.Any())
-                            {
-                                <button class="btn-save" @onclick="SavePendingOrderStateChanges" style="background-color: #B89A5E; color: #1A100A; border: none; font-weight: 800; padding: 10px 20px; border-radius: 6px; cursor: pointer;">
-                                    💾 GUARDAR CAMBIOS DE PEDIDOS (@pendingOrderStateChanges.Count PENDIENTES)
-                                </button>
-                            }
-                        </div>
-
-                        @if (!string.IsNullOrEmpty(orderStatusSuccessMessage))
-                        {
-                            <div style="background-color: #E2F3E7; color: #2F6F4C; padding: 12px 18px; border-radius: 8px; margin-bottom: 20px; font-weight: 700;">
-                                @orderStatusSuccessMessage
+                                                        else
+                                                        {
+                                                            <span class="text-muted">-</span>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        <span class="status-badge @(p.Activo ? "active" : "inactive")">
+                                                            @(p.Activo ? "Activo" : "Inactivo")
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <button class="btn-action-edit"
+                                                                @onclick="() => OpenEditProductModal(p)">Editar</button>
+                                                        <button class="btn-action-status" @onclick="() => ToggleProductStatus(p)">
+                                                            @(p.Activo ? "Desactivar" : "Activar")
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         }
+                else if (activeTab == "categorias")
+                        {
+                            <!-- TAB 2: CATEGORIES MANAGEMENT -->
+                            <div class="panel-section">
+                                <div class="panel-header-row">
+                                    <h2>Categorías de Productos</h2>
+                                    <div class="add-category-inline">
+                                        <input type="text" @bind="newCategoryName" placeholder="Nueva Categoría"
+                                               class="form-control-inline" />
+                                        <button class="btn-create-new" @onclick="CreateCategory">AGREGAR</button>
+                                    </div>
+                                </div>
 
-                        <div class="table-container">
-                            <table class="admin-table">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Código Seguimiento</th>
-                                        <th>Fecha</th>
-                                        <th>Usuario / Email</th>
-                                        <th>Dirección</th>
-                                        <th>Total</th>
-                                        <th>Estado Pago</th>
-                                        <th>Estado Pedido</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var o in orders)
+                                <div class="table-container">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Nombre</th>
+                                                <th>Estado</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var c in categories)
+                                            {
+                                                <tr>
+                                                    <td><strong>#@c.Id</strong></td>
+                                                    <td>
+                                                        @if (editingCategoryId == c.Id)
+                                                        {
+                                                            <input type="text" @bind="editingCategoryName" class="form-control-table" />
+                                                        }
+                                                        else
+                                                        {
+                                                            @c.Nombre
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        <span class="status-badge @(c.Activo ? "active" : "inactive")">
+                                                            @(c.Activo ? "Activo" : "Inactivo")
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        @if (editingCategoryId == c.Id)
+                                                        {
+                                                            <button class="btn-action-save"
+                                                                    @onclick="() => SaveCategoryEdit(c)">Guardar</button>
+                                                            <button class="btn-action-cancel" @onclick="CancelCategoryEdit">Cancelar</button>
+                                                        }
+                                                        else
+                                                        {
+                                                            <button class="btn-action-edit"
+                                                                    @onclick="() => StartCategoryEdit(c)">Editar</button>
+                                                            <button class="btn-action-status" @onclick="() => ToggleCategoryStatus(c)">
+                                                                @(c.Activo ? "Desactivar" : "Activar")
+                                                            </button>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        }
+                        else if (activeTab == "pedidos")
+                        {
+                            <!-- TAB 3: ORDERS MANAGEMENT -->
+                            <div class="panel-section">
+                                <div
+                                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                                    <h2>Pedidos Recibidos</h2>
+                                    @if (pendingOrderStateChanges.Any())
                                     {
-                                        bool isPending = pendingOrderStateChanges.ContainsKey(o.Codigo);
-                                        string currentState = isPending ? pendingOrderStateChanges[o.Codigo] : o.Estado;
-
-                                        <tr style="@(isPending ? "background-color: #FEF9F0;" : "")">
-                                            <td><code>#@o.Id</code></td>
-                                            <td><strong>@o.Codigo</strong></td>
-                                            <td>@o.Fecha.ToLocalTime().ToString("g")</td>
-                                            <td>
-                                                <div><strong>@(string.IsNullOrEmpty(o.NombreUsuario) ? "Cliente" : o.NombreUsuario)</strong></div>
-                                                <small class="text-muted" style="font-size: 0.72rem; color: #706B64;">@o.EmailCliente</small>
-                                            </td>
-                                            <td><small style="font-size: 0.78rem;">@(string.IsNullOrEmpty(o.Direccion) ? "Dirección registrada" : o.Direccion)</small></td>
-                                            <td><strong>$@o.Total.ToString("N0") COP</strong></td>
-                                            <td>
-                                                <span class="status-badge active" style="font-size:0.7rem; text-transform:uppercase;">
-                                                    @o.EstadoPago
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <select class="select-order-state" value="@currentState" @onchange='(e) => OnOrderStateSelected(o.Codigo, e.Value?.ToString() ?? "")'>
-                                                    <option value="Pendiente">Pendiente</option>
-                                                    <option value="EnPreparacion">En Preparación</option>
-                                                    <option value="EnTransito">En Tránsito</option>
-                                                    <option value="EnReparto">En Reparto</option>
-                                                    <option value="Entregado">Entregado</option>
-                                                </select>
-                                            </td>
-                                            <td>
-                                                <div style="display: flex; gap: 6px;">
-                                                    <button class="btn-table-action edit" @onclick="() => ViewOrderDetails(o)" title="Ver Productos">
-                                                        👁️ Productos (@o.Detalles.Count)
-                                                    </button>
-                                                    @if (isPending)
-                                                    {
-                                                        <button class="btn-save" @onclick="() => SaveSingleOrderState(o.Codigo)" style="padding: 4px 8px; font-size: 0.75rem;">
-                                                            💾 Guardar
-                                                        </button>
-                                                    }
-                                                </div>
-                                            </td>
-                                        </tr>
+                                        <button class="btn-save" @onclick="SavePendingOrderStateChanges"
+                                                style="background-color: #B89A5E; color: #1A100A; border: none; font-weight: 800; padding: 10px 20px; border-radius: 6px; cursor: pointer;">
+                                            💾 GUARDAR CAMBIOS DE PEDIDOS (@pendingOrderStateChanges.Count PENDIENTES)
+                                        </button>
                                     }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                }
+                                </div>
+
+                                @if (!string.IsNullOrEmpty(orderStatusSuccessMessage))
+                                {
+                                    <div
+                                        style="background-color: #E2F3E7; color: #2F6F4C; padding: 12px 18px; border-radius: 8px; margin-bottom: 20px; font-weight: 700;">
+                                        @orderStatusSuccessMessage
+                                    </div>
+                                }
+
+                                <div class="table-container">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Código Seguimiento</th>
+                                                <th>Fecha</th>
+                                                <th>Usuario / Email</th>
+                                                <th>Dirección</th>
+                                                <th>Total</th>
+                                                <th>Estado Pago</th>
+                                                <th>Estado Pedido</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var o in orders)
+                                            {
+                                                bool isPending = pendingOrderStateChanges.ContainsKey(o.Codigo);
+                                                string currentState = isPending ? pendingOrderStateChanges[o.Codigo] : o.Estado;
+
+                                                <tr style="@(isPending ? "background-color: #FEF9F0;" : "")">
+                                                    <td><code>#@o.Id</code></td>
+                                                    <td><strong>@o.Codigo</strong></td>
+                                                    <td>@o.Fecha.ToLocalTime().ToString("g")</td>
+                                                    <td>
+                                                        <div><strong>@(string.IsNullOrEmpty(o.NombreUsuario) ? "Cliente" :
+                                                                                                        o.NombreUsuario)</strong></div>
+                                                            <small class="text-muted"
+                                                                   style="font-size: 0.72rem; color: #706B64;">@o.EmailCliente</small>
+                                                        </td>
+                                                        <td><small style="font-size: 0.78rem;">@(string.IsNullOrEmpty(o.Direccion) ? "Dirección registrada" : o.Direccion)</small></td>
+                                                        <td><strong>$@o.Total.ToString("N0") COP</strong></td>
+                                                        <td>
+                                                            <span class="status-badge active"
+                                                                  style="font-size:0.7rem; text-transform:uppercase;">
+                                                                @o.EstadoPago
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            <select class="select-order-state" value="@currentState"
+                                                                    @onchange='(e) => OnOrderStateSelected(o.Codigo, e.Value?.ToString() ?? "")'>
+                                                                <option value="Pendiente">Pendiente</option>
+                                                                <option value="EnPreparacion">En Preparación</option>
+                                                                <option value="EnTransito">En Tránsito</option>
+                                                                <option value="EnReparto">En Reparto</option>
+                                                                <option value="Entregado">Entregado</option>
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <div style="display: flex; gap: 6px;">
+                                                                <button class="btn-table-action edit" @onclick="() => ViewOrderDetails(o)"
+                                                                        title="Ver Productos">
+                                                                    👁️ Productos (@o.Detalles.Count)
+                                                                </button>
+                                                                @if (isPending)
+                                                                {
+                                                                    <button class="btn-save" @onclick="() => SaveSingleOrderState(o.Codigo)"
+                                                                            style="padding: 4px 8px; font-size: 0.75rem;">
+                                                                        💾 Guardar
+                                                                    </button>
+                                                                }
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            }
                 else if (activeTab == "usuarios")
-                {
-                    <!-- TAB 4: USER CONTROL -->
-                    <div class="panel-section">
-                        <h2>Usuarios Registrados</h2>
+                            {
+                                <!-- TAB 4: USER CONTROL -->
+                                <div class="panel-section">
+                                    <h2>Usuarios Registrados</h2>
 
-                        <div class="table-container">
-                            <table class="admin-table">
-                                <thead>
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>Correo Electrónico</th>
-                                        <th>Rol de Acceso</th>
-                                        <th>Estado</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var u in users)
-                                    {
-                                        <tr>
-                                            <td>@u.Nombre</td>
-                                            <td>@u.Email</td>
-                                            <td>
-                                                <span class="role-badge @(u.Rol == "Admin" ? "admin" : "client")">
-                                                    @u.Rol
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <span class="status-badge @(u.Activo ? "active" : "inactive")">
-                                                    @(u.Activo ? "Activo" : "Inactivo")
-                                                </span>
-                                            </td>
-                                            <td>
-                                                @if (u.Email != ApiService.CurrentUser?.Email)
+                                    <div class="table-container">
+                                        <table class="admin-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nombre</th>
+                                                    <th>Correo Electrónico</th>
+                                                    <th>Rol de Acceso</th>
+                                                    <th>Estado</th>
+                                                    <th>Acciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var u in users)
                                                 {
-                                                    <button class="btn-action-status" @onclick="() => ToggleUserStatus(u)">
-                                                        @(u.Activo ? "Desactivar" : "Activar")
-                                                    </button>
+                                                    <tr>
+                                                        <td>@u.Nombre</td>
+                                                        <td>@u.Email</td>
+                                                        <td>
+                                                            <span class="role-badge @(u.Rol == "Admin" ? "admin" : "client")">
+                                                                @u.Rol
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            <span class="status-badge @(u.Activo ? "active" : "inactive")">
+                                                                @(u.Activo ? "Activo" : "Inactivo")
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            @if (u.Email != ApiService.CurrentUser?.Email)
+                                                            {
+                                                                <button class="btn-action-status" @onclick="() => ToggleUserStatus(u)">
+                                                                    @(u.Activo ? "Desactivar" : "Activar")
+                                                                </button>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="self-label">Cuenta Actual</span>
+                                                            }
+                                                        </td>
+                                                    </tr>
                                                 }
-                                                else
-                                                {
-                                                    <span class="self-label">Cuenta Actual</span>
-                                                }
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            }
+
+                        </main>
                     </div>
                 }
 
-            </main>
-        </div>
-    }
+                <!-- POPUP MODAL FOR PRODUCT CREATE/EDIT -->
+                @if (showProductModal)
+                {
+                    <div class="modal-backdrop">
+                        <div class="modal-box">
+                            <div class="modal-header">
+                                <h3>@(isEditingProduct ? "Editar Producto" : "Nuevo Producto")</h3>
+                                <button class="btn-close-modal" @onclick="CloseProductModal">×</button>
+                            </div>
+                            <div class="modal-body">
 
-    <!-- POPUP MODAL FOR PRODUCT CREATE/EDIT -->
-    @if (showProductModal)
-    {
-        <div class="modal-backdrop">
-            <div class="modal-box">
-                <div class="modal-header">
-                    <h3>@(isEditingProduct ? "Editar Producto" : "Nuevo Producto")</h3>
-                    <button class="btn-close-modal" @onclick="CloseProductModal">×</button>
-                </div>
-                <div class="modal-body">
-                    
-                    @if (!string.IsNullOrEmpty(formErrorMessage))
-                    {
-                        <div class="error-alert">@formErrorMessage</div>
+                                @if (!string.IsNullOrEmpty(formErrorMessage))
+                                {
+                                    <div class="error-alert">@formErrorMessage</div>
+                                }
+
+                                <div class="form-row-2">
+                                    <div class="form-group">
+                                        <label>Nombre Comercial</label>
+                                        <input type="text" @bind="productFormNombre" placeholder="Waylan Classic"
+                                               class="form-control-admin" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Categoría</label>
+                                        <select @bind="productFormIdCategoria" class="form-control-admin">
+                                            @foreach (var cat in categories)
+                                            {
+                                                <option value="@cat.Id">@cat.Nombre</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row-2">
+                                    <div class="form-group">
+                                        <label>Tipo de Tueste</label>
+                                        <select @bind="productFormTueste" class="form-control-admin">
+                                            <option value="1">Claro</option>
+                                            <option value="2">Medio</option>
+                                            <option value="3">Oscuro</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Proceso de Café</label>
+                                        <select @bind="productFormProceso" class="form-control-admin">
+                                            <option value="1">Lavado</option>
+                                            <option value="2">Natural</option>
+                                            <option value="3">Honey</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row-2">
+                                    <div class="form-group">
+                                        <label>Precio Unitario (COP)</label>
+                                        <input type="number" @bind="productFormPrecio" class="form-control-admin" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Stock Disponible</label>
+                                        <input type="number" min="0" @bind="productFormStock" class="form-control-admin" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Descripción del Producto</label>
+                                    <textarea @bind="productFormDescripcion" placeholder="Escribe una breve descripción del café..."
+                                              rows="3" class="form-control-admin" style="resize: vertical;"></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Imagen del Empaque (Archivo Físico)</label>
+                                    <InputFile OnChange="HandleFileSelected" class="form-control-file" />
+                                    @if (isEditingProduct && !string.IsNullOrEmpty(editingProductImageUrl))
+                                    {
+                                        <span class="file-help">Actualmente tiene: <strong>@editingProductImageUrl</strong> (déjalo vacío si
+                                            no deseas cambiarla).</span>
+                                        }
+                                    </div>
+
+                                    <!-- Notes selection Many-To-Many -->
+                                    <div class="form-group">
+                                        <label>Notas de Sabor Seleccionadas</label>
+                                        <div class="notes-selection-grid">
+                                            @foreach (var n in availableNotes)
+                                            {
+                                                <label class="checkbox-note-container">
+                                                    <input type="checkbox" checked="@productFormSelectedNoteIds.Contains(n.Id)"
+                                                           @onchange='() => ToggleFormNoteSelection(n.Id)' />
+                                                    <span class="note-label">@n.Nombre</span>
+                                                </label>
+                                            }
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="modal-footer">
+                                    <button class="btn-cancel" @onclick="CloseProductModal">CANCELAR</button>
+                                    <button class="btn-save" @onclick="SaveProduct" type="button">GUARDAR PRODUCTO</button>
+                                </div>
+                            </div>
+                        </div>
                     }
 
-                    <div class="form-row-2">
-                        <div class="form-group">
-                            <label>Nombre Comercial</label>
-                            <input type="text" @bind="productFormNombre" placeholder="Waylan Classic" class="form-control-admin" />
-                        </div>
-                        <div class="form-group">
-                            <label>Categoría</label>
-                            <select @bind="productFormIdCategoria" class="form-control-admin">
-                                @foreach (var cat in categories)
-                                {
-                                    <option value="@cat.Id">@cat.Nombre</option>
-                                }
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-row-2">
-                        <div class="form-group">
-                            <label>Tipo de Tueste</label>
-                            <select @bind="productFormTueste" class="form-control-admin">
-                                <option value="1">Claro</option>
-                                <option value="2">Medio</option>
-                                <option value="3">Oscuro</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Proceso de Café</label>
-                            <select @bind="productFormProceso" class="form-control-admin">
-                                <option value="1">Lavado</option>
-                                <option value="2">Natural</option>
-                                <option value="3">Honey</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-row-2">
-                        <div class="form-group">
-                            <label>Precio Unitario (COP)</label>
-                            <input type="number" @bind="productFormPrecio" class="form-control-admin" />
-                        </div>
-                        <div class="form-group">
-                            <label>Stock Disponible</label>
-                            <input type="number" min="0" @bind="productFormStock" class="form-control-admin" />
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Descripción del Producto</label>
-                        <textarea @bind="productFormDescripcion" placeholder="Escribe una breve descripción del café..." rows="3" class="form-control-admin" style="resize: vertical;"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Imagen del Empaque (Archivo Físico)</label>
-                        <InputFile OnChange="HandleFileSelected" class="form-control-file" />
-                        @if (isEditingProduct && !string.IsNullOrEmpty(editingProductImageUrl))
-                        {
-                            <span class="file-help">Actualmente tiene: <strong>@editingProductImageUrl</strong> (déjalo vacío si no deseas cambiarla).</span>
-                        }
-                    </div>
-
-                    <!-- Notes selection Many-To-Many -->
-                    <div class="form-group">
-                        <label>Notas de Sabor Seleccionadas</label>
-                        <div class="notes-selection-grid">
-                            @foreach (var n in availableNotes)
-                            {
-                                <label class="checkbox-note-container">
-                                    <input type="checkbox" checked="@productFormSelectedNoteIds.Contains(n.Id)" @onchange='() => ToggleFormNoteSelection(n.Id)' />
-                                    <span class="note-label">@n.Nombre</span>
-                                </label>
-                            }
-                        </div>
-                    </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button class="btn-cancel" @onclick="CloseProductModal">CANCELAR</button>
-                    <button class="btn-save" @onclick="SaveProduct" type="button">GUARDAR PRODUCTO</button>
-                </div>
-            </div>
-        </div>
-    }
-
-    @if (showOrderDetailsModal && selectedOrderForView != null)
-    {
-        <div class="modal-backdrop">
-            <div class="modal-box" style="max-width: 650px;">
-                <div class="modal-header">
-                    <h3>Detalles del Pedido: @selectedOrderForView.Codigo</h3>
-                    <button class="btn-close-modal" @onclick="CloseOrderDetailsModal">×</button>
-                </div>
-                <div class="modal-body">
-                    <div style="margin-bottom: 15px; font-size: 0.88rem; background: #FAF6F0; padding: 12px; border-radius: 8px;">
-                        <div><strong>ID Pedido:</strong> #@selectedOrderForView.Id</div>
-                        <div><strong>Cliente:</strong> @selectedOrderForView.NombreUsuario (@selectedOrderForView.EmailCliente)</div>
-                        <div><strong>Dirección de Entrega:</strong> @(string.IsNullOrEmpty(selectedOrderForView.Direccion) ? "Dirección registrada" : selectedOrderForView.Direccion)</div>
-                        <div><strong>Fecha:</strong> @selectedOrderForView.Fecha.ToLocalTime().ToString("g")</div>
-                        <div><strong>Estado de Pago:</strong> @selectedOrderForView.EstadoPago</div>
-                        <div><strong>Total:</strong> $@selectedOrderForView.Total.ToString("N0") COP</div>
-                    </div>
-
-                    <h4 style="margin-bottom: 10px; font-size: 0.95rem; font-family: 'Playfair Display', serif;">Productos Comprados (detallesAdmin)</h4>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
-                        @foreach (var d in selectedOrderForView.Detalles)
-                        {
-                            <div style="display: flex; align-items: center; gap: 12px; padding: 10px; border: 1px solid #E5E2DC; border-radius: 8px; background: #FFFFFF;">
-                                <img src="@ApiService.GetFullImageUrl(d.ImagenProducto)" alt="@d.NombreProducto" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #E5E2DC;" />
-                                <div style="flex: 1;">
-                                    <div style="font-weight: 700; font-size: 0.9rem;">@d.NombreProducto</div>
-                                    <div style="font-size: 0.78rem; color: #706B64;">ID Producto: #@d.IdProducto | Cantidad: @d.Cantidad | Unitario: $@d.PrecioUnitario.ToString("N0") COP</div>
+                    @if (showOrderDetailsModal && selectedOrderForView != null)
+                    {
+                        <div class="modal-backdrop">
+                            <div class="modal-box" style="max-width: 650px;">
+                                <div class="modal-header">
+                                    <h3>Detalles del Pedido: @selectedOrderForView.Codigo</h3>
+                                    <button class="btn-close-modal" @onclick="CloseOrderDetailsModal">×</button>
                                 </div>
-                                <div style="font-weight: 800; font-size: 0.95rem; color: #1A100A;">
-                                    $@(d.SubTotal > 0 ? d.SubTotal.ToString("N0") : (d.Cantidad * d.PrecioUnitario).ToString("N0")) COP
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-cancel" @onclick="CloseOrderDetailsModal">CERRAR</button>
-                </div>
-            </div>
-        </div>
-    }
+                                <div class="modal-body">
+                                    <div
+                                        style="margin-bottom: 15px; font-size: 0.88rem; background: #FAF6F0; padding: 12px; border-radius: 8px;">
+                                        <div><strong>ID Pedido:</strong> #@selectedOrderForView.Id</div>
+                                        <div><strong>Cliente:</strong> @selectedOrderForView.NombreUsuario
+                                            (@selectedOrderForView.EmailCliente)</div>
+                                            <div><strong>Dirección de Entrega:</strong> @(string.IsNullOrEmpty(selectedOrderForView.Direccion) ?
+                                                        "Dirección registrada" : selectedOrderForView.Direccion)</div>
+                                                <div><strong>Fecha:</strong> @selectedOrderForView.Fecha.ToLocalTime().ToString("g")</div>
+                                                <div><strong>Estado de Pago:</strong> @selectedOrderForView.EstadoPago</div>
+                                                <div><strong>Total:</strong> $@selectedOrderForView.Total.ToString("N0") COP</div>
+                                            </div>
 
-</div>
+                                            <h4 style="margin-bottom: 10px; font-size: 0.95rem; font-family: 'Playfair Display', serif;">Productos
+                                                Comprados (detallesAdmin)</h4>
+                                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                                    @foreach (var d in selectedOrderForView.Detalles)
+                                                    {
+                                                        <div
+                                                            style="display: flex; align-items: center; gap: 12px; padding: 10px; border: 1px solid #E5E2DC; border-radius: 8px; background: #FFFFFF;">
+                                                            <img src="@ApiService.GetFullImageUrl(d.ImagenProducto)" alt="@d.NombreProducto"
+                                                                 style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #E5E2DC;" />
+                                                            <div style="flex: 1;">
+                                                                <div style="font-weight: 700; font-size: 0.9rem;">@d.NombreProducto</div>
+                                                                <div style="font-size: 0.78rem; color: #706B64;">ID Producto: #@d.IdProducto | Cantidad:
+                                                                    @d.Cantidad | Unitario: $@d.PrecioUnitario.ToString("N0") COP</div>
+                                                                </div>
+                                                                <div style="font-weight: 800; font-size: 0.95rem; color: #1A100A;">
+                                                                    $@(d.SubTotal > 0 ? d.SubTotal.ToString("N0") : (d.Cantidad *
+                                                                                                d.PrecioUnitario).ToString("N0")) COP
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn-cancel" @onclick="CloseOrderDetailsModal">CERRAR</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+
+                                </div>
 
 @code {
     private Order? selectedOrderForView = null;
@@ -568,7 +610,7 @@
     private int productFormIntensidad = 3;
     private string productFormEtiqueta = "";
     private string editingProductImageUrl = "";
-    
+
     // New backend bindings
     private int productFormIdCategoria = 1;
     private int productFormTueste = 2; // Default Medio
@@ -686,13 +728,13 @@
         productFormMetodoRecomendado = "Filtrado";
         productFormIntensidad = 3;
         productFormEtiqueta = "";
-        
+
         productFormIdCategoria = categories.FirstOrDefault()?.Id ?? 1;
         productFormTueste = 2;
         productFormProceso = 1;
         productFormStock = 20;
         productFormDescripcion = "";
-        
+
         productFormSelectedNoteIds.Clear();
         selectedImageFile = null;
         showProductModal = true;
@@ -712,16 +754,17 @@
         productFormIntensidad = p.Intensidad;
         productFormEtiqueta = p.Etiqueta;
         editingProductImageUrl = p.ImagenUrl;
-        
-        productFormIdCategoria = (p.IdCategoria > 0 && categories.Any(c => c.Id == p.IdCategoria)) 
-            ? p.IdCategoria 
-            : (categories.FirstOrDefault(c => c.Nombre.Equals(p.Formato, StringComparison.OrdinalIgnoreCase))?.Id ?? (categories.FirstOrDefault()?.Id ?? 1));
+
+        productFormIdCategoria = (p.IdCategoria > 0 && categories.Any(c => c.Id == p.IdCategoria))
+                    ? p.IdCategoria
+                    : (categories.FirstOrDefault(c => c.Nombre.Equals(p.Formato, StringComparison.OrdinalIgnoreCase))?.Id ??
+        (categories.FirstOrDefault()?.Id ?? 1));
 
         productFormTueste = p.Tueste == "Claro" ? 1 : p.Tueste == "Oscuro" ? 3 : 2;
         productFormProceso = p.Proceso == "Natural" ? 2 : p.Proceso == "Honey" ? 3 : 1;
         productFormStock = p.Stock;
         productFormDescripcion = p.Descripcion ?? "";
-        
+
         productFormSelectedNoteIds = p.Notas.Where(n => n.Id > 0).Select(n => n.Id).ToList();
         selectedImageFile = null;
         showProductModal = true;
@@ -764,12 +807,13 @@
         int targetCatId = productFormIdCategoria;
         if (!categories.Any(c => c.Id == targetCatId))
         {
-            var matchedCat = categories.FirstOrDefault(c => c.Nombre.Equals(productFormFormato, StringComparison.OrdinalIgnoreCase));
+            var matchedCat = categories.FirstOrDefault(c => c.Nombre.Equals(productFormFormato,
+StringComparison.OrdinalIgnoreCase));
             targetCatId = matchedCat?.Id ?? (categories.FirstOrDefault()?.Id ?? 1);
         }
 
-        string descToSend = string.IsNullOrWhiteSpace(productFormDescripcion) 
-            ? "Café de especialidad Waylan Origin con perfil de notas seleccionadas." 
+        string descToSend = string.IsNullOrWhiteSpace(productFormDescripcion)
+            ? "Café de especialidad Waylan Origin con perfil de notas seleccionadas."
             : productFormDescripcion;
 
         var content = new MultipartFormDataContent();
@@ -951,7 +995,7 @@
         --admin-red: #8C2424;
         --admin-red-hover: #A83636;
         --admin-white: #FFFFFF;
-        
+
         font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
         background-color: var(--admin-cream);
         color: var(--admin-brown);
@@ -968,7 +1012,7 @@
         position: sticky;
         top: 0;
         z-index: 100;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     }
 
     .admin-header-container {
@@ -1022,7 +1066,8 @@
     }
 
     /* LOGIN & UNAUTHORIZED BOXES */
-    .admin-login-box, .unauthorized-box {
+    .admin-login-box,
+    .unauthorized-box {
         flex: 1;
         display: flex;
         align-items: center;
@@ -1031,24 +1076,27 @@
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M0,50 Q25,25 50,50 T100,50' fill='none' stroke='%23B89A5E' stroke-opacity='0.05'/%3E%3C/svg%3E");
     }
 
-    .login-card, .unauthorized-card {
+    .login-card,
+    .unauthorized-card {
         background-color: var(--admin-white);
         border: 1px solid rgba(40, 26, 18, 0.12);
         padding: 45px;
         border-radius: 12px;
         width: 100%;
         max-width: 440px;
-        box-shadow: 0 15px 40px rgba(0,0,0,0.06);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06);
     }
 
-    .login-card h2, .unauthorized-card h2 {
+    .login-card h2,
+    .unauthorized-card h2 {
         font-family: 'Playfair Display', Georgia, serif;
         font-size: 1.6rem;
         margin: 0 0 10px 0;
         color: var(--admin-brown);
     }
 
-    .login-card p, .unauthorized-card p {
+    .login-card p,
+    .unauthorized-card p {
         font-size: 0.85rem;
         color: #706B64;
         margin: 0 0 30px 0;
@@ -1185,7 +1233,7 @@
         border: 1px solid rgba(40, 26, 18, 0.1);
         border-radius: 8px;
         padding: 35px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
         min-height: 500px;
     }
 
@@ -1273,7 +1321,8 @@
         background-color: #FAF6F0;
     }
 
-    .badge-tueste, .badge-proceso {
+    .badge-tueste,
+    .badge-proceso {
         font-size: 0.72rem;
         font-weight: 700;
         padding: 3px 8px;
@@ -1365,7 +1414,8 @@
     }
 
     /* TABLE ACTIONS BUTTONS */
-    .btn-action-edit, .btn-action-save {
+    .btn-action-edit,
+    .btn-action-save {
         background: transparent;
         border: none;
         color: var(--admin-gold);
@@ -1377,12 +1427,14 @@
         outline: none;
     }
 
-    .btn-action-edit:hover, .btn-action-save:hover {
+    .btn-action-edit:hover,
+    .btn-action-save:hover {
         color: var(--admin-gold-hover);
         text-decoration: underline;
     }
 
-    .btn-action-status, .btn-action-cancel {
+    .btn-action-status,
+    .btn-action-cancel {
         background: transparent;
         border: none;
         color: var(--admin-red);
@@ -1393,7 +1445,8 @@
         outline: none;
     }
 
-    .btn-action-status:hover, .btn-action-cancel:hover {
+    .btn-action-status:hover,
+    .btn-action-cancel:hover {
         color: var(--admin-red-hover);
         text-decoration: underline;
     }
@@ -1457,7 +1510,7 @@
         max-width: 650px;
         max-height: 90vh;
         overflow-y: auto;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.18);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
         border: 1px solid rgba(40, 26, 18, 0.15);
         display: flex;
         flex-direction: column;
