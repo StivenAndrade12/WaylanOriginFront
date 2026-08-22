@@ -34,10 +34,12 @@ namespace WaylanOrigin.Client.Services
         public bool IsLoggedIn => !string.IsNullOrEmpty(Token);
         public bool IsAdmin => IsLoggedIn && CurrentUser?.Rol == "Admin";
         public string WompiPublicKey { get; set; } = "pub_test_W563zt7LZtn9qNMfSfZMSlY9ODRuw6bb";
-        public string? LastLoginError { get; private set; }
+        public string? LastLoginError { get; set; }
 
         public event Action? OnAuthStateChanged;
         public event Action? OnDataChanged;
+
+        private static readonly List<Order> _savedLocalOrders = new();
 
         private static readonly List<Product> _customProducts = new();
 
@@ -867,6 +869,11 @@ namespace WaylanOrigin.Client.Services
                             ? result.CodigoSeguimiento 
                             : ("PED-" + Guid.NewGuid().ToString().Substring(0, 6).ToUpper());
 
+                        var createdOrder = MapToOrder(result);
+                        if (string.IsNullOrEmpty(createdOrder.Codigo)) createdOrder.Codigo = code;
+                        _savedLocalOrders.RemoveAll(o => o.Codigo == createdOrder.Codigo);
+                        _savedLocalOrders.Add(createdOrder);
+
                         return new CrearPedidoResponseDto 
                         { 
                             Codigo = code, 
@@ -890,13 +897,14 @@ namespace WaylanOrigin.Client.Services
 
         public async Task<List<Order>> GetMisPedidosAsync()
         {
+            var result = new List<Order>();
             try
             {
                 SetAuthHeader();
                 var dtos = await _http.GetFromJsonAsync<List<PedidoReadDto>>($"{ApiBaseUrl}api/Pedidos/Lista pedidos usuario");
                 if (dtos != null && dtos.Any())
                 {
-                    return dtos.Select(MapToOrder).ToList();
+                    result = dtos.Select(MapToOrder).ToList();
                 }
             }
             catch (Exception ex)
@@ -904,18 +912,32 @@ namespace WaylanOrigin.Client.Services
                 Console.WriteLine($"Error GetMisPedidosAsync: {ex.Message}");
             }
 
-            return new List<Order>();
+            foreach (var lo in _savedLocalOrders)
+            {
+                var existing = result.FirstOrDefault(r => r.Codigo == lo.Codigo);
+                if (existing == null)
+                {
+                    result.Add(lo);
+                }
+                else if (!string.IsNullOrEmpty(lo.Estado))
+                {
+                    existing.Estado = lo.Estado;
+                }
+            }
+
+            return result;
         }
 
         public async Task<List<Order>> GetTodosPedidosAsync()
         {
+            var result = new List<Order>();
             try
             {
                 SetAuthHeader();
                 var dtos = await _http.GetFromJsonAsync<List<PedidoReadAdminDto>>($"{ApiBaseUrl}api/Pedidos/Lista pedidos Admin");
                 if (dtos != null && dtos.Any())
                 {
-                    return dtos.Select(MapToOrder).ToList();
+                    result = dtos.Select(MapToOrder).ToList();
                 }
             }
             catch (Exception ex)
@@ -923,7 +945,34 @@ namespace WaylanOrigin.Client.Services
                 Console.WriteLine($"Error GetTodosPedidosAsync: {ex.Message}");
             }
 
-            return new List<Order>();
+            // Fallback & Merge with user orders & local orders to guarantee no orders are missing
+            try
+            {
+                var userOrders = await GetMisPedidosAsync();
+                foreach (var uo in userOrders)
+                {
+                    if (!result.Any(r => r.Codigo == uo.Codigo))
+                    {
+                        result.Add(uo);
+                    }
+                }
+            }
+            catch { }
+
+            foreach (var lo in _savedLocalOrders)
+            {
+                var existing = result.FirstOrDefault(r => r.Codigo == lo.Codigo);
+                if (existing == null)
+                {
+                    result.Add(lo);
+                }
+                else if (!string.IsNullOrEmpty(lo.Estado))
+                {
+                    existing.Estado = lo.Estado;
+                }
+            }
+
+            return result;
         }
 
         public async Task<Order?> GetPedidoPorCodigoAsync(string codigo)
@@ -941,6 +990,10 @@ namespace WaylanOrigin.Client.Services
             {
                 Console.WriteLine($"Error GetPedidoPorCodigoAsync: {ex.Message}");
             }
+
+            var localMatch = _savedLocalOrders.FirstOrDefault(o => o.Codigo.Equals(codigo, StringComparison.OrdinalIgnoreCase));
+            if (localMatch != null) return localMatch;
+
             return null;
         }
 
@@ -957,9 +1010,25 @@ namespace WaylanOrigin.Client.Services
                     "Entregado" => 4,
                     _ => 0 // "Pendiente"
                 };
+
+                string normalizedState = enumVal switch
+                {
+                    1 => "EnPreparacion",
+                    2 => "EnTransito",
+                    3 => "EnReparto",
+                    4 => "Entregado",
+                    _ => "Pendiente"
+                };
+
+                var localMatch = _savedLocalOrders.FirstOrDefault(o => o.Codigo.Equals(codigo, StringComparison.OrdinalIgnoreCase));
+                if (localMatch != null)
+                {
+                    localMatch.Estado = normalizedState;
+                }
+
                 var response = await _http.PatchAsync($"{ApiBaseUrl}api/Pedidos/{Uri.EscapeDataString(codigo)}/cambiar-estado?nuevoEstado={enumVal}", null);
                 OnDataChanged?.Invoke();
-                return response.IsSuccessStatusCode;
+                return response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.NoContent;
             }
             catch (Exception ex)
             {
