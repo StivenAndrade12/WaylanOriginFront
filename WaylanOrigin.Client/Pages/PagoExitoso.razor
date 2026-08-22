@@ -94,30 +94,30 @@
         var uri = new Uri(NavigationManager.Uri);
         var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
 
-        var statusVal = query["status"];
+        var statusVal = query["status"] ?? query["transaction_status"];
         if (!string.IsNullOrEmpty(statusVal))
         {
             status = statusVal.ToUpper();
         }
 
-        var refVal = query["ref"];
+        var refVal = query["ref"] ?? query["reference"];
         if (!string.IsNullOrEmpty(refVal))
         {
             reference = refVal;
+        }
+
+        if (!string.IsNullOrEmpty(reference) && reference != "PED-N/A")
+        {
             try
             {
-                currentOrder = await ApiService.GetPedidoPorCodigoAsync(reference);
-                if (currentOrder != null && !string.IsNullOrEmpty(currentOrder.Estado))
+                if (status == "APPROVED" || status == "SUCCESS" || string.IsNullOrEmpty(statusVal))
                 {
-                    if (currentOrder.Estado.Equals("Aprobado", StringComparison.OrdinalIgnoreCase))
-                    {
-                        status = "APPROVED";
-                    }
+                    await ApiService.ConfirmarPagoWompiAsync(reference, "APPROVED");
                 }
+                currentOrder = await ApiService.GetPedidoPorCodigoAsync(reference);
             }
             catch
             {
-                // Fallback to query params
             }
         }
     }

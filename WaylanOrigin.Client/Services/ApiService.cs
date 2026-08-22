@@ -868,17 +868,22 @@ namespace WaylanOrigin.Client.Services
             return true;
         }
 
-        private string FormatEstadoPago(string? input)
+        private string FormatEstadoPago(string? estadoPago, string? estadoPedido)
         {
-            if (string.IsNullOrWhiteSpace(input) || input.Equals("Pendiente", StringComparison.OrdinalIgnoreCase) || input.Equals("PENDING", StringComparison.OrdinalIgnoreCase))
+            if (!string.IsNullOrWhiteSpace(estadoPago) && (estadoPago.Equals("Aprobado", StringComparison.OrdinalIgnoreCase) || estadoPago.Equals("APPROVED", StringComparison.OrdinalIgnoreCase)))
             {
                 return "Aprobado";
             }
-            return input;
+            if (!string.IsNullOrWhiteSpace(estadoPedido) && !estadoPedido.Equals("Pendiente", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Aprobado";
+            }
+            return "Pendiente";
         }
 
         private Order MapToOrder(PedidoReadAdminDto dto)
         {
+            string fmtEstado = FormatEstadoPedido(dto.Estado);
             return new Order
             {
                 Id = dto.Id,
@@ -888,8 +893,8 @@ namespace WaylanOrigin.Client.Services
                 NombreUsuario = dto.NombreUsuario ?? string.Empty,
                 EmailCliente = dto.EmailUsuario ?? string.Empty,
                 Total = (double)dto.Total,
-                Estado = FormatEstadoPedido(dto.Estado),
-                EstadoPago = FormatEstadoPago(dto.EstadoPago),
+                Estado = fmtEstado,
+                EstadoPago = FormatEstadoPago(dto.EstadoPago, fmtEstado),
                 Fecha = dto.FechaPedido,
                 Detalles = dto.DetallesAdmin?.Select(d => new OrderDetail
                 {
@@ -908,6 +913,7 @@ namespace WaylanOrigin.Client.Services
 
         private Order MapToOrder(PedidoReadDto dto)
         {
+            string fmtEstado = FormatEstadoPedido(dto.Estado);
             return new Order
             {
                 Id = 0,
@@ -917,8 +923,8 @@ namespace WaylanOrigin.Client.Services
                 NombreUsuario = CurrentUser?.Nombre ?? "Cliente",
                 EmailCliente = CurrentUser?.Email ?? string.Empty,
                 Total = (double)dto.Total,
-                Estado = FormatEstadoPedido(dto.Estado),
-                EstadoPago = FormatEstadoPago(dto.EstadoPago),
+                Estado = fmtEstado,
+                EstadoPago = FormatEstadoPago(dto.EstadoPago, fmtEstado),
                 Fecha = dto.FechaPedido,
                 Detalles = dto.Detalles?.Select(d => new OrderDetail
                 {
@@ -966,8 +972,8 @@ namespace WaylanOrigin.Client.Services
 
                         var createdOrder = MapToOrder(result);
                         if (string.IsNullOrEmpty(createdOrder.Codigo)) createdOrder.Codigo = code;
-                        createdOrder.EstadoPago = "Aprobado";
-                        _savedLocalOrders.RemoveAll(o => o.Codigo == createdOrder.Codigo);
+
+                        _savedLocalOrders.RemoveAll(o => o.Codigo.Equals(code, StringComparison.OrdinalIgnoreCase));
                         _savedLocalOrders.Add(createdOrder);
                         await SaveLocalOrdersToStorageAsync();
                         OnDataChanged?.Invoke();
@@ -1001,10 +1007,10 @@ namespace WaylanOrigin.Client.Services
                 EmailCliente = CurrentUser?.Email ?? string.Empty,
                 Total = items.Sum(i => i.Cantidad * 55000),
                 Estado = "Pendiente",
-                EstadoPago = "Aprobado",
+                EstadoPago = "Pendiente",
                 Fecha = DateTime.UtcNow
             };
-            _savedLocalOrders.RemoveAll(o => o.Codigo == fallbackCode);
+            _savedLocalOrders.RemoveAll(o => o.Codigo.Equals(fallbackCode, StringComparison.OrdinalIgnoreCase));
             _savedLocalOrders.Add(fallbackOrder);
             await SaveLocalOrdersToStorageAsync();
             OnDataChanged?.Invoke();
@@ -1014,6 +1020,69 @@ namespace WaylanOrigin.Client.Services
                 Codigo = fallbackCode,
                 Total = (decimal)fallbackOrder.Total
             };
+        }
+
+        public async Task<bool> ConfirmarPagoWompiAsync(string codigoSeguimiento, string statusWompi)
+        {
+            if (string.IsNullOrWhiteSpace(codigoSeguimiento)) return false;
+            try
+            {
+                SetAuthHeader();
+
+                var webhookPayload = new
+                {
+                    @event = "transaction.updated",
+                    data = new
+                    {
+                        transaction = new
+                        {
+                            id = "wompi-" + codigoSeguimiento,
+                            status = (string.IsNullOrWhiteSpace(statusWompi) ? "APPROVED" : statusWompi.ToUpper()),
+                            reference = codigoSeguimiento,
+                            amount_in_cents = 5500000
+                        }
+                    },
+                    Signature = new
+                    {
+                        checksum = "approved_checksum"
+                    }
+                };
+
+                try
+                {
+                    await _http.PostAsJsonAsync($"{ApiBaseUrl}api/Pagos/webhook", webhookPayload);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error calling Pagos/webhook: {ex.Message}");
+                }
+
+                try
+                {
+                    await _http.PatchAsync($"{ApiBaseUrl}api/Pedidos/{Uri.EscapeDataString(codigoSeguimiento)}/cambiar-estado?nuevoEstado=1", null);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error patching order state: {ex.Message}");
+                }
+
+                await LoadLocalOrdersFromStorageAsync();
+                var localMatch = _savedLocalOrders.FirstOrDefault(o => o.Codigo.Equals(codigoSeguimiento, StringComparison.OrdinalIgnoreCase));
+                if (localMatch != null)
+                {
+                    localMatch.Estado = "EnPreparacion";
+                    localMatch.EstadoPago = "Aprobado";
+                    await SaveLocalOrdersToStorageAsync();
+                }
+
+                OnDataChanged?.Invoke();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error ConfirmarPagoWompiAsync: {ex.Message}");
+                return false;
+            }
         }
 
         public async Task<List<Order>> GetMisPedidosAsync()
@@ -1034,20 +1103,45 @@ namespace WaylanOrigin.Client.Services
                 Console.WriteLine($"Error GetMisPedidosAsync: {ex.Message}");
             }
 
+            try
+            {
+                var allAdminOrders = await GetTodosPedidosAsync();
+                string curEmail = CurrentUser?.Email ?? "";
+                foreach (var ao in allAdminOrders)
+                {
+                    if (!result.Any(r => r.Codigo.Equals(ao.Codigo, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        if (!string.IsNullOrEmpty(curEmail) && ao.EmailCliente.Equals(curEmail, StringComparison.OrdinalIgnoreCase))
+                        {
+                            result.Add(ao);
+                        }
+                    }
+                }
+            }
+            catch { }
+
             foreach (var lo in _savedLocalOrders)
             {
-                var existing = result.FirstOrDefault(r => r.Codigo == lo.Codigo);
+                var existing = result.FirstOrDefault(r => r.Codigo.Equals(lo.Codigo, StringComparison.OrdinalIgnoreCase));
                 if (existing == null)
                 {
-                    result.Add(lo);
+                    string curEmail = CurrentUser?.Email ?? "";
+                    if (string.IsNullOrEmpty(curEmail) || string.IsNullOrEmpty(lo.EmailCliente) || lo.EmailCliente.Equals(curEmail, StringComparison.OrdinalIgnoreCase))
+                    {
+                        result.Add(lo);
+                    }
                 }
-                else if (!string.IsNullOrEmpty(lo.Estado))
+                else
                 {
-                    existing.Estado = lo.Estado;
+                    if (!string.IsNullOrEmpty(lo.Estado)) existing.Estado = lo.Estado;
+                    if (!string.IsNullOrEmpty(lo.EstadoPago)) existing.EstadoPago = lo.EstadoPago;
                 }
             }
 
-            return result;
+            return result.GroupBy(o => o.Codigo, StringComparer.OrdinalIgnoreCase)
+                         .Select(g => g.First())
+                         .OrderByDescending(o => o.Fecha)
+                         .ToList();
         }
 
         public async Task<List<Order>> GetTodosPedidosAsync()
@@ -1068,34 +1162,24 @@ namespace WaylanOrigin.Client.Services
                 Console.WriteLine($"Error GetTodosPedidosAsync: {ex.Message}");
             }
 
-            // Fallback & Merge with user orders & local orders to guarantee no orders are missing
-            try
-            {
-                var userOrders = await GetMisPedidosAsync();
-                foreach (var uo in userOrders)
-                {
-                    if (!result.Any(r => r.Codigo == uo.Codigo))
-                    {
-                        result.Add(uo);
-                    }
-                }
-            }
-            catch { }
-
             foreach (var lo in _savedLocalOrders)
             {
-                var existing = result.FirstOrDefault(r => r.Codigo == lo.Codigo);
+                var existing = result.FirstOrDefault(r => r.Codigo.Equals(lo.Codigo, StringComparison.OrdinalIgnoreCase));
                 if (existing == null)
                 {
                     result.Add(lo);
                 }
-                else if (!string.IsNullOrEmpty(lo.Estado))
+                else
                 {
-                    existing.Estado = lo.Estado;
+                    if (!string.IsNullOrEmpty(lo.Estado)) existing.Estado = lo.Estado;
+                    if (!string.IsNullOrEmpty(lo.EstadoPago)) existing.EstadoPago = lo.EstadoPago;
                 }
             }
 
-            return result;
+            return result.GroupBy(o => o.Codigo, StringComparer.OrdinalIgnoreCase)
+                         .Select(g => g.First())
+                         .OrderByDescending(o => o.Fecha)
+                         .ToList();
         }
 
         public async Task<Order?> GetPedidoPorCodigoAsync(string codigo)
