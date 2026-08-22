@@ -483,37 +483,26 @@ namespace WaylanOrigin.Client.Services
         public async Task<List<Note>> GetNotasAsync()
         {
             var resultList = new List<Note>();
-            int nextId = 1;
-
-            foreach (var cn in _customNotes)
-            {
-                resultList.Add(new Note { Id = cn.Id, Nombre = cn.Nombre });
-                if (cn.Id >= nextId) nextId = cn.Id + 1;
-            }
-
             try
             {
                 SetAuthHeader();
                 var apiNotes = await _http.GetFromJsonAsync<List<Note>>($"{ApiBaseUrl}api/Nota");
                 if (apiNotes != null && apiNotes.Any())
                 {
+                    int autoId = 1;
                     foreach (var an in apiNotes)
                     {
                         if (string.IsNullOrWhiteSpace(an.Nombre)) continue;
-                        var existing = resultList.FirstOrDefault(r => r.Nombre.Equals(an.Nombre, StringComparison.OrdinalIgnoreCase));
-                        if (existing == null)
+                        if (!resultList.Any(r => r.Nombre.Equals(an.Nombre, StringComparison.OrdinalIgnoreCase)))
                         {
                             resultList.Add(new Note
                             {
-                                Id = an.Id > 0 ? an.Id : nextId++,
+                                Id = an.Id > 0 ? an.Id : autoId++,
                                 Nombre = an.Nombre
                             });
                         }
-                        else if (an.Id > 0)
-                        {
-                            existing.Id = an.Id;
-                        }
                     }
+                    return resultList;
                 }
             }
             catch (Exception ex)
@@ -521,7 +510,7 @@ namespace WaylanOrigin.Client.Services
                 Console.WriteLine($"Error GetNotasAsync: {ex.Message}");
             }
 
-            return resultList;
+            return _customNotes;
         }
 
         public async Task<bool> CrearNotaAsync(string nombre)
