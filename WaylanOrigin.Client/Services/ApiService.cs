@@ -1072,8 +1072,21 @@ namespace WaylanOrigin.Client.Services
                 {
                     localMatch.Estado = "EnPreparacion";
                     localMatch.EstadoPago = "Aprobado";
-                    await SaveLocalOrdersToStorageAsync();
                 }
+                else
+                {
+                    _savedLocalOrders.Add(new Order
+                    {
+                        Id = 0,
+                        Codigo = codigoSeguimiento,
+                        NombreUsuario = CurrentUser?.Nombre ?? "Cliente",
+                        EmailCliente = CurrentUser?.Email ?? string.Empty,
+                        Estado = "EnPreparacion",
+                        EstadoPago = "Aprobado",
+                        Fecha = DateTime.UtcNow
+                    });
+                }
+                await SaveLocalOrdersToStorageAsync();
 
                 OnDataChanged?.Invoke();
                 return true;
