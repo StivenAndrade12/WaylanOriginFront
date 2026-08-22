@@ -11,8 +11,5 @@ namespace WaylanOrigin.Client.Models
         public string HistoriaParrafo2 { get; set; }
         public string Testimonio { get; set; }
 
-        public string AutorNombre { get; set; }
-        public string AutorRol { get; set; }
-        public string AutorFoto { get; set; }
     }
 }
