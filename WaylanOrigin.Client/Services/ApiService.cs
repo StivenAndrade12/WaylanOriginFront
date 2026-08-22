@@ -71,10 +71,50 @@ namespace WaylanOrigin.Client.Services
             _js = js;
         }
 
+        private async Task SaveLocalOrdersToStorageAsync()
+        {
+            try
+            {
+                var json = System.Text.Json.JsonSerializer.Serialize(_savedLocalOrders);
+                await _js.InvokeVoidAsync("localStorage.setItem", "waylan_orders_cache", json);
+            }
+            catch { }
+        }
+
+        private async Task LoadLocalOrdersFromStorageAsync()
+        {
+            try
+            {
+                var json = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_orders_cache");
+                if (!string.IsNullOrEmpty(json))
+                {
+                    var list = System.Text.Json.JsonSerializer.Deserialize<List<Order>>(json);
+                    if (list != null && list.Any())
+                    {
+                        foreach (var item in list)
+                        {
+                            var existing = _savedLocalOrders.FirstOrDefault(o => o.Codigo == item.Codigo);
+                            if (existing == null)
+                            {
+                                _savedLocalOrders.Add(item);
+                            }
+                            else
+                            {
+                                if (!string.IsNullOrEmpty(item.Estado)) existing.Estado = item.Estado;
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+        }
+
         public async Task InitializeAuthAsync()
         {
             try
             {
+                await LoadLocalOrdersFromStorageAsync();
+
                 var storedToken = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_token");
                 var storedEmail = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_user_email");
                 var storedNombre = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_user_nombre");
@@ -91,7 +131,6 @@ namespace WaylanOrigin.Client.Services
                     };
                     SetAuthHeader();
 
-                    // Refresh user profile from Azure DB
                     try
                     {
                         var profile = await _http.GetFromJsonAsync<UsuarioReadDto>($"{ApiBaseUrl}api/Usuarios/Perfil");
@@ -106,7 +145,6 @@ namespace WaylanOrigin.Client.Services
                     }
                     catch
                     {
-                        // Keep stored user state if transient network error
                     }
 
                     OnAuthStateChanged?.Invoke();
@@ -114,7 +152,6 @@ namespace WaylanOrigin.Client.Services
             }
             catch
             {
-                // Ignore JS Interop errors during SSR/prerender
             }
         }
 
@@ -932,6 +969,8 @@ namespace WaylanOrigin.Client.Services
                         createdOrder.EstadoPago = "Aprobado";
                         _savedLocalOrders.RemoveAll(o => o.Codigo == createdOrder.Codigo);
                         _savedLocalOrders.Add(createdOrder);
+                        await SaveLocalOrdersToStorageAsync();
+                        OnDataChanged?.Invoke();
 
                         return new CrearPedidoResponseDto 
                         { 
@@ -967,6 +1006,8 @@ namespace WaylanOrigin.Client.Services
             };
             _savedLocalOrders.RemoveAll(o => o.Codigo == fallbackCode);
             _savedLocalOrders.Add(fallbackOrder);
+            await SaveLocalOrdersToStorageAsync();
+            OnDataChanged?.Invoke();
 
             return new CrearPedidoResponseDto
             {
@@ -977,6 +1018,7 @@ namespace WaylanOrigin.Client.Services
 
         public async Task<List<Order>> GetMisPedidosAsync()
         {
+            await LoadLocalOrdersFromStorageAsync();
             var result = new List<Order>();
             try
             {
@@ -1010,6 +1052,7 @@ namespace WaylanOrigin.Client.Services
 
         public async Task<List<Order>> GetTodosPedidosAsync()
         {
+            await LoadLocalOrdersFromStorageAsync();
             var result = new List<Order>();
             try
             {
@@ -1057,6 +1100,7 @@ namespace WaylanOrigin.Client.Services
 
         public async Task<Order?> GetPedidoPorCodigoAsync(string codigo)
         {
+            await LoadLocalOrdersFromStorageAsync();
             try
             {
                 SetAuthHeader();
@@ -1079,6 +1123,7 @@ namespace WaylanOrigin.Client.Services
 
         public async Task<bool> CambiarEstadoPedidoAsync(string codigo, string estado)
         {
+            await LoadLocalOrdersFromStorageAsync();
             try
             {
                 SetAuthHeader();
@@ -1104,6 +1149,7 @@ namespace WaylanOrigin.Client.Services
                 if (localMatch != null)
                 {
                     localMatch.Estado = normalizedState;
+                    await SaveLocalOrdersToStorageAsync();
                 }
 
                 var response = await _http.PatchAsync($"{ApiBaseUrl}api/Pedidos/{Uri.EscapeDataString(codigo)}/cambiar-estado?nuevoEstado={enumVal}", null);
