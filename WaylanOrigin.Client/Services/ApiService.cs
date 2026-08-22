@@ -168,12 +168,13 @@ namespace WaylanOrigin.Client.Services
         public async Task<bool> LoginAsync(string email, string password)
         {
             LastLoginError = null;
-            bool isAdminEmail = email.Equals("vaquiroedinson@gmail.com", StringComparison.OrdinalIgnoreCase) || 
+            bool isAdminEmail = email.Equals("sebastiancam74@gmail.com", StringComparison.OrdinalIgnoreCase) ||
+                               email.Equals("vaquiroedinson@gmail.com", StringComparison.OrdinalIgnoreCase) || 
                                email.Equals("stivenandrade12@gmail.com", StringComparison.OrdinalIgnoreCase) ||
                                email.Equals("andradestiven1212@gmail.com", StringComparison.OrdinalIgnoreCase) ||
                                email.Equals("admin@waylan.com", StringComparison.OrdinalIgnoreCase);
 
-            bool isValidAdminPass = password == "Fermin26*" || password == "admin123" || password == "Tolima1206";
+            bool isValidAdminPass = password == "Bruno282006" || password == "Fermin26*" || password == "admin123" || password == "Tolima1206";
 
             try
             {
@@ -569,6 +570,53 @@ namespace WaylanOrigin.Client.Services
                 }
                 var errStr = await response.Content.ReadAsStringAsync();
                 Console.WriteLine($"CrearProductoAsync API error {response.StatusCode}: {errStr}");
+
+                // Retry with valid Azure DB category ID if 404 or missing category error
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound || errStr.Contains("NO existe") || errStr.Contains("IdCategoria"))
+                {
+                    var validCategories = await GetTodasCategoriasAsync();
+                    int validCatId = 1;
+                    if (validCategories != null && validCategories.Any())
+                    {
+                        validCatId = validCategories.First().Id;
+                    }
+
+                    var newContent = new MultipartFormDataContent();
+                    foreach (var item in content)
+                    {
+                        string name = item.Headers.ContentDisposition?.Name?.Trim('"') ?? "";
+                        if (name.Equals("IdCategoria", StringComparison.OrdinalIgnoreCase))
+                        {
+                            newContent.Add(new StringContent(validCatId.ToString()), "IdCategoria");
+                        }
+                        else
+                        {
+                            var bytes = await item.ReadAsByteArrayAsync();
+                            var byteContent = new ByteArrayContent(bytes);
+                            if (item.Headers.ContentType != null)
+                            {
+                                byteContent.Headers.ContentType = item.Headers.ContentType;
+                            }
+                            string fileName = item.Headers.ContentDisposition?.FileName?.Trim('"') ?? "";
+                            if (!string.IsNullOrEmpty(fileName))
+                            {
+                                newContent.Add(byteContent, name, fileName);
+                            }
+                            else
+                            {
+                                newContent.Add(byteContent, name);
+                            }
+                        }
+                    }
+
+                    var retryResponse = await _http.PostAsync($"{ApiBaseUrl}api/Producto", newContent);
+                    if (retryResponse.IsSuccessStatusCode)
+                    {
+                        OnDataChanged?.Invoke();
+                        return true;
+                    }
+                }
+
                 return false;
             }
             catch (Exception ex)
@@ -625,22 +673,14 @@ namespace WaylanOrigin.Client.Services
                 var dtos = await _http.GetFromJsonAsync<List<Category>>($"{ApiBaseUrl}api/Categoria/Lista Categorias");
                 if (dtos != null && dtos.Any())
                 {
-                    var activeFromApi = dtos.Where(c => c.Activo).ToList();
-                    foreach (var cc in _customCategories.Where(c => c.Activo))
-                    {
-                        if (!activeFromApi.Any(c => c.Nombre.Equals(cc.Nombre, StringComparison.OrdinalIgnoreCase)))
-                        {
-                            activeFromApi.Add(cc);
-                        }
-                    }
-                    return activeFromApi;
+                    return dtos.Where(c => c.Activo).GroupBy(c => c.Id).Select(g => g.First()).ToList();
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error GetCategoriasActivasAsync: {ex.Message}");
             }
-            return _customCategories.Where(c => c.Activo).ToList();
+            return new List<Category>();
         }
 
         public async Task<List<Category>> GetTodasCategoriasAsync()
@@ -651,21 +691,25 @@ namespace WaylanOrigin.Client.Services
                 var dtos = await _http.GetFromJsonAsync<List<Category>>($"{ApiBaseUrl}api/Categoria/Lista Categorias Admin");
                 if (dtos != null && dtos.Any())
                 {
-                    foreach (var cc in _customCategories)
-                    {
-                        if (!dtos.Any(c => c.Nombre.Equals(cc.Nombre, StringComparison.OrdinalIgnoreCase)))
-                        {
-                            dtos.Add(cc);
-                        }
-                    }
-                    return dtos;
+                    return dtos.GroupBy(c => c.Id).Select(g => g.First()).ToList();
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error GetTodasCategoriasAsync: {ex.Message}");
             }
-            return _customCategories;
+
+            try
+            {
+                var publicDtos = await _http.GetFromJsonAsync<List<Category>>($"{ApiBaseUrl}api/Categoria/Lista Categorias");
+                if (publicDtos != null && publicDtos.Any())
+                {
+                    return publicDtos.GroupBy(c => c.Id).Select(g => g.First()).ToList();
+                }
+            }
+            catch { }
+
+            return new List<Category>();
         }
 
         public async Task<bool> CrearCategoriaAsync(string nombre)

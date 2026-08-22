@@ -649,11 +649,13 @@
             {
                 products = await ApiService.GetTodosProductosAsync();
                 availableNotes = await ApiService.GetNotasAsync();
-                categories = await ApiService.GetTodasCategoriasAsync(); // Needed for dropdown
+                var rawCats = await ApiService.GetTodasCategoriasAsync();
+                categories = rawCats.GroupBy(c => c.Id).Select(g => g.First()).ToList();
             }
             else if (activeTab == "categorias")
             {
-                categories = await ApiService.GetTodasCategoriasAsync();
+                var rawCats = await ApiService.GetTodasCategoriasAsync();
+                categories = rawCats.GroupBy(c => c.Id).Select(g => g.First()).ToList();
             }
             else if (activeTab == "pedidos")
             {
@@ -755,13 +757,20 @@
             return;
         }
 
+        int targetCatId = productFormIdCategoria;
+        if (!categories.Any(c => c.Id == targetCatId))
+        {
+            var matchedCat = categories.FirstOrDefault(c => c.Nombre.Equals(productFormFormato, StringComparison.OrdinalIgnoreCase));
+            targetCatId = matchedCat?.Id ?? (categories.FirstOrDefault()?.Id ?? 1);
+        }
+
         string descToSend = string.IsNullOrWhiteSpace(productFormDescripcion) 
             ? "Café de especialidad Waylan Origin con perfil de notas seleccionadas." 
             : productFormDescripcion;
 
         var content = new MultipartFormDataContent();
         content.Add(new StringContent(productFormNombre), "Nombre");
-        content.Add(new StringContent(productFormIdCategoria.ToString()), "IdCategoria");
+        content.Add(new StringContent(targetCatId.ToString()), "IdCategoria");
         content.Add(new StringContent(productFormTueste.ToString()), "tueste");
         content.Add(new StringContent(productFormTueste.ToString()), "Tueste");
         content.Add(new StringContent(productFormProceso.ToString()), "proceso");
