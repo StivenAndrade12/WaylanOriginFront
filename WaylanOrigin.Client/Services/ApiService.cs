@@ -868,15 +868,21 @@ namespace WaylanOrigin.Client.Services
             return true;
         }
 
-        private string FormatEstadoPago(string? estadoPago, string? estadoPedido)
+        private string FormatEstadoPago(string? estadoPago)
         {
-            if (!string.IsNullOrWhiteSpace(estadoPago) && (estadoPago.Equals("Aprobado", StringComparison.OrdinalIgnoreCase) || estadoPago.Equals("APPROVED", StringComparison.OrdinalIgnoreCase)))
+            if (string.IsNullOrWhiteSpace(estadoPago)) return "Pendiente";
+            if (estadoPago.Equals("Aprobado", StringComparison.OrdinalIgnoreCase) ||
+                estadoPago.Equals("APPROVED", StringComparison.OrdinalIgnoreCase) ||
+                estadoPago.Equals("Aprobada", StringComparison.OrdinalIgnoreCase) ||
+                estadoPago.Equals("Exitoso", StringComparison.OrdinalIgnoreCase))
             {
                 return "Aprobado";
             }
-            if (!string.IsNullOrWhiteSpace(estadoPedido) && !estadoPedido.Equals("Pendiente", StringComparison.OrdinalIgnoreCase))
+            if (estadoPago.Equals("Rechazado", StringComparison.OrdinalIgnoreCase) ||
+                estadoPago.Equals("DECLINED", StringComparison.OrdinalIgnoreCase) ||
+                estadoPago.Equals("ERROR", StringComparison.OrdinalIgnoreCase))
             {
-                return "Aprobado";
+                return "Rechazado";
             }
             return "Pendiente";
         }
@@ -894,7 +900,7 @@ namespace WaylanOrigin.Client.Services
                 EmailCliente = dto.EmailUsuario ?? string.Empty,
                 Total = (double)dto.Total,
                 Estado = fmtEstado,
-                EstadoPago = FormatEstadoPago(dto.EstadoPago, fmtEstado),
+                EstadoPago = FormatEstadoPago(dto.EstadoPago),
                 Fecha = dto.FechaPedido,
                 Detalles = dto.DetallesAdmin?.Select(d => new OrderDetail
                 {
@@ -924,7 +930,7 @@ namespace WaylanOrigin.Client.Services
                 EmailCliente = CurrentUser?.Email ?? string.Empty,
                 Total = (double)dto.Total,
                 Estado = fmtEstado,
-                EstadoPago = FormatEstadoPago(dto.EstadoPago, fmtEstado),
+                EstadoPago = FormatEstadoPago(dto.EstadoPago),
                 Fecha = dto.FechaPedido,
                 Detalles = dto.Detalles?.Select(d => new OrderDetail
                 {
@@ -1135,11 +1141,6 @@ namespace WaylanOrigin.Client.Services
                         result.Add(lo);
                     }
                 }
-                else
-                {
-                    if (!string.IsNullOrEmpty(lo.Estado)) existing.Estado = lo.Estado;
-                    if (!string.IsNullOrEmpty(lo.EstadoPago)) existing.EstadoPago = lo.EstadoPago;
-                }
             }
 
             return result.GroupBy(o => o.Codigo, StringComparer.OrdinalIgnoreCase)
@@ -1172,11 +1173,6 @@ namespace WaylanOrigin.Client.Services
                 if (existing == null)
                 {
                     result.Add(lo);
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(lo.Estado)) existing.Estado = lo.Estado;
-                    if (!string.IsNullOrEmpty(lo.EstadoPago)) existing.EstadoPago = lo.EstadoPago;
                 }
             }
 
