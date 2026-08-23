@@ -1057,20 +1057,11 @@ namespace WaylanOrigin.Client.Services
                     Console.WriteLine($"Error calling Pagos/webhook: {ex.Message}");
                 }
 
-                try
-                {
-                    await _http.PatchAsync($"{ApiBaseUrl}api/Pedidos/{Uri.EscapeDataString(codigoSeguimiento)}/cambiar-estado?nuevoEstado=1", null);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error patching order state: {ex.Message}");
-                }
-
                 await LoadLocalOrdersFromStorageAsync();
                 var localMatch = _savedLocalOrders.FirstOrDefault(o => o.Codigo.Equals(codigoSeguimiento, StringComparison.OrdinalIgnoreCase));
                 if (localMatch != null)
                 {
-                    localMatch.Estado = "EnPreparacion";
+                    if (string.IsNullOrEmpty(localMatch.Estado)) localMatch.Estado = "Pendiente";
                     localMatch.EstadoPago = "Aprobado";
                 }
                 else
@@ -1081,7 +1072,7 @@ namespace WaylanOrigin.Client.Services
                         Codigo = codigoSeguimiento,
                         NombreUsuario = CurrentUser?.Nombre ?? "Cliente",
                         EmailCliente = CurrentUser?.Email ?? string.Empty,
-                        Estado = "EnPreparacion",
+                        Estado = "Pendiente",
                         EstadoPago = "Aprobado",
                         Fecha = DateTime.UtcNow
                     });

@@ -342,6 +342,31 @@
                                     </div>
                                 }
 
+                                <div class="admin-filter-bar">
+                                    <div class="search-input-wrapper">
+                                        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="11" cy="11" r="8"></circle>
+                                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                        </svg>
+                                        <input type="text" @bind="searchOrdersQuery" @bind:event="oninput" placeholder="Buscar por Código, Nombre de usuario o Email..." class="admin-search-input" />
+                                        @if (!string.IsNullOrEmpty(searchOrdersQuery))
+                                        {
+                                            <button class="btn-clear-search" @onclick='() => searchOrdersQuery = ""'>×</button>
+                                        }
+                                    </div>
+                                    <div class="filter-dropdown-wrapper">
+                                        <label>Estado:</label>
+                                        <select @bind="filterOrderStatus" class="admin-filter-select">
+                                            <option value="Todos">Todos los Estados</option>
+                                            <option value="Pendiente">Pendiente</option>
+                                            <option value="EnPreparacion">En Preparación</option>
+                                            <option value="EnTransito">En Tránsito</option>
+                                            <option value="EnReparto">En Reparto</option>
+                                            <option value="Entregado">Entregado</option>
+                                        </select>
+                                    </div>
+                                </div>
+
                                 <div class="table-container">
                                     <table class="admin-table">
                                         <thead>
@@ -413,7 +438,7 @@
                                     </div>
                                     <div class="admin-pagination-bar">
                                         <div class="pagination-info">
-                                            <span>Mostrando <strong>@StartItemOrders - @EndItemOrders</strong> de <strong>@orders.Count</strong> registros</span>
+                                            <span>Mostrando <strong>@StartItemOrders - @EndItemOrders</strong> de <strong>@FilteredOrders.Count</strong> registros</span>
                                             <span class="pagination-divider-v">|</span>
                                             <span>Página <strong>@currentPageOrders</strong> de <strong>@TotalPagesOrders</strong></span>
                                         </div>
@@ -448,6 +473,28 @@
                                 <!-- TAB 4: USER CONTROL -->
                                 <div class="panel-section">
                                     <h2>Usuarios Registrados</h2>
+
+                                    <div class="admin-filter-bar">
+                                        <div class="search-input-wrapper">
+                                            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <circle cx="11" cy="11" r="8"></circle>
+                                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                            </svg>
+                                            <input type="text" @bind="searchUsersQuery" @bind:event="oninput" placeholder="Buscar usuario por Nombre, Email o Rol..." class="admin-search-input" />
+                                            @if (!string.IsNullOrEmpty(searchUsersQuery))
+                                            {
+                                                <button class="btn-clear-search" @onclick='() => searchUsersQuery = ""'>×</button>
+                                            }
+                                        </div>
+                                        <div class="filter-dropdown-wrapper">
+                                            <label>Rol:</label>
+                                            <select @bind="filterUserRole" class="admin-filter-select">
+                                                <option value="Todos">Todos los Roles</option>
+                                                <option value="Admin">Administrador</option>
+                                                <option value="Cliente">Cliente</option>
+                                            </select>
+                                        </div>
+                                    </div>
 
                                     <div class="table-container">
                                         <table class="admin-table">
@@ -495,7 +542,7 @@
                                     </div>
                                     <div class="admin-pagination-bar">
                                         <div class="pagination-info">
-                                            <span>Mostrando <strong>@StartItemUsers - @EndItemUsers</strong> de <strong>@users.Count</strong> registros</span>
+                                            <span>Mostrando <strong>@StartItemUsers - @EndItemUsers</strong> de <strong>@FilteredUsers.Count</strong> registros</span>
                                             <span class="pagination-divider-v">|</span>
                                             <span>Página <strong>@currentPageUsers</strong> de <strong>@TotalPagesUsers</strong></span>
                                         </div>
@@ -767,11 +814,41 @@
         }
     }
 
+    // --- SEARCH AND FILTER STATE ---
+    private string searchOrdersQuery = "";
+    private string filterOrderStatus = "Todos";
+
+    private string searchUsersQuery = "";
+    private string filterUserRole = "Todos";
+
+    // --- COMPUTED FILTERED AND PAGINATED LISTS ---
+    private List<Order> FilteredOrders
+    {
+        get
+        {
+            var query = orders.AsEnumerable();
+            if (!string.IsNullOrWhiteSpace(searchOrdersQuery))
+            {
+                var q = searchOrdersQuery.Trim();
+                query = query.Where(o =>
+                    o.Codigo.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                    o.NombreUsuario.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                    o.EmailCliente.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                    o.Direccion.Contains(q, StringComparison.OrdinalIgnoreCase));
+            }
+            if (!string.IsNullOrWhiteSpace(filterOrderStatus) && filterOrderStatus != "Todos")
+            {
+                query = query.Where(o => o.Estado.Equals(filterOrderStatus, StringComparison.OrdinalIgnoreCase));
+            }
+            return query.ToList();
+        }
+    }
+
     private IEnumerable<Order> PaginatedOrders =>
-        orders.Skip((currentPageOrders - 1) * pageSizeOrders).Take(pageSizeOrders);
-    private int TotalPagesOrders => (int)Math.Ceiling((double)Math.Max(1, orders.Count) / pageSizeOrders);
-    private int StartItemOrders => orders.Any() ? ((currentPageOrders - 1) * pageSizeOrders) + 1 : 0;
-    private int EndItemOrders => Math.Min(currentPageOrders * pageSizeOrders, orders.Count);
+        FilteredOrders.Skip((currentPageOrders - 1) * pageSizeOrders).Take(pageSizeOrders);
+    private int TotalPagesOrders => (int)Math.Ceiling((double)Math.Max(1, FilteredOrders.Count) / pageSizeOrders);
+    private int StartItemOrders => FilteredOrders.Any() ? ((currentPageOrders - 1) * pageSizeOrders) + 1 : 0;
+    private int EndItemOrders => Math.Min(currentPageOrders * pageSizeOrders, FilteredOrders.Count);
 
     private void GoToPageOrders(int page)
     {
@@ -786,11 +863,32 @@
         }
     }
 
+    private List<User> FilteredUsers
+    {
+        get
+        {
+            var query = users.AsEnumerable();
+            if (!string.IsNullOrWhiteSpace(searchUsersQuery))
+            {
+                var q = searchUsersQuery.Trim();
+                query = query.Where(u =>
+                    u.Nombre.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                    u.Email.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                    u.Rol.Contains(q, StringComparison.OrdinalIgnoreCase));
+            }
+            if (!string.IsNullOrWhiteSpace(filterUserRole) && filterUserRole != "Todos")
+            {
+                query = query.Where(u => u.Rol.Equals(filterUserRole, StringComparison.OrdinalIgnoreCase));
+            }
+            return query.ToList();
+        }
+    }
+
     private IEnumerable<User> PaginatedUsers =>
-        users.Skip((currentPageUsers - 1) * pageSizeUsers).Take(pageSizeUsers);
-    private int TotalPagesUsers => (int)Math.Ceiling((double)Math.Max(1, users.Count) / pageSizeUsers);
-    private int StartItemUsers => users.Any() ? ((currentPageUsers - 1) * pageSizeUsers) + 1 : 0;
-    private int EndItemUsers => Math.Min(currentPageUsers * pageSizeUsers, users.Count);
+        FilteredUsers.Skip((currentPageUsers - 1) * pageSizeUsers).Take(pageSizeUsers);
+    private int TotalPagesUsers => (int)Math.Ceiling((double)Math.Max(1, FilteredUsers.Count) / pageSizeUsers);
+    private int StartItemUsers => FilteredUsers.Any() ? ((currentPageUsers - 1) * pageSizeUsers) + 1 : 0;
+    private int EndItemUsers => Math.Min(currentPageUsers * pageSizeUsers, FilteredUsers.Count);
 
     private void GoToPageUsers(int page)
     {
@@ -1944,5 +2042,86 @@ StringComparison.OrdinalIgnoreCase));
         opacity: 0.4;
         cursor: not-allowed;
         background-color: #FAF6F0;
+    }
+
+    /* SEARCH AND FILTER BAR STYLES */
+    .admin-filter-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        gap: 15px;
+        flex-wrap: wrap;
+        background-color: #FAF6F0;
+        padding: 12px 18px;
+        border-radius: 8px;
+        border: 1px solid #E2DBD3;
+    }
+
+    .search-input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        flex: 1;
+        min-width: 250px;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 12px;
+        color: #706B64;
+        pointer-events: none;
+    }
+
+    .admin-search-input {
+        width: 100%;
+        padding: 9px 36px 9px 36px;
+        font-size: 0.85rem;
+        border: 1px solid #D2CFC9;
+        border-radius: 6px;
+        outline: none;
+        background-color: #FFFFFF;
+        color: #2F190E;
+        transition: border-color 0.2s;
+    }
+
+    .admin-search-input:focus {
+        border-color: #B89A5E;
+    }
+
+    .btn-clear-search {
+        position: absolute;
+        right: 10px;
+        background: none;
+        border: none;
+        font-size: 1.1rem;
+        color: #706B64;
+        cursor: pointer;
+        line-height: 1;
+    }
+
+    .btn-clear-search:hover {
+        color: #1A100A;
+    }
+
+    .filter-dropdown-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #55443B;
+    }
+
+    .admin-filter-select {
+        padding: 8px 12px;
+        font-size: 0.82rem;
+        border: 1px solid #D2CFC9;
+        border-radius: 6px;
+        background-color: #FFFFFF;
+        color: #2F190E;
+        font-weight: 600;
+        outline: none;
+        cursor: pointer;
     }
 </style>
