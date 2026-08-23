@@ -33,7 +33,7 @@ namespace WaylanOrigin.Client.Services
         public User? CurrentUser { get; private set; }
         public bool IsLoggedIn => !string.IsNullOrEmpty(Token);
         public bool IsAdmin => IsLoggedIn && CurrentUser != null &&
-            CurrentUser.Email.Equals("sebastiancam74@gmail.com", StringComparison.OrdinalIgnoreCase);
+            (CurrentUser.Rol == "Admin" || CurrentUser.Email.Equals("sebastiancam74@gmail.com", StringComparison.OrdinalIgnoreCase));
         public string WompiPublicKey { get; set; } = "pub_test_W563zt7LZtn9qNMfSfZMSlY9ODRuw6bb";
         public string? LastLoginError { get; set; }
 
@@ -161,7 +161,7 @@ namespace WaylanOrigin.Client.Services
                 if (!string.IsNullOrEmpty(storedToken))
                 {
                     Token = storedToken;
-                    bool isAdminStored = !string.IsNullOrEmpty(storedEmail) && storedEmail.Equals("sebastiancam74@gmail.com", StringComparison.OrdinalIgnoreCase);
+                    bool isAdminStored = (!string.IsNullOrEmpty(storedEmail) && storedEmail.Equals("sebastiancam74@gmail.com", StringComparison.OrdinalIgnoreCase)) || string.Equals(storedRol, "Admin", StringComparison.OrdinalIgnoreCase);
 
                     CurrentUser = new User
                     {
@@ -182,10 +182,14 @@ namespace WaylanOrigin.Client.Services
                                 return;
                             }
 
+                            bool isBackendAdmin = string.Equals(profile.GetEffectiveRol(), "Admin", StringComparison.OrdinalIgnoreCase) ||
+                                                   string.Equals(profile.RolNombre, "Admin", StringComparison.OrdinalIgnoreCase) ||
+                                                   string.Equals(profile.Rol, "Admin", StringComparison.OrdinalIgnoreCase);
+
                             CurrentUser.Id = profile.Id;
                             CurrentUser.Email = profile.Email ?? CurrentUser.Email;
                             CurrentUser.Nombre = string.IsNullOrWhiteSpace(profile.Nombre) ? CurrentUser.Nombre : profile.Nombre;
-                            CurrentUser.Rol = isAdminStored ? "Admin" : "Cliente";
+                            CurrentUser.Rol = (isAdminStored || isBackendAdmin) ? "Admin" : "Cliente";
                             CurrentUser.Activo = profile.Activo;
                         }
                     }
@@ -308,12 +312,16 @@ namespace WaylanOrigin.Client.Services
                                     return false;
                                 }
 
+                                bool isBackendAdmin = string.Equals(profile.GetEffectiveRol(), "Admin", StringComparison.OrdinalIgnoreCase) ||
+                                                       string.Equals(profile.RolNombre, "Admin", StringComparison.OrdinalIgnoreCase) ||
+                                                       string.Equals(profile.Rol, "Admin", StringComparison.OrdinalIgnoreCase);
+
                                 CurrentUser = new User
                                 {
                                     Id = profile.Id,
                                     Email = profile.Email ?? email,
-                                    Nombre = string.IsNullOrWhiteSpace(profile.Nombre) ? (isAdminEmail ? "Administrador Principal" : "Usuario Activo") : profile.Nombre,
-                                    Rol = isAdminEmail ? "Admin" : "Cliente",
+                                    Nombre = string.IsNullOrWhiteSpace(profile.Nombre) ? (isAdminEmail || isBackendAdmin ? "Administrador Principal" : "Usuario Activo") : profile.Nombre,
+                                    Rol = (isAdminEmail || isBackendAdmin) ? "Admin" : "Cliente",
                                     Activo = profile.Activo
                                 };
                             }
@@ -336,8 +344,9 @@ namespace WaylanOrigin.Client.Services
                 else
                 {
                     var errorText = await response.Content.ReadAsStringAsync();
+                    string lowerErr = (errorText ?? "").ToLowerInvariant();
 
-                    if (isAdminEmail && isValidAdminPass && (errorText.Contains("Tu cuenta aun no ha sido activada") || errorText.Contains("no ha sido activada")))
+                    if (isAdminEmail && isValidAdminPass && (lowerErr.Contains("tu cuenta aun no ha sido activada") || lowerErr.Contains("no ha sido activada")))
                     {
                         Token = "AZURE-ADMIN-SESSION";
                         CurrentUser = new User
@@ -354,20 +363,39 @@ namespace WaylanOrigin.Client.Services
                         return true;
                     }
 
-                    if (!string.IsNullOrWhiteSpace(errorText))
+                    if (response.StatusCode == System.Net.HttpStatusCode.NotFound ||
+                        lowerErr.Contains("no existe") || lowerErr.Contains("no encontrado") ||
+                        lowerErr.Contains("not found") || lowerErr.Contains("no registrado") ||
+                        lowerErr.Contains("usuario no existe"))
                     {
-                        if (errorText.Contains("Tu cuenta aun no ha sido activada") || errorText.Contains("no ha sido activada"))
+                        LastLoginError = "Este correo electrónico no está registrado. Por favor, crea una cuenta primero para poder ingresar.";
+                    }
+                    else if (lowerErr.Contains("tu cuenta aun no ha sido activada") || lowerErr.Contains("no ha sido activada"))
+                    {
+                        LastLoginError = "Tu cuenta aún no ha sido activada.";
+                    }
+                    else if (lowerErr.Contains("desactivada") || lowerErr.Contains("deshabilitada") || lowerErr.Contains("inactiva"))
+                    {
+                        LastLoginError = "Esta cuenta ha sido desactivada por el administrador. Comunícate con soporte para más información.";
+                    }
+                    else if (lowerErr.Contains("contraseña") || lowerErr.Contains("password") || lowerErr.Contains("incorrect"))
+                    {
+                        LastLoginError = "La contraseña ingresada es incorrecta. Por favor, verifícala e inténtalo de nuevo.";
+                    }
+                    else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest || response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    {
+                        if (lowerErr.Contains("usuario") || lowerErr.Contains("user"))
                         {
-                            LastLoginError = "Tu cuenta aun no ha sido activada.";
+                            LastLoginError = "Este correo electrónico no está registrado. Por favor, crea una cuenta primero para poder ingresar.";
                         }
                         else
                         {
-                            LastLoginError = errorText.Trim('"');
+                            LastLoginError = "El correo electrónico o la contraseña son incorrectos. Si aún no tienes cuenta, te invitamos a registrarte.";
                         }
                     }
                     else
                     {
-                        LastLoginError = "Correo o contraseña incorrectos.";
+                        LastLoginError = "No se pudo iniciar sesión. Por favor, verifica tus datos o crea una cuenta si eres un usuario nuevo.";
                     }
                 }
             }
@@ -383,7 +411,8 @@ namespace WaylanOrigin.Client.Services
                     OnAuthStateChanged?.Invoke();
                     return true;
                 }
-                LastLoginError = ex.Message;
+                Console.WriteLine($"Login Exception: {ex.Message}");
+                LastLoginError = "No se pudo conectar con el servidor. Verifica tu conexión a internet e inténtalo de nuevo.";
             }
 
             Token = null;
