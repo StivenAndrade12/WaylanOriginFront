@@ -581,6 +581,8 @@
     height: 100%;
     background-color: #120C08;
     z-index: 2;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.4) 12%, black 35%);
+    mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.4) 12%, black 35%);
 }
 
 .historias-right-bg-side::before {
@@ -732,12 +734,11 @@
     }
 
     .historias-left-side {
-        background-image: url('imagenes/camp.png');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
+        background-color: #F2E6D8;
+        background-image: url('textura-papel.png');
+        background-repeat: repeat;
         position: relative;
-        padding: 45px 20px !important;
+        padding: 50px 24px !important;
     }
 
     .historias-left-side::after {
@@ -746,12 +747,22 @@
 
     .historias-content-wrapper {
         align-items: center;
+        text-align: center;
+    }
+
+    .historias-heading {
+        font-size: 2.2rem;
+        text-align: center;
+    }
+
+    .historias-text {
+        text-align: center;
     }
 
     .historias-bullets-row {
         flex-direction: column !important;
         align-items: center;
-        gap: 30px;
+        gap: 25px;
     }
 
     .bullet-item-horizontal {
@@ -760,10 +771,10 @@
     }
 
     .historias-right-bg-side {
-        height: 380px;
-        /* Se adapta el desvanecido en móviles para que vaya de arriba a abajo en bloque apilado */
-        -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.4) 12%, black 35%);
-        mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.4) 12%, black 35%);
+        height: 340px;
+        min-height: 280px;
+        -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.4) 12%, black 35%) !important;
+        mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.4) 12%, black 35%) !important;
     }
 
     .proceso-intro-text {
