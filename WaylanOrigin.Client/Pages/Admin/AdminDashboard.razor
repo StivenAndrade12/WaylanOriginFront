@@ -1286,7 +1286,7 @@ StringComparison.OrdinalIgnoreCase));
         bool nextState = !u.Activo;
         u.Activo = nextState;
         StateHasChanged();
-        await ApiService.CambiarEstadoUsuarioAsync(u.Id, nextState);
+        await ApiService.CambiarEstadoUsuarioAsync(u.Id, nextState, u.Email);
         await LoadActiveTabData();
         StateHasChanged();
     }

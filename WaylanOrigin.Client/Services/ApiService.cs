@@ -32,7 +32,8 @@ namespace WaylanOrigin.Client.Services
         public string? Token { get; private set; }
         public User? CurrentUser { get; private set; }
         public bool IsLoggedIn => !string.IsNullOrEmpty(Token);
-        public bool IsAdmin => IsLoggedIn && CurrentUser?.Rol == "Admin";
+        public bool IsAdmin => IsLoggedIn && CurrentUser != null &&
+            CurrentUser.Email.Equals("sebastiancam74@gmail.com", StringComparison.OrdinalIgnoreCase);
         public string WompiPublicKey { get; set; } = "pub_test_W563zt7LZtn9qNMfSfZMSlY9ODRuw6bb";
         public string? LastLoginError { get; set; }
 
@@ -40,6 +41,8 @@ namespace WaylanOrigin.Client.Services
         public event Action? OnDataChanged;
 
         private static readonly List<Order> _savedLocalOrders = new();
+        private static readonly HashSet<string> _deactivatedEmails = new(StringComparer.OrdinalIgnoreCase);
+        private readonly CartState _cartState;
 
         private static readonly List<Product> _customProducts = new();
 
@@ -65,10 +68,38 @@ namespace WaylanOrigin.Client.Services
             new Note { Id = 10, Nombre = "Floral" }
         };
 
-        public ApiService(HttpClient http, IJSRuntime js)
+        public ApiService(HttpClient http, IJSRuntime js, CartState cartState)
         {
             _http = http;
             _js = js;
+            _cartState = cartState;
+        }
+
+        private async Task LoadDeactivatedUsersAsync()
+        {
+            try
+            {
+                var json = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_deactivated_users");
+                if (!string.IsNullOrEmpty(json))
+                {
+                    var list = System.Text.Json.JsonSerializer.Deserialize<List<string>>(json);
+                    if (list != null)
+                    {
+                        foreach (var e in list) _deactivatedEmails.Add(e);
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private async Task SaveDeactivatedUsersAsync()
+        {
+            try
+            {
+                var json = System.Text.Json.JsonSerializer.Serialize(_deactivatedEmails.ToList());
+                await _js.InvokeVoidAsync("localStorage.setItem", "waylan_deactivated_users", json);
+            }
+            catch { }
         }
 
         private async Task SaveLocalOrdersToStorageAsync()
@@ -114,20 +145,29 @@ namespace WaylanOrigin.Client.Services
             try
             {
                 await LoadLocalOrdersFromStorageAsync();
+                await LoadDeactivatedUsersAsync();
 
                 var storedToken = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_token");
                 var storedEmail = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_user_email");
                 var storedNombre = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_user_nombre");
                 var storedRol = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_user_rol");
 
+                if (!string.IsNullOrEmpty(storedEmail) && _deactivatedEmails.Contains(storedEmail))
+                {
+                    await LogoutAsync();
+                    return;
+                }
+
                 if (!string.IsNullOrEmpty(storedToken))
                 {
                     Token = storedToken;
+                    bool isAdminStored = !string.IsNullOrEmpty(storedEmail) && storedEmail.Equals("sebastiancam74@gmail.com", StringComparison.OrdinalIgnoreCase);
+
                     CurrentUser = new User
                     {
                         Email = storedEmail ?? "usuario@correo.com",
                         Nombre = storedNombre ?? "Usuario",
-                        Rol = storedRol ?? "Cliente"
+                        Rol = isAdminStored ? "Admin" : "Cliente"
                     };
                     SetAuthHeader();
 
@@ -136,10 +176,16 @@ namespace WaylanOrigin.Client.Services
                         var profile = await _http.GetFromJsonAsync<UsuarioReadDto>($"{ApiBaseUrl}api/Usuarios/Perfil");
                         if (profile != null)
                         {
+                            if (!profile.Activo || _deactivatedEmails.Contains(profile.Email ?? ""))
+                            {
+                                await LogoutAsync();
+                                return;
+                            }
+
                             CurrentUser.Id = profile.Id;
                             CurrentUser.Email = profile.Email ?? CurrentUser.Email;
                             CurrentUser.Nombre = string.IsNullOrWhiteSpace(profile.Nombre) ? CurrentUser.Nombre : profile.Nombre;
-                            CurrentUser.Rol = profile.GetEffectiveRol();
+                            CurrentUser.Rol = isAdminStored ? "Admin" : "Cliente";
                             CurrentUser.Activo = profile.Activo;
                         }
                     }
@@ -147,7 +193,12 @@ namespace WaylanOrigin.Client.Services
                     {
                     }
 
+                    await _cartState.InitializeCartForUserAsync(_js, CurrentUser?.Email);
                     OnAuthStateChanged?.Invoke();
+                }
+                else
+                {
+                    await _cartState.InitializeCartForUserAsync(_js, "guest");
                 }
             }
             catch
@@ -207,17 +258,22 @@ namespace WaylanOrigin.Client.Services
         public async Task<bool> LoginAsync(string email, string password)
         {
             LastLoginError = null;
-            bool isAdminEmail = email.Equals("sebastiancam74@gmail.com", StringComparison.OrdinalIgnoreCase) ||
-                               email.Equals("vaquiroedinson@gmail.com", StringComparison.OrdinalIgnoreCase) ||
-                               email.Equals("stivenandrade12@gmail.com", StringComparison.OrdinalIgnoreCase) ||
-                               email.Equals("andradestiven1212@gmail.com", StringComparison.OrdinalIgnoreCase) ||
-                               email.Equals("admin@waylan.com", StringComparison.OrdinalIgnoreCase);
+            await LoadDeactivatedUsersAsync();
 
-            bool isValidAdminPass = password == "Bruno282006" || password == "Fermin26*" || password == "admin123" || password == "Tolima1206";
+            if (_deactivatedEmails.Contains(email))
+            {
+                LastLoginError = "Esta cuenta ha sido desactivada por el administrador. Comunícate con soporte para más información.";
+                Token = null;
+                CurrentUser = null;
+                SetAuthHeader();
+                return false;
+            }
+
+            bool isAdminEmail = email.Equals("sebastiancam74@gmail.com", StringComparison.OrdinalIgnoreCase);
+            bool isValidAdminPass = password == "Bruno282006";
 
             try
             {
-                // Matches AuthController [HttpPost("Login")] expecting UsuarioLoginRequestDto { Email, Password }
                 var response = await _http.PostAsJsonAsync($"{ApiBaseUrl}api/Auth/Login", new { Email = email, Password = password });
                 if (response.IsSuccessStatusCode)
                 {
@@ -238,32 +294,41 @@ namespace WaylanOrigin.Client.Services
                         Token = extractedToken;
                         SetAuthHeader();
 
-                        // Fetch real user profile from Azure backend
                         try
                         {
                             var profile = await _http.GetFromJsonAsync<UsuarioReadDto>($"{ApiBaseUrl}api/Usuarios/Perfil");
                             if (profile != null)
                             {
+                                if (!profile.Activo || _deactivatedEmails.Contains(profile.Email ?? ""))
+                                {
+                                    LastLoginError = "Esta cuenta ha sido desactivada por el administrador. Comunícate con soporte para más información.";
+                                    Token = null;
+                                    CurrentUser = null;
+                                    SetAuthHeader();
+                                    return false;
+                                }
+
                                 CurrentUser = new User
                                 {
                                     Id = profile.Id,
                                     Email = profile.Email ?? email,
                                     Nombre = string.IsNullOrWhiteSpace(profile.Nombre) ? (isAdminEmail ? "Administrador Principal" : "Usuario Activo") : profile.Nombre,
-                                    Rol = (isAdminEmail || profile.GetEffectiveRol() == "Admin") ? "Admin" : profile.GetEffectiveRol(),
+                                    Rol = isAdminEmail ? "Admin" : "Cliente",
                                     Activo = profile.Activo
                                 };
                             }
                             else
                             {
-                                CurrentUser = new User { Email = email, Nombre = isAdminEmail ? "Administrador Principal" : "Usuario Activo", Rol = isAdminEmail ? "Admin" : "Cliente" };
+                                CurrentUser = new User { Email = email, Nombre = isAdminEmail ? "Administrador Principal" : "Usuario Activo", Rol = isAdminEmail ? "Admin" : "Cliente", Activo = true };
                             }
                         }
                         catch
                         {
-                            CurrentUser = new User { Email = email, Nombre = isAdminEmail ? "Administrador Principal" : "Usuario Activo", Rol = isAdminEmail ? "Admin" : "Cliente" };
+                            CurrentUser = new User { Email = email, Nombre = isAdminEmail ? "Administrador Principal" : "Usuario Activo", Rol = isAdminEmail ? "Admin" : "Cliente", Activo = true };
                         }
 
                         await PersistAuthAsync();
+                        await _cartState.InitializeCartForUserAsync(_js, CurrentUser?.Email);
                         OnAuthStateChanged?.Invoke();
                         return true;
                     }
@@ -272,19 +337,19 @@ namespace WaylanOrigin.Client.Services
                 {
                     var errorText = await response.Content.ReadAsStringAsync();
 
-                    // If account is registered in Azure SQL DB but inactive (user.Activo == false in DB)
                     if (isAdminEmail && isValidAdminPass && (errorText.Contains("Tu cuenta aun no ha sido activada") || errorText.Contains("no ha sido activada")))
                     {
                         Token = "AZURE-ADMIN-SESSION";
                         CurrentUser = new User
                         {
                             Email = email,
-                            Nombre = email.StartsWith("stiven", StringComparison.OrdinalIgnoreCase) ? "Stiven Andrade (Admin)" : "Edinson Vaquiro (Admin)",
+                            Nombre = "Sebastian (Admin)",
                             Rol = "Admin",
                             Activo = true
                         };
                         SetAuthHeader();
                         await PersistAuthAsync();
+                        await _cartState.InitializeCartForUserAsync(_js, CurrentUser?.Email);
                         OnAuthStateChanged?.Invoke();
                         return true;
                     }
@@ -314,6 +379,7 @@ namespace WaylanOrigin.Client.Services
                     CurrentUser = new User { Email = email, Nombre = "Administrador Principal", Rol = "Admin", Activo = true };
                     SetAuthHeader();
                     await PersistAuthAsync();
+                    await _cartState.InitializeCartForUserAsync(_js, CurrentUser?.Email);
                     OnAuthStateChanged?.Invoke();
                     return true;
                 }
@@ -328,16 +394,18 @@ namespace WaylanOrigin.Client.Services
 
         public async Task LogoutAsync()
         {
-            Token = null;
-            CurrentUser = null;
-            SetAuthHeader();
-            await ClearPersistedAuthAsync();
-            OnAuthStateChanged?.Invoke();
+            Logout();
+            await Task.CompletedTask;
         }
 
         public void Logout()
         {
-            _ = LogoutAsync();
+            Token = null;
+            CurrentUser = null;
+            SetAuthHeader();
+            _ = ClearPersistedAuthAsync();
+            _ = _cartState.InitializeCartForUserAsync(_js, "guest");
+            OnAuthStateChanged?.Invoke();
         }
 
         public async Task<(bool Success, string Message)> RegistroAsync(string nombre, string email, string password)
@@ -1282,11 +1350,18 @@ namespace WaylanOrigin.Client.Services
             return new List<User>();
         }
 
-        public async Task<bool> CambiarEstadoUsuarioAsync(int id, bool nuevoEstado)
+        public async Task<bool> CambiarEstadoUsuarioAsync(int id, bool nuevoEstado, string? userEmail = null)
         {
             try
             {
                 SetAuthHeader();
+                if (!string.IsNullOrEmpty(userEmail))
+                {
+                    if (!nuevoEstado) _deactivatedEmails.Add(userEmail);
+                    else _deactivatedEmails.Remove(userEmail);
+                    await SaveDeactivatedUsersAsync();
+                }
+
                 string queryBool = nuevoEstado.ToString().ToLowerInvariant();
                 var response = await _http.PatchAsync($"{ApiBaseUrl}api/Usuarios/{id}/cambiar-estado?nuevoEstado={queryBool}", null);
                 OnDataChanged?.Invoke();

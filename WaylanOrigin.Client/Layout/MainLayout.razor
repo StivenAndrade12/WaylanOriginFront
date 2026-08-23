@@ -452,6 +452,8 @@
         }
     }
 
+    private System.Threading.Timer? _inactivityTimer;
+
     protected override async Task OnInitializedAsync()
     {
         await ApiService.InitializeAuthAsync();
@@ -459,10 +461,32 @@
         CartState.OnCartRequested += OpenCart;
         ApiService.OnAuthStateChanged += StateHasChanged;
         NavigationManager.LocationChanged += OnLocationChanged;
+
+        _inactivityTimer = new System.Threading.Timer(async _ =>
+        {
+            if (ApiService.IsLoggedIn)
+            {
+                try
+                {
+                    double seconds = await JS.InvokeAsync<double>("getWaylanInactivitySeconds");
+                    if (seconds >= 1800) // 30 minutes of inactivity
+                    {
+                        await InvokeAsync(() =>
+                        {
+                            ApiService.Logout();
+                            StateHasChanged();
+                            NavigationManager.NavigateTo("auth");
+                        });
+                    }
+                }
+                catch { }
+            }
+        }, null, 15000, 15000);
     }
 
     public void Dispose()
     {
+        _inactivityTimer?.Dispose();
         CartState.OnChange -= StateHasChanged;
         CartState.OnCartRequested -= OpenCart;
         ApiService.OnAuthStateChanged -= StateHasChanged;

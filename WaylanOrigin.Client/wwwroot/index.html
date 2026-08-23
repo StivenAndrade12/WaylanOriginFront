@@ -149,6 +149,16 @@
     <script src="_framework/blazor.webassembly.js"></script>
     <script type="text/javascript" src="https://checkout.wompi.co/widget.js"></script>
     <script>
+        window.lastWaylanActivityTime = Date.now();
+        ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(function(evt) {
+            window.addEventListener(evt, function() {
+                window.lastWaylanActivityTime = Date.now();
+            }, { passive: true });
+        });
+        window.getWaylanInactivitySeconds = function() {
+            return Math.floor((Date.now() - (window.lastWaylanActivityTime || Date.now())) / 1000);
+        };
+
         window.abrirWidgetWompi = function (publicKey, reference, amountInCents, redirectUrl) {
             try {
                 var checkout = new WidgetCheckout({
