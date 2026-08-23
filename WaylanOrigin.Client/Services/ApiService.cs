@@ -1194,13 +1194,12 @@ namespace WaylanOrigin.Client.Services
 
         public async Task<List<Order>> GetMisPedidosAsync()
         {
-            await LoadLocalOrdersFromStorageAsync();
             var result = new List<Order>();
             try
             {
                 SetAuthHeader();
                 var dtos = await _http.GetFromJsonAsync<List<PedidoReadDto>>($"{ApiBaseUrl}api/Pedidos/Lista pedidos usuario");
-                if (dtos != null && dtos.Any())
+                if (dtos != null)
                 {
                     result = dtos.Select(MapToOrder).ToList();
                 }
@@ -1227,19 +1226,6 @@ namespace WaylanOrigin.Client.Services
             }
             catch { }
 
-            foreach (var lo in _savedLocalOrders)
-            {
-                var existing = result.FirstOrDefault(r => r.Codigo.Equals(lo.Codigo, StringComparison.OrdinalIgnoreCase));
-                if (existing == null)
-                {
-                    string curEmail = CurrentUser?.Email ?? "";
-                    if (string.IsNullOrEmpty(curEmail) || string.IsNullOrEmpty(lo.EmailCliente) || lo.EmailCliente.Equals(curEmail, StringComparison.OrdinalIgnoreCase))
-                    {
-                        result.Add(lo);
-                    }
-                }
-            }
-
             return result.GroupBy(o => o.Codigo, StringComparer.OrdinalIgnoreCase)
                          .Select(g => g.First())
                          .OrderByDescending(o => o.Fecha)
@@ -1248,28 +1234,28 @@ namespace WaylanOrigin.Client.Services
 
         public async Task<List<Order>> GetTodosPedidosAsync()
         {
-            await LoadLocalOrdersFromStorageAsync();
             var result = new List<Order>();
             try
             {
                 SetAuthHeader();
                 var dtos = await _http.GetFromJsonAsync<List<PedidoReadAdminDto>>($"{ApiBaseUrl}api/Pedidos/Lista pedidos Admin");
-                if (dtos != null && dtos.Any())
+                if (dtos != null)
                 {
                     result = dtos.Select(MapToOrder).ToList();
+                    _savedLocalOrders.RemoveAll(lo => !result.Any(r => r.Codigo.Equals(lo.Codigo, StringComparison.OrdinalIgnoreCase)));
+                    await SaveLocalOrdersToStorageAsync();
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error GetTodosPedidosAsync: {ex.Message}");
-            }
-
-            foreach (var lo in _savedLocalOrders)
-            {
-                var existing = result.FirstOrDefault(r => r.Codigo.Equals(lo.Codigo, StringComparison.OrdinalIgnoreCase));
-                if (existing == null)
+                await LoadLocalOrdersFromStorageAsync();
+                foreach (var lo in _savedLocalOrders)
                 {
-                    result.Add(lo);
+                    if (!result.Any(r => r.Codigo.Equals(lo.Codigo, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        result.Add(lo);
+                    }
                 }
             }
 
