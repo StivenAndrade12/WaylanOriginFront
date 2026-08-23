@@ -1,0 +1,6 @@
+# Waylan Origin - Robots.txt
+User-agent: *
+Allow: /
+Disallow: /admin
+
+Sitemap: https://waylan.co/sitemap.xml
