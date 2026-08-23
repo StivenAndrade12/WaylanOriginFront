@@ -137,7 +137,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var p in products)
+                                    @foreach (var p in PaginatedProducts)
                                     {
                                         <tr>
                                             <td><strong>#@p.Id</strong></td>
@@ -190,6 +190,36 @@
                                         </tbody>
                                     </table>
                                 </div>
+                                <div class="admin-pagination-bar">
+                                    <div class="pagination-info">
+                                        <span>Mostrando <strong>@StartItemProducts - @EndItemProducts</strong> de <strong>@products.Count</strong> registros</span>
+                                        <span class="pagination-divider-v">|</span>
+                                        <span>Página <strong>@currentPageProducts</strong> de <strong>@TotalPagesProducts</strong></span>
+                                    </div>
+                                    <div class="pagination-controls">
+                                        <div class="page-size-picker">
+                                            <span>Mostrar</span>
+                                            <select value="@pageSizeProducts" @onchange="OnPageSizeProductsChanged" class="select-page-size">
+                                                <option value="5">5</option>
+                                                <option value="10">10</option>
+                                                <option value="20">20</option>
+                                                <option value="50">50</option>
+                                            </select>
+                                        </div>
+                                        <div class="pagination-buttons">
+                                            <button class="btn-page-nav" disabled="@(currentPageProducts <= 1)" @onclick="() => GoToPageProducts(1)" title="Primera página">««</button>
+                                            <button class="btn-page-nav" disabled="@(currentPageProducts <= 1)" @onclick="() => GoToPageProducts(currentPageProducts - 1)" title="Página anterior">‹</button>
+                                            <select value="@currentPageProducts" @onchange='(e) => GoToPageProducts(int.Parse(e.Value?.ToString() ?? "1"))' class="select-page-number">
+                                                @for (int i = 1; i <= TotalPagesProducts; i++)
+                                                {
+                                                    <option value="@i">@i</option>
+                                                }
+                                            </select>
+                                            <button class="btn-page-nav" disabled="@(currentPageProducts >= TotalPagesProducts)" @onclick="() => GoToPageProducts(currentPageProducts + 1)" title="Página siguiente">›</button>
+                                            <button class="btn-page-nav" disabled="@(currentPageProducts >= TotalPagesProducts)" @onclick="() => GoToPageProducts(TotalPagesProducts)" title="Última página">»»</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         }
                 else if (activeTab == "categorias")
@@ -216,7 +246,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach (var c in categories)
+                                            @foreach (var c in PaginatedCategories)
                                             {
                                                 <tr>
                                                     <td><strong>#@c.Id</strong></td>
@@ -255,6 +285,36 @@
                                             }
                                         </tbody>
                                     </table>
+                                </div>
+                                <div class="admin-pagination-bar">
+                                    <div class="pagination-info">
+                                        <span>Mostrando <strong>@StartItemCategories - @EndItemCategories</strong> de <strong>@categories.Count</strong> registros</span>
+                                        <span class="pagination-divider-v">|</span>
+                                        <span>Página <strong>@currentPageCategories</strong> de <strong>@TotalPagesCategories</strong></span>
+                                    </div>
+                                    <div class="pagination-controls">
+                                        <div class="page-size-picker">
+                                            <span>Mostrar</span>
+                                            <select value="@pageSizeCategories" @onchange="OnPageSizeCategoriesChanged" class="select-page-size">
+                                                <option value="5">5</option>
+                                                <option value="10">10</option>
+                                                <option value="20">20</option>
+                                                <option value="50">50</option>
+                                            </select>
+                                        </div>
+                                        <div class="pagination-buttons">
+                                            <button class="btn-page-nav" disabled="@(currentPageCategories <= 1)" @onclick="() => GoToPageCategories(1)" title="Primera página">««</button>
+                                            <button class="btn-page-nav" disabled="@(currentPageCategories <= 1)" @onclick="() => GoToPageCategories(currentPageCategories - 1)" title="Página anterior">‹</button>
+                                            <select value="@currentPageCategories" @onchange='(e) => GoToPageCategories(int.Parse(e.Value?.ToString() ?? "1"))' class="select-page-number">
+                                                @for (int i = 1; i <= TotalPagesCategories; i++)
+                                                {
+                                                    <option value="@i">@i</option>
+                                                }
+                                            </select>
+                                            <button class="btn-page-nav" disabled="@(currentPageCategories >= TotalPagesCategories)" @onclick="() => GoToPageCategories(currentPageCategories + 1)" title="Página siguiente">›</button>
+                                            <button class="btn-page-nav" disabled="@(currentPageCategories >= TotalPagesCategories)" @onclick="() => GoToPageCategories(TotalPagesCategories)" title="Última página">»»</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         }
@@ -298,7 +358,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach (var o in orders)
+                                            @foreach (var o in PaginatedOrders)
                                             {
                                                 bool isPending = pendingOrderStateChanges.ContainsKey(o.Codigo);
                                                 string currentState = isPending ? pendingOrderStateChanges[o.Codigo] : o.Estado;
@@ -351,6 +411,36 @@
                                             </tbody>
                                         </table>
                                     </div>
+                                    <div class="admin-pagination-bar">
+                                        <div class="pagination-info">
+                                            <span>Mostrando <strong>@StartItemOrders - @EndItemOrders</strong> de <strong>@orders.Count</strong> registros</span>
+                                            <span class="pagination-divider-v">|</span>
+                                            <span>Página <strong>@currentPageOrders</strong> de <strong>@TotalPagesOrders</strong></span>
+                                        </div>
+                                        <div class="pagination-controls">
+                                            <div class="page-size-picker">
+                                                <span>Mostrar</span>
+                                                <select value="@pageSizeOrders" @onchange="OnPageSizeOrdersChanged" class="select-page-size">
+                                                    <option value="5">5</option>
+                                                    <option value="10">10</option>
+                                                    <option value="20">20</option>
+                                                    <option value="50">50</option>
+                                                </select>
+                                            </div>
+                                            <div class="pagination-buttons">
+                                                <button class="btn-page-nav" disabled="@(currentPageOrders <= 1)" @onclick="() => GoToPageOrders(1)" title="Primera página">««</button>
+                                                <button class="btn-page-nav" disabled="@(currentPageOrders <= 1)" @onclick="() => GoToPageOrders(currentPageOrders - 1)" title="Página anterior">‹</button>
+                                                <select value="@currentPageOrders" @onchange='(e) => GoToPageOrders(int.Parse(e.Value?.ToString() ?? "1"))' class="select-page-number">
+                                                    @for (int i = 1; i <= TotalPagesOrders; i++)
+                                                    {
+                                                        <option value="@i">@i</option>
+                                                    }
+                                                </select>
+                                                <button class="btn-page-nav" disabled="@(currentPageOrders >= TotalPagesOrders)" @onclick="() => GoToPageOrders(currentPageOrders + 1)" title="Página siguiente">›</button>
+                                                <button class="btn-page-nav" disabled="@(currentPageOrders >= TotalPagesOrders)" @onclick="() => GoToPageOrders(TotalPagesOrders)" title="Última página">»»</button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             }
                 else if (activeTab == "usuarios")
@@ -371,7 +461,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach (var u in users)
+                                                @foreach (var u in PaginatedUsers)
                                                 {
                                                     <tr>
                                                         <td>@u.Nombre</td>
@@ -402,6 +492,36 @@
                                                 }
                                             </tbody>
                                         </table>
+                                    </div>
+                                    <div class="admin-pagination-bar">
+                                        <div class="pagination-info">
+                                            <span>Mostrando <strong>@StartItemUsers - @EndItemUsers</strong> de <strong>@users.Count</strong> registros</span>
+                                            <span class="pagination-divider-v">|</span>
+                                            <span>Página <strong>@currentPageUsers</strong> de <strong>@TotalPagesUsers</strong></span>
+                                        </div>
+                                        <div class="pagination-controls">
+                                            <div class="page-size-picker">
+                                                <span>Mostrar</span>
+                                                <select value="@pageSizeUsers" @onchange="OnPageSizeUsersChanged" class="select-page-size">
+                                                    <option value="5">5</option>
+                                                    <option value="10">10</option>
+                                                    <option value="20">20</option>
+                                                    <option value="50">50</option>
+                                                </select>
+                                            </div>
+                                            <div class="pagination-buttons">
+                                                <button class="btn-page-nav" disabled="@(currentPageUsers <= 1)" @onclick="() => GoToPageUsers(1)" title="Primera página">««</button>
+                                                <button class="btn-page-nav" disabled="@(currentPageUsers <= 1)" @onclick="() => GoToPageUsers(currentPageUsers - 1)" title="Página anterior">‹</button>
+                                                <select value="@currentPageUsers" @onchange='(e) => GoToPageUsers(int.Parse(e.Value?.ToString() ?? "1"))' class="select-page-number">
+                                                    @for (int i = 1; i <= TotalPagesUsers; i++)
+                                                    {
+                                                        <option value="@i">@i</option>
+                                                    }
+                                                </select>
+                                                <button class="btn-page-nav" disabled="@(currentPageUsers >= TotalPagesUsers)" @onclick="() => GoToPageUsers(currentPageUsers + 1)" title="Página siguiente">›</button>
+                                                <button class="btn-page-nav" disabled="@(currentPageUsers >= TotalPagesUsers)" @onclick="() => GoToPageUsers(TotalPagesUsers)" title="Última página">»»</button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             }
@@ -594,6 +714,96 @@
     private List<Order> orders = new();
     private List<User> users = new();
     private List<Note> availableNotes = new();
+
+    // --- PAGINATION STATE ---
+    private int pageSizeProducts = 10;
+    private int currentPageProducts = 1;
+
+    private int pageSizeCategories = 10;
+    private int currentPageCategories = 1;
+
+    private int pageSizeOrders = 10;
+    private int currentPageOrders = 1;
+
+    private int pageSizeUsers = 10;
+    private int currentPageUsers = 1;
+
+    // --- COMPUTED PAGINATED LISTS ---
+    private IEnumerable<Product> PaginatedProducts =>
+        products.Skip((currentPageProducts - 1) * pageSizeProducts).Take(pageSizeProducts);
+    private int TotalPagesProducts => (int)Math.Ceiling((double)Math.Max(1, products.Count) / pageSizeProducts);
+    private int StartItemProducts => products.Any() ? ((currentPageProducts - 1) * pageSizeProducts) + 1 : 0;
+    private int EndItemProducts => Math.Min(currentPageProducts * pageSizeProducts, products.Count);
+
+    private void GoToPageProducts(int page)
+    {
+        currentPageProducts = Math.Clamp(page, 1, TotalPagesProducts);
+    }
+    private void OnPageSizeProductsChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int val))
+        {
+            pageSizeProducts = val;
+            currentPageProducts = 1;
+        }
+    }
+
+    private IEnumerable<Category> PaginatedCategories =>
+        categories.Skip((currentPageCategories - 1) * pageSizeCategories).Take(pageSizeCategories);
+    private int TotalPagesCategories => (int)Math.Ceiling((double)Math.Max(1, categories.Count) / pageSizeCategories);
+    private int StartItemCategories => categories.Any() ? ((currentPageCategories - 1) * pageSizeCategories) + 1 : 0;
+    private int EndItemCategories => Math.Min(currentPageCategories * pageSizeCategories, categories.Count);
+
+    private void GoToPageCategories(int page)
+    {
+        currentPageCategories = Math.Clamp(page, 1, TotalPagesCategories);
+    }
+    private void OnPageSizeCategoriesChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int val))
+        {
+            pageSizeCategories = val;
+            currentPageCategories = 1;
+        }
+    }
+
+    private IEnumerable<Order> PaginatedOrders =>
+        orders.Skip((currentPageOrders - 1) * pageSizeOrders).Take(pageSizeOrders);
+    private int TotalPagesOrders => (int)Math.Ceiling((double)Math.Max(1, orders.Count) / pageSizeOrders);
+    private int StartItemOrders => orders.Any() ? ((currentPageOrders - 1) * pageSizeOrders) + 1 : 0;
+    private int EndItemOrders => Math.Min(currentPageOrders * pageSizeOrders, orders.Count);
+
+    private void GoToPageOrders(int page)
+    {
+        currentPageOrders = Math.Clamp(page, 1, TotalPagesOrders);
+    }
+    private void OnPageSizeOrdersChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int val))
+        {
+            pageSizeOrders = val;
+            currentPageOrders = 1;
+        }
+    }
+
+    private IEnumerable<User> PaginatedUsers =>
+        users.Skip((currentPageUsers - 1) * pageSizeUsers).Take(pageSizeUsers);
+    private int TotalPagesUsers => (int)Math.Ceiling((double)Math.Max(1, users.Count) / pageSizeUsers);
+    private int StartItemUsers => users.Any() ? ((currentPageUsers - 1) * pageSizeUsers) + 1 : 0;
+    private int EndItemUsers => Math.Min(currentPageUsers * pageSizeUsers, users.Count);
+
+    private void GoToPageUsers(int page)
+    {
+        currentPageUsers = Math.Clamp(page, 1, TotalPagesUsers);
+    }
+    private void OnPageSizeUsersChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int val))
+        {
+            pageSizeUsers = val;
+            currentPageUsers = 1;
+        }
+    }
 
     // Modals & Form variables
     private bool showProductModal = false;
@@ -1638,5 +1848,101 @@ StringComparison.OrdinalIgnoreCase));
 
     .btn-save:hover {
         background-color: #2F1E14;
+    }
+
+    /* PAGINATION BAR STYLE (COPY OF THE USER'S ATTACHED SCREENSHOT) */
+    .admin-pagination-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        background-color: #FAFAF9;
+        border: 1px solid #E2DBD3;
+        border-top: none;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+        font-size: 0.82rem;
+        color: #55443B;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .pagination-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #706B64;
+    }
+
+    .pagination-info strong {
+        color: #2F190E;
+    }
+
+    .pagination-divider-v {
+        color: #D2CFC9;
+    }
+
+    .pagination-controls {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        flex-wrap: wrap;
+    }
+
+    .page-size-picker {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 600;
+        color: #706B64;
+    }
+
+    .select-page-size,
+    .select-page-number {
+        padding: 4px 8px;
+        font-size: 0.82rem;
+        border: 1px solid #D2CFC9;
+        border-radius: 4px;
+        background-color: #FFFFFF;
+        color: #2F190E;
+        font-weight: 700;
+        outline: none;
+        cursor: pointer;
+    }
+
+    .pagination-buttons {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .btn-page-nav {
+        background-color: #FFFFFF;
+        border: 1px solid #D2CFC9;
+        color: #2F190E;
+        min-width: 32px;
+        height: 32px;
+        padding: 0 8px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        outline: none;
+    }
+
+    .btn-page-nav:hover:not(:disabled) {
+        background-color: #B89A5E;
+        border-color: #B89A5E;
+        color: #FFFFFF;
+    }
+
+    .btn-page-nav:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        background-color: #FAF6F0;
     }
 </style>
