@@ -4,11 +4,55 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Waylan Origin</title>
+    <title>Waylan Origin | Café de Especialidad Colombiano</title>
     <base href="/" />
+
+    <!-- Primary Meta Tags -->
+    <meta name="description" content="Waylan Origin - Café de especialidad de origen 100% colombiano. Granos seleccionados artesanalmente de las mejores fincas del Tolima y Colombia. Tueste fresco y alta calidad." />
+    <meta name="keywords" content="Waylan Origin, Café de especialidad, Café colombiano, Café de origen, Tolima, Café artesanal, Comprar café Colombia" />
+    <meta name="author" content="Waylan Origin" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph / Facebook / WhatsApp -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://waylan.co/" />
+    <meta property="og:title" content="Waylan Origin | Café de Especialidad Colombiano" />
+    <meta property="og:description" content="Waylan Origin - Café de especialidad de origen 100% colombiano. Granos seleccionados artesanalmente de las mejores fincas del Tolima." />
+    <meta property="og:image" content="https://waylan.co/logotipo/waylan.png" />
+    <meta property="og:site_name" content="Waylan Origin" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://waylan.co/" />
+    <meta name="twitter:title" content="Waylan Origin | Café de Especialidad Colombiano" />
+    <meta name="twitter:description" content="Waylan Origin - Café de especialidad de origen 100% colombiano. Granos seleccionados artesanalmente de las mejores fincas del Tolima." />
+    <meta name="twitter:image" content="https://waylan.co/logotipo/waylan.png" />
+
+    <!-- Favicons & App Icons for Google Search -->
+    <link rel="icon" type="image/png" sizes="32x32" href="logotipo/waylan.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+    <link rel="apple-touch-icon" href="logotipo/waylan.png" />
+    <link rel="shortcut icon" href="logotipo/waylan.png" />
+
+    <!-- Schema.org Structured Data for Google Logo Snippet -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Waylan Origin",
+      "url": "https://waylan.co/",
+      "logo": "https://waylan.co/logotipo/waylan.png",
+      "description": "Waylan Origin - Café de especialidad de origen 100% colombiano. Granos seleccionados artesanalmente de las mejores fincas del Tolima y Colombia.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressRegion": "Tolima",
+        "addressCountry": "CO"
+      }
+    }
+    </script>
+
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
     <link rel="stylesheet" href="css/app.css" />
-    <link rel="icon" type="image/png" href="logotipo/waylan.png" />
     <link href="WaylanOrigin.Client.styles.css" rel="stylesheet" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -97,9 +141,9 @@
         </div>
     </div>
 
-    <div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="" class="reload">Reload</a>
+    <div id="blazor-error-ui" style="display:none;">
+        Ha ocurrido un evento inesperado.
+        <a href="" class="reload">Recargar</a>
         <a class="dismiss">🗙</a>
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
