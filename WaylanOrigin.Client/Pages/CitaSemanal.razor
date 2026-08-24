@@ -1,12 +1,12 @@
 @page "/cita-semanal"
-
 @inject ApiService ApiService
 
-
 <div class="cita-page-wrapper">
-    <!-- HERO / BANNER PRINCIPAL DE LA CITA SEMANAL -->
+
+    <!-- HERO -->
     <section class="cita-hero-section"
              style="background-image: linear-gradient(180deg, rgba(18, 12, 8, 0.88) 0%, rgba(18, 12, 8, 0.94) 100%), url('imagenes/manoscafe.png');">
+
         <div class="cita-container">
 
             <!-- Botón Volver -->
@@ -17,6 +17,7 @@
             </div>
 
             <div class="cita-hero-grid">
+
                 <div class="cita-hero-text-content">
                     <span class="cita-category-badge">CITA SEMANAL</span>
 
@@ -27,8 +28,10 @@
 
                     <p class="cita-hero-subtitle">@CitaDescripcion</p>
 
-                    <!-- Meta Info: Fecha, Ubicación, Tiempo de lectura -->
+                    <!-- Meta Info -->
                     <div class="cita-meta-info-row">
+
+                        <!-- Fecha -->
                         <div class="meta-item">
                             <svg class="meta-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                                  stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -40,6 +43,7 @@
                             <span>@CitaFecha</span>
                         </div>
 
+                        <!-- Ubicación -->
                         <div class="meta-item">
                             <svg class="meta-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                                  stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -49,6 +53,7 @@
                             <span>@CitaUbicacion</span>
                         </div>
 
+                        <!-- Tiempo lectura -->
                         <div class="meta-item">
                             <svg class="meta-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                                  stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -57,378 +62,463 @@
                             </svg>
                             <span>Tiempo de lectura: 6 min</span>
                         </div>
+
                     </div>
                 </div>
 
+                <!-- Imagen Hero -->
                 <div class="cita-hero-image-wrapper">
                     <div class="hero-image-frame">
-                        <img src="imagenes/espalda.png" alt="Productores en origen procesando café" class="hero-img" />
+                        <img src="@CitaHeroImageUrl" alt="Imagen Hero" class="hero-img" />
                     </div>
                 </div>
+
             </div>
 
         </div>
     </section>
 
-    <!-- SECCIÓN INTERMEDIA: HISTORIA + RAZONES -->
+    <!-- HISTORIA + RAZONES -->
     <section class="cita-main-details-section">
         <div class="cita-container">
             <div class="cita-two-columns-layout">
 
-                <!-- Columna Izquierda: Texto de la Historia y Testimonio Dinámicos -->
+                <!-- HISTORIA -->
                 <div class="cita-story-column">
-                    <h2 class="section-title-dark">Construimos calidad desde el origen</h2>
+                    <h2 class="section-title-dark">@CitaHistoriaTitulo</h2>
                     <div class="gold-divider-line"></div>
 
-                    <p class="story-paragraph">
-                        @CitaHistoriaParrafo1
-                    </p>
-                    <p class="story-paragraph">
-                        @CitaHistoriaParrafo2
-                    </p>
+                    <p class="story-paragraph">@CitaHistoriaParrafo1</p>
+                    <p class="story-paragraph">@CitaHistoriaParrafo2</p>
 
                     <div class="quote-card">
                         <div class="quote-icon">“</div>
-                        <blockquote class="quote-text">
-                            @CitaTestimonio
-                        </blockquote>
+                        <blockquote class="quote-text">@CitaTestimonio</blockquote>
                     </div>
                 </div>
 
-                    <!-- Columna Derecha: ¿Por qué es importante el secado? -->
-                    <div class="cita-reasons-column">
-                        <div class="reasons-card-box">
-                            <h3 class="reasons-title">¿Por qué es importante el secado?</h3>
+                <!-- RAZONES -->
+                <div class="cita-reasons-column">
+                    <div class="reasons-card-box">
 
-                            <div class="reason-item">
-                                <div class="reason-icon-wrapper">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                         stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-                                         stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="5" />
-                                        <line x1="12" y1="1" x2="12" y2="3" />
-                                        <line x1="12" y1="21" x2="12" y2="23" />
-                                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-                                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-                                        <line x1="1" y1="12" x2="3" y2="12" />
-                                        <line x1="21" y1="12" x2="23" y2="12" />
-                                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-                                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-                                    </svg>
-                                </div>
-                                <div class="reason-content">
-                                    <h4>Desarrolla los sabores</h4>
-                                    <p>Un secado controlado resalta las notas dulces y afrutadas de cada origen.</p>
-                                </div>
+                        <h3 class="reasons-title">@CitaRazonesTitulo</h3>
+
+                        <!-- RAZÓN 1 -->
+                        <div class="reason-item">
+                            <div class="reason-icon-wrapper">
+                                <!-- ICONO FIJO -->
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                     stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="5" />
+                                    <line x1="12" y1="1" x2="12" y2="3" />
+                                    <line x1="12" y1="21" x2="12" y2="23" />
+                                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                                    <line x1="1" y1="12" x2="3" y2="12" />
+                                    <line x1="21" y1="12" x2="23" y2="12" />
+                                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                                </svg>
                             </div>
-
-                            <div class="reason-item">
-                                <div class="reason-icon-wrapper">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                         stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-                                         stroke-linejoin="round">
-                                        <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
-                                    </svg>
-                                </div>
-                                <div class="reason-content">
-                                    <h4>Evita defectos</h4>
-                                    <p>El control de humedad previene fermentaciones nefastas y sabores planos.</p>
-                                </div>
-                            </div>
-
-                            <div class="reason-item">
-                                <div class="reason-icon-wrapper">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                         stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-                                         stroke-linejoin="round">
-                                        <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" />
-                                    </svg>
-                                </div>
-                                <div class="reason-content">
-                                    <h4>Consistencia en taza</h4>
-                                    <p>Procesos estables garantizan perfiles de sabor confiables para nuestros clientes.
-                                    </p>
-                                </div>
+                            <div class="reason-content">
+                                <h4>@CitaRazon1Titulo</h4>
+                                <p>@CitaRazon1Texto</p>
                             </div>
                         </div>
+
+                        <!-- RAZÓN 2 -->
+                        <div class="reason-item">
+                            <div class="reason-icon-wrapper">
+                                <!-- ICONO FIJO -->
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                     stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+                                </svg>
+                            </div>
+                            <div class="reason-content">
+                                <h4>@CitaRazon2Titulo</h4>
+                                <p>@CitaRazon2Texto</p>
+                            </div>
+                        </div>
+
+                        <!-- RAZÓN 3 -->
+                        <div class="reason-item">
+                            <div class="reason-icon-wrapper">
+                                <!-- ICONO FIJO -->
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                     stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" />
+                                </svg>
+                            </div>
+                            <div class="reason-content">
+                                <h4>@CitaRazon3Titulo</h4>
+                                <p>@CitaRazon3Texto</p>
+                            </div>
+                        </div>
+
                     </div>
-
                 </div>
+
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- SECCIÓN: ASÍ OPTIMIZAMOS EL SECADO EN ORIGEN -->
-        <section class="cita-optimization-section">
-            <div class="cita-container">
+    <!-- OPTIMIZACIÓN -->
+    <section class="cita-optimization-section">
+        <div class="cita-container">
 
-                <div class="section-header-center">
-                    <div class="header-leaf-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#b89a5e" stroke-width="1.6"
+            <div class="section-header-center">
+                <div class="header-leaf-icon">
+                    <!-- ICONO FIJO -->
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#b89a5e" stroke-width="1.6"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 3.5 1 9.8a7 7 0 0 1-9 8.2Z" />
+                        <path d="M9 22v-4h4" />
+                    </svg>
+                </div>
+                <h2 class="title-center-serif">Así optimizamos el secado en origen</h2>
+            </div>
+
+            <div class="optimization-cards-grid">
+
+                <!-- CARD 1 -->
+                <div class="opt-card">
+                    <div class="opt-card-image-box">
+                        <img src="@CitaOptCard1ImageUrl" alt="Card 1" />
+                    </div>
+                    <div class="opt-card-body">
+                        <span class="opt-number">01.</span>
+                        <div class="opt-info">
+                            <h3>@CitaOptCard1Titulo</h3>
+                            <p>@CitaOptCard1Texto</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 2 -->
+                <div class="opt-card">
+                    <div class="opt-card-image-box">
+                        <img src="@CitaOptCard2ImageUrl" alt="Card 2" />
+                    </div>
+                    <div class="opt-card-body">
+                        <span class="opt-number">02.</span>
+                        <div class="opt-info">
+                            <h3>@CitaOptCard2Titulo</h3>
+                            <p>@CitaOptCard2Texto</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- PROCESO -->
+    <section class="proceso-landing-section">
+        <div class="cita-container">
+
+            <div class="proceso-header">
+                <span class="proceso-section-badge">ETAPAS DEL CAFÉ DE ESPECIALIDAD</span>
+                <h2 class="proceso-section-title">Nuestro Proceso</h2>
+                <p class="proceso-section-subtitle">
+                    Descubre el viaje de nuestros granos desde la tierra hasta tu taza.
+                </p>
+                <div class="proceso-title-separator"></div>
+            </div>
+
+            <div class="proceso-cards-container">
+
+                <!-- ETAPA 1 -->
+                <div class="proceso-card fade-up-item">
+                    <div class="card-step-badge">01</div>
+                    <div class="card-icon-container">
+                        <!-- ICONO FIJO -->
+                        <svg class="proceso-svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22v-9" />
+                            <path d="M12 13C12 7.5 7.5 6 3 7c0 5.5 4.5 9 9 6Z" />
+                            <path d="M12 10C12 5.5 16.5 4 21 5c0 5.5-4.5 8-9 5Z" />
+                        </svg>
+                    </div>
+                    <h3 class="proceso-card-title">@CitaProcesoEtapa1Titulo</h3>
+                    <p class="proceso-card-description">@CitaProcesoEtapa1Texto</p>
+                </div>
+
+                <!-- ETAPA 2 -->
+                <div class="proceso-card fade-up-item">
+                    <div class="card-step-badge">02</div>
+                    <div class="card-icon-container">
+                        <!-- ICONO FIJO -->
+                        <svg class="proceso-svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
+                            <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v6" />
+                            <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8" />
+                            <path d="M18 8a2 2 0 0 1 2 2v4a8 8 0 0 1-16 0v-2" />
+                        </svg>
+                    </div>
+                    <h3 class="proceso-card-title">@CitaProcesoEtapa2Titulo</h3>
+                    <p class="proceso-card-description">@CitaProcesoEtapa2Texto</p>
+                </div>
+
+                <!-- ETAPA 3 -->
+                <div class="proceso-card fade-up-item">
+                    <div class="card-step-badge">03</div>
+                    <div class="card-icon-container">
+                        <!-- ICONO FIJO -->
+                        <svg class="proceso-svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+                            <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" opacity="0.4" />
+                        </svg>
+                    </div>
+                    <h3 class="proceso-card-title">@CitaProcesoEtapa3Titulo</h3>
+                    <p class="proceso-card-description">@CitaProcesoEtapa3Texto</p>
+                </div>
+
+                <!-- ETAPA 4 -->
+                <div class="proceso-card fade-up-item">
+                    <div class="card-step-badge">04</div>
+                    <div class="card-icon-container">
+                        <!-- ICONO FIJO -->
+                        <svg class="proceso-svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="4" />
+                            <path d="M12 2v2" />
+                            <path d="M12 20v2" />
+                            <path d="m4.93 4.93 1.41 1.41" />
+                            <path d="m17.66 17.66 1.41 1.41" />
+                            <path d="M2 12h2" />
+                            <path d="M20 12h2" />
+                            <path d="m6.34 17.66-1.41 1.41" />
+                            <path d="m19.07 4.93-1.41 1.41" />
+                        </svg>
+                    </div>
+                    <h3 class="proceso-card-title">@CitaProcesoEtapa4Titulo</h3>
+                    <p class="proceso-card-description">@CitaProcesoEtapa4Texto</p>
+                </div>
+
+                              <!-- ETAPA 5 -->
+                <div class="proceso-card fade-up-item">
+                    <div class="card-step-badge">05</div>
+                    <div class="card-icon-container">
+                        <!-- ICONO FIJO -->
+                        <svg class="proceso-svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3.5z" />
+                        </svg>
+                    </div>
+                    <h3 class="proceso-card-title">@CitaProcesoEtapa5Titulo</h3>
+                    <p class="proceso-card-description">@CitaProcesoEtapa5Texto</p>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- CALLOUT -->
+    <section class="cita-callout-section">
+        <div class="cita-container">
+            <div class="callout-box">
+
+                <div class="callout-content">
+                    <div class="callout-illustration">
+                        <!-- ICONO FIJO -->
+                        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#b89a5e" stroke-width="1.4"
                              stroke-linecap="round" stroke-linejoin="round">
                             <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 3.5 1 9.8a7 7 0 0 1-9 8.2Z" />
                             <path d="M9 22v-4h4" />
                         </svg>
                     </div>
-                    <h2 class="title-center-serif">Así optimizamos el secado en origen</h2>
+
+                    <div class="callout-text">
+                        <h3>@CitaCalloutTitulo</h3>
+                        <p>@CitaCalloutTexto</p>
+                    </div>
                 </div>
 
-                <div class="optimization-cards-grid">
-                    <div class="opt-card">
-                        <div class="opt-card-image-box">
-                            <img src="imagenes/maduro.png" alt="Secado uniforme y controlado" />
-                        </div>
-                        <div class="opt-card-body">
-                            <span class="opt-number">01.</span>
-                            <div class="opt-info">
-                                <h3>Secado uniforme y controlado</h3>
-                                <p>Extendemos el café en camas elevadas y realizamos volteos constantes para asegurar un
-                                    secado parejo.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="opt-card">
-                            <div class="opt-card-image-box">
-                                <img src="imagenes/manoscafe.png" alt="Monitoreo de humedad" />
-                            </div>
-                            <div class="opt-card-body">
-                                <span class="opt-number">02.</span>
-                                <div class="opt-info">
-                                    <h3>Monitoreo de humedad</h3>
-                                    <p>Medimos constantemente la humedad del grano para alcanzar el punto ideal de conservación
-                                        y calidad.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </section>
-
-                <!-- SECCIÓN PRINCIPAL: NUESTRO PROCESO -->
-                <section class="proceso-landing-section">
-                    <div class="cita-container">
-
-                        <div class="proceso-header">
-                            <span class="proceso-section-badge">ETAPAS DEL CAFÉ DE ESPECIALIDAD</span>
-                            <h2 class="proceso-section-title">Nuestro Proceso</h2>
-                            <p class="proceso-section-subtitle">
-                                Descubre el viaje de nuestros granos desde la tierra hasta tu taza. Un proceso artesanal, metódico y
-                                lleno de pasión.
-                            </p>
-                            <div class="proceso-title-separator"></div>
-                        </div>
-
-                        <div class="proceso-cards-container">
-                            <div class="proceso-card fade-up-item">
-                                <div class="card-step-badge">01</div>
-                                <div class="card-icon-container">
-                                    <svg class="proceso-svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                         stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M12 22v-9" />
-                                        <path d="M12 13C12 7.5 7.5 6 3 7c0 5.5 4.5 9 9 6Z" />
-                                        <path d="M12 10C12 5.5 16.5 4 21 5c0 5.5-4.5 8-9 5Z" />
-                                    </svg>
-                                </div>
-                                <h3 class="proceso-card-title">Cultivo</h3>
-                                <p class="proceso-card-description">
-                                    Sembrado en suelos volcánicos de altura, respetando el ecosistema y la biodiversidad del origen.
-                                </p>
-                            </div>
-
-                            <div class="proceso-card fade-up-item">
-                                <div class="card-step-badge">02</div>
-                                <div class="card-icon-container">
-                                    <svg class="proceso-svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                         stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
-                                        <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v6" />
-                                        <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8" />
-                                        <path d="M18 8a2 2 0 0 1 2 2v4a8 8 0 0 1-16 0v-2" />
-                                    </svg>
-                                </div>
-                                <h3 class="proceso-card-title">Recolección</h3>
-                                <p class="proceso-card-description">
-                                    Cosecha 100% manual selectiva, tomando únicamente las cerezas en su madurez óptima.
-                                </p>
-                            </div>
-
-                            <div class="proceso-card fade-up-item">
-                                <div class="card-step-badge">03</div>
-                                <div class="card-icon-container">
-                                    <svg class="proceso-svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                         stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
-                                        <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" opacity="0.4" />
-                                    </svg>
-                                </div>
-                                <h3 class="proceso-card-title">Lavado</h3>
-                                <p class="proceso-card-description">
-                                    Despulpado cuidadoso y remoción del mucílago con agua de manantial limpia y recirculada.
-                                </p>
-                            </div>
-
-                            <div class="proceso-card fade-up-item">
-                                <div class="card-step-badge">04</div>
-                                <div class="card-icon-container">
-                                    <svg class="proceso-svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                         stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="4" />
-                                        <path d="M12 2v2" />
-                                        <path d="M12 20v2" />
-                                        <path d="m4.93 4.93 1.41 1.41" />
-                                        <path d="m17.66 17.66 1.41 1.41" />
-                                        <path d="M2 12h2" />
-                                        <path d="M20 12h2" />
-                                        <path d="m6.34 17.66-1.41 1.41" />
-                                        <path d="m19.07 4.93-1.41 1.41" />
-                                    </svg>
-                                </div>
-                                <h3 class="proceso-card-title">Secado</h3>
-                                <p class="proceso-card-description">
-                                    Secado al sol en marquesinas elevadas con flujo de aire constante hasta el 10-12% de humedad.
-                                </p>
-                            </div>
-
-                            <div class="proceso-card fade-up-item">
-                                <div class="card-step-badge">05</div>
-                                <div class="card-icon-container">
-                                    <svg class="proceso-svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                         stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                                        <path
-                                        d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3.5z" />
-                                    </svg>
-                                </div>
-                                <h3 class="proceso-card-title">Tostión</h3>
-                                <p class="proceso-card-description">
-                                    Tueste artesanal en pequeños lotes para perfilar y resaltar los atributos sensoriales del
-                                    origen.
-                                </p>
-                            </div>
-                        </div>
-
-                    </div>
-                </section>
-
-                <!-- BANNER DE CIERRE Y BOTÓN -->
-                <section class="cita-callout-section">
-                    <div class="cita-container">
-                        <div class="callout-box">
-                            <div class="callout-content">
-                                <div class="callout-illustration">
-                                    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#b89a5e" stroke-width="1.4"
-                                         stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 3.5 1 9.8a7 7 0 0 1-9 8.2Z" />
-                                        <path d="M9 22v-4h4" />
-                                    </svg>
-                                </div>
-                                <div class="callout-text">
-                                    <h3>Seguimos aprendiendo, creciendo y construyendo juntos</h3>
-                                    <p>Estas conversaciones semanales nos permiten compartir conocimientos, resolver desafíos y
-                                        seguir elevando la calidad de nuestros cafés, desde la finca hasta tu taza.</p>
-                                    </div>
-                                </div>
-
-                                <div class="callout-action">
-                                    <a href="sostenibilidad" class="btn-callout">
-                                        VER PRÓXIMA CITA <span class="arrow-symbol">→</span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- BARRA INFERIOR DE IMPACTO Y ESTADÍSTICAS -->
-                    <footer class="cita-impact-footer">
-                        <div class="cita-container">
-                            <div class="impact-stats-row">
-
-                                <div class="impact-stat-item">
-                                    <div class="impact-icon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                            <circle cx="9" cy="7" r="4"></circle>
-                                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                                        </svg>
-                                    </div>
-                                    <div class="impact-data">
-                                        <span class="impact-number">+150</span>
-                                        <p class="impact-label">Familias beneficiadas de forma directa</p>
-                                    </div>
-                                </div>
-
-                                <div class="impact-divider"></div>
-
-                                <div class="impact-stat-item">
-                                    <div class="impact-icon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                            <circle cx="12" cy="12" r="10"></circle>
-                                            <path d="M2 12h20"></path>
-                                            <path
-                                                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
-                                            </path>
-                                        </svg>
-                                    </div>
-                                    <div class="impact-data">
-                                        <span class="impact-number">100%</span>
-                                        <p class="impact-label">Trazabilidad garantizada desde la finca</p>
-                                    </div>
-                                </div>
-
-                                <div class="impact-divider"></div>
-
-                                <div class="impact-stat-item">
-                                    <div class="impact-icon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                            <path
-                                                d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 7.65l.77.78L12 21.35l7.65-7.65.77-.78a5.4 5.4 0 0 0 0-7.65z">
-                                            </path>
-                                        </svg>
-                                    </div>
-                                    <div class="impact-data">
-                                        <span class="impact-number">0%</span>
-                                        <p class="impact-label">Intermediarios en la cadena de valor</p>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </footer>
+                <div class="callout-action">
+                    <a href="sostenibilidad" class="btn-callout">
+                        VER PRÓXIMA CITA <span class="arrow-symbol">→</span>
+                    </a>
                 </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- IMPACTO -->
+    <footer class="cita-impact-footer">
+        <div class="cita-container">
+            <div class="impact-stats-row">
+
+                <!-- IMPACTO 1 -->
+                <div class="impact-stat-item">
+                    <div class="impact-icon">
+                        <!-- ICONO FIJO -->
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <div class="impact-data">
+                        <span class="impact-number">+150</span>
+                        <p class="impact-label">Familias beneficiadas de forma directa</p>
+                    </div>
+                </div>
+
+                <div class="impact-divider"></div>
+
+                <!-- IMPACTO 2 -->
+                <div class="impact-stat-item">
+                    <div class="impact-icon">
+                        <!-- ICONO FIJO -->
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M2 12h20"></path>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        </svg>
+                    </div>
+                    <div class="impact-data">
+                        <span class="impact-number">100%</span>
+                        <p class="impact-label">Trazabilidad garantizada desde la finca</p>
+                    </div>
+                </div>
+
+                <div class="impact-divider"></div>
+
+                <!-- IMPACTO 3 -->
+                <div class="impact-stat-item">
+                    <div class="impact-icon">
+                        <!-- ICONO FIJO -->
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 7.65l.77.78L12 21.35l7.65-7.65.77-.78a5.4 5.4 0 0 0 0-7.65z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div class="impact-data">
+                        <span class="impact-number">0%</span>
+                        <p class="impact-label">Intermediarios en la cadena de valor</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </footer>
+
+</div>
 
 @code {
-    // Declaración de variables para dinamizar la vista
-    public string CitaTitulo { get; set; } = "";
-    public string CitaDescripcion { get; set; } = "";
-    public string CitaFecha { get; set; } = "";
-    public string CitaUbicacion { get; set; } = "";
 
-    public string CitaHistoriaParrafo1 { get; set; } = "";
-    public string CitaHistoriaParrafo2 { get; set; } = "";
-    public string CitaTestimonio { get; set; } = "";
+    // HERO
+    public string CitaHeroImageUrl { get; set; }
+    public string CitaTitulo { get; set; }
+    public string CitaDescripcion { get; set; }
+    public string CitaFecha { get; set; }
+    public string CitaUbicacion { get; set; }
 
-    
+    // HISTORIA
+    public string CitaHistoriaTitulo { get; set; }
+    public string CitaHistoriaParrafo1 { get; set; }
+    public string CitaHistoriaParrafo2 { get; set; }
+    public string CitaTestimonio { get; set; }
+
+    // RAZONES
+    public string CitaRazonesTitulo { get; set; }
+    public string CitaRazon1Titulo { get; set; }
+    public string CitaRazon1Texto { get; set; }
+    public string CitaRazon2Titulo { get; set; }
+    public string CitaRazon2Texto { get; set; }
+    public string CitaRazon3Titulo { get; set; }
+    public string CitaRazon3Texto { get; set; }
+
+    // OPTIMIZACIÓN
+    public string CitaOptCard1ImageUrl { get; set; }
+    public string CitaOptCard1Titulo { get; set; }
+    public string CitaOptCard1Texto { get; set; }
+    public string CitaOptCard2ImageUrl { get; set; }
+    public string CitaOptCard2Titulo { get; set; }
+    public string CitaOptCard2Texto { get; set; }
+
+    // PROCESO
+    public string CitaProcesoEtapa1Titulo { get; set; }
+    public string CitaProcesoEtapa1Texto { get; set; }
+    public string CitaProcesoEtapa2Titulo { get; set; }
+    public string CitaProcesoEtapa2Texto { get; set; }
+    public string CitaProcesoEtapa3Titulo { get; set; }
+    public string CitaProcesoEtapa3Texto { get; set; }
+    public string CitaProcesoEtapa4Titulo { get; set; }
+    public string CitaProcesoEtapa4Texto { get; set; }
+    public string CitaProcesoEtapa5Titulo { get; set; }
+    public string CitaProcesoEtapa5Texto { get; set; }
+
+    // CALLOUT
+    public string CitaCalloutTitulo { get; set; }
+    public string CitaCalloutTexto { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         var data = await ApiService.GetCitaSemanalAsync();
 
         if (data != null)
         {
+            // HERO
+            CitaHeroImageUrl = data.HeroImageUrl;
             CitaTitulo = data.Titulo;
             CitaDescripcion = data.Descripcion;
             CitaFecha = data.Fecha;
             CitaUbicacion = data.Ubicacion;
 
+            // HISTORIA
+            CitaHistoriaTitulo = data.HistoriaTitulo;
             CitaHistoriaParrafo1 = data.HistoriaParrafo1;
             CitaHistoriaParrafo2 = data.HistoriaParrafo2;
             CitaTestimonio = data.Testimonio;
 
-           
+            // RAZONES
+            CitaRazonesTitulo = data.RazonesTitulo;
+            CitaRazon1Titulo = data.Razon1Titulo;
+            CitaRazon1Texto = data.Razon1Texto;
+            CitaRazon2Titulo = data.Razon2Titulo;
+            CitaRazon2Texto = data.Razon2Texto;
+            CitaRazon3Titulo = data.Razon3Titulo;
+            CitaRazon3Texto = data.Razon3Texto;
+
+            // OPTIMIZACIÓN
+            CitaOptCard1ImageUrl = data.OptCard1ImageUrl;
+            CitaOptCard1Titulo = data.OptCard1Titulo;
+            CitaOptCard1Texto = data.OptCard1Texto;
+            CitaOptCard2ImageUrl = data.OptCard2ImageUrl;
+            CitaOptCard2Titulo = data.OptCard2Titulo;
+            CitaOptCard2Texto = data.OptCard2Texto;
+
+            // PROCESO
+            CitaProcesoEtapa1Titulo = data.ProcesoEtapa1Titulo;
+            CitaProcesoEtapa1Texto = data.ProcesoEtapa1Texto;
+            CitaProcesoEtapa2Titulo = data.ProcesoEtapa2Titulo;
+            CitaProcesoEtapa2Texto = data.ProcesoEtapa2Texto;
+            CitaProcesoEtapa3Titulo = data.ProcesoEtapa3Titulo;
+            CitaProcesoEtapa3Texto = data.ProcesoEtapa3Texto;
+            CitaProcesoEtapa4Titulo = data.ProcesoEtapa4Titulo;
+            CitaProcesoEtapa4Texto = data.ProcesoEtapa4Texto;
+            CitaProcesoEtapa5Titulo = data.ProcesoEtapa5Titulo;
+            CitaProcesoEtapa5Texto = data.ProcesoEtapa5Texto;
+
+            // CALLOUT
+            CitaCalloutTitulo = data.CalloutTitulo;
+            CitaCalloutTexto = data.CalloutTexto;
         }
     }
-
 }

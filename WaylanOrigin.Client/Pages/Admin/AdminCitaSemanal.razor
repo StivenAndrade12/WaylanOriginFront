@@ -1,107 +1,271 @@
 @page "/admin/cita-semanal"
+
 @inject ApiService ApiService
 @inject NavigationManager NavigationManager
 
 <div class="admin-dashboard-page">
 
-   
+@if (!ApiService.IsLoggedIn)
+{
+    <div class="admin-login-box">
+        <div class="login-card">
+            <h2>Iniciar Sesión</h2>
+            <p>Acceso exclusivo para administradores Waylan Origin.</p>
 
-    @if (!ApiService.IsLoggedIn)
-    {
-        <div class="admin-login-box">
-            <div class="login-card">
-                <h2>Iniciar Sesión</h2>
-                <p>Acceso exclusivo para administradores Waylan Origin.</p>
+            @if (!string.IsNullOrEmpty(loginErrorMessage))
+            {
+                <div class="error-alert">@loginErrorMessage</div>
+            }
 
-                @if (!string.IsNullOrEmpty(loginErrorMessage))
-                {
-                    <div class="error-alert">@loginErrorMessage</div>
-                }
-
-                <div class="form-group">
-                    <label>Correo</label>
-                    <input type="email" @bind="loginEmail" class="form-control-admin" />
-                </div>
-
-                <div class="form-group">
-                    <label>Contraseña</label>
-                    <input type="password" @bind="loginPassword" class="form-control-admin" />
-                </div>
-
-                <button class="btn-admin-submit" @onclick="HandleLogin">INGRESAR</button>
+            <div class="form-group">
+                <label>Correo</label>
+                <input type="email" @bind="loginEmail" class="form-control-admin" />
             </div>
-        </div>
-    }
-    else if (!ApiService.IsAdmin)
-    {
-        <div class="unauthorized-box">
-            <div class="unauthorized-card">
-                <h2>Acceso Denegado</h2>
-                <p>No tienes permisos de administrador.</p>
-                <button class="btn-admin-submit" @onclick='() => NavigationManager.NavigateTo("/")'>IR AL INICIO</button>
+
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" @bind="loginPassword" class="form-control-admin" />
             </div>
+
+            <button class="btn-admin-submit" @onclick="HandleLogin">INGRESAR</button>
         </div>
-    }
-    else
-    {
-        <div class="dashboard-body" style="padding: 40px; max-width: 900px; margin: 0 auto;">
+    </div>
+}
+else if (!ApiService.IsAdmin)
+{
+    <div class="unauthorized-box">
+        <div class="unauthorized-card">
+            <h2>Acceso Denegado</h2>
+            <p>No tienes permisos de administrador.</p>
+            <button class="btn-admin-submit" @onclick='() => NavigationManager.NavigateTo("/")'>IR AL INICIO</button>
+        </div>
+    </div>
+}
+else
+{
+    <div class="dashboard-body" style="padding: 40px; max-width: 900px; margin: 0 auto;">
 
-            <h2 style="font-family: 'Playfair Display', serif; margin-bottom: 20px;">
-                Editar Cita Semanal
-            </h2>
+        <h2 style="font-family: 'Playfair Display', serif; margin-bottom: 20px;">
+            Editar Cita Semanal
+        </h2>
 
-            <div class="admin-form-container">
+        <div class="admin-form-container">
 
-                <div class="form-group">
-                    <label>Título</label>
-                    <input class="form-control-admin" @bind="Cita.Titulo" />
-                </div>
+            <!-- HERO -->
+            <h3>Hero</h3>
 
-                <div class="form-group">
-                    <label>Descripción</label>
-                    <textarea class="form-control-admin" @bind="Cita.Descripcion"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Fecha</label>
-                    <input class="form-control-admin" @bind="Cita.Fecha" />
-                </div>
-
-                <div class="form-group">
-                    <label>Ubicación</label>
-                    <input class="form-control-admin" @bind="Cita.Ubicacion" />
-                </div>
-
-                <div class="form-group">
-                    <label>Historia - Párrafo 1</label>
-                    <textarea class="form-control-admin" @bind="Cita.HistoriaParrafo1"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Historia - Párrafo 2</label>
-                    <textarea class="form-control-admin" @bind="Cita.HistoriaParrafo2"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Testimonio</label>
-                    <textarea class="form-control-admin" @bind="Cita.Testimonio"></textarea>
-                </div>
-
-
-                
-                <button class="btn-save" @onclick="GuardarCita">GUARDAR CAMBIOS</button>
-
-                @if (Mensaje != null)
-                {
-                    <p class="admin-message">@Mensaje</p>
-                }
+            <div class="form-group">
+                <label>Imagen Hero (URL)</label>
+                <input class="form-control-admin" @bind="Cita.HeroImageUrl" />
             </div>
+
+            <div class="form-group">
+                <label>Título</label>
+                <input class="form-control-admin" @bind="Cita.Titulo" />
+            </div>
+
+            <div class="form-group">
+                <label>Descripción</label>
+                <textarea class="form-control-admin" @bind="Cita.Descripcion"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Fecha</label>
+                <input class="form-control-admin" @bind="Cita.Fecha" />
+            </div>
+
+            <div class="form-group">
+                <label>Ubicación</label>
+                <input class="form-control-admin" @bind="Cita.Ubicacion" />
+            </div>
+
+            <hr />
+
+            <!-- HISTORIA -->
+            <h3>Historia</h3>
+
+            <div class="form-group">
+                <label>Título Historia</label>
+                <input class="form-control-admin" @bind="Cita.HistoriaTitulo" />
+            </div>
+
+            <div class="form-group">
+                <label>Historia - Párrafo 1</label>
+                <textarea class="form-control-admin" @bind="Cita.HistoriaParrafo1"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Historia - Párrafo 2</label>
+                <textarea class="form-control-admin" @bind="Cita.HistoriaParrafo2"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Testimonio</label>
+                <textarea class="form-control-admin" @bind="Cita.Testimonio"></textarea>
+            </div>
+
+            <hr />
+
+            <!-- RAZONES -->
+            <h3>Razones</h3>
+
+            <div class="form-group">
+                <label>Título Razones</label>
+                <input class="form-control-admin" @bind="Cita.RazonesTitulo" />
+            </div>
+
+            <div class="form-group">
+                <label>Razón 1 - Título</label>
+                <input class="form-control-admin" @bind="Cita.Razon1Titulo" />
+            </div>
+
+            <div class="form-group">
+                <label>Razón 1 - Texto</label>
+                <textarea class="form-control-admin" @bind="Cita.Razon1Texto"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Razón 2 - Título</label>
+                <input class="form-control-admin" @bind="Cita.Razon2Titulo" />
+            </div>
+
+            <div class="form-group">
+                <label>Razón 2 - Texto</label>
+                <textarea class="form-control-admin" @bind="Cita.Razon2Texto"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Razón 3 - Título</label>
+                <input class="form-control-admin" @bind="Cita.Razon3Titulo" />
+            </div>
+
+            <div class="form-group">
+                <label>Razón 3 - Texto</label>
+                <textarea class="form-control-admin" @bind="Cita.Razon3Texto"></textarea>
+            </div>
+
+            <hr />
+
+            <!-- OPTIMIZACIÓN -->
+            <h3>Optimización</h3>
+
+            <div class="form-group">
+                <label>Tarjeta 1 - Imagen (URL)</label>
+                <input class="form-control-admin" @bind="Cita.OptCard1ImageUrl" />
+            </div>
+
+            <div class="form-group">
+                <label>Tarjeta 1 - Título</label>
+                <input class="form-control-admin" @bind="Cita.OptCard1Titulo" />
+            </div>
+
+            <div class="form-group">
+                <label>Tarjeta 1 - Texto</label>
+                <textarea class="form-control-admin" @bind="Cita.OptCard1Texto"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Tarjeta 2 - Imagen (URL)</label>
+                <input class="form-control-admin" @bind="Cita.OptCard2ImageUrl" />
+            </div>
+
+            <div class="form-group">
+                <label>Tarjeta 2 - Título</label>
+                <input class="form-control-admin" @bind="Cita.OptCard2Titulo" />
+            </div>
+
+            <div class="form-group">
+                <label>Tarjeta 2 - Texto</label>
+                <textarea class="form-control-admin" @bind="Cita.OptCard2Texto"></textarea>
+            </div>
+
+            <hr />
+
+            <!-- PROCESO -->
+            <h3>Proceso</h3>
+
+            <div class="form-group">
+                <label>Etapa 1 - Título</label>
+                <input class="form-control-admin" @bind="Cita.ProcesoEtapa1Titulo" />
+            </div>
+
+            <div class="form-group">
+                <label>Etapa 1 - Texto</label>
+                <textarea class="form-control-admin" @bind="Cita.ProcesoEtapa1Texto"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Etapa 2 - Título</label>
+                <input class="form-control-admin" @bind="Cita.ProcesoEtapa2Titulo" />
+            </div>
+
+            <div class="form-group">
+                <label>Etapa 2 - Texto</label>
+                <textarea class="form-control-admin" @bind="Cita.ProcesoEtapa2Texto"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Etapa 3 - Título</label>
+                <input class="form-control-admin" @bind="Cita.ProcesoEtapa3Titulo" />
+            </div>
+
+            <div class="form-group">
+                <label>Etapa 3 - Texto</label>
+                <textarea class="form-control-admin" @bind="Cita.ProcesoEtapa3Texto"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Etapa 4 - Título</label>
+                <input class="form-control-admin" @bind="Cita.ProcesoEtapa4Titulo" />
+            </div>
+
+            <div class="form-group">
+                <label>Etapa 4 - Texto</label>
+                <textarea class="form-control-admin" @bind="Cita.ProcesoEtapa4Texto"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Etapa 5 - Título</label>
+                <input class="form-control-admin" @bind="Cita.ProcesoEtapa5Titulo" />
+            </div>
+
+            <div class="form-group">
+                <label>Etapa 5 - Texto</label>
+                <textarea class="form-control-admin" @bind="Cita.ProcesoEtapa5Texto"></textarea>
+            </div>
+
+            <hr />
+
+            <!-- CALLOUT -->
+            <h3>Callout</h3>
+
+            <div class="form-group">
+                <label>Título Callout</label>
+                <input class="form-control-admin" @bind="Cita.CalloutTitulo" />
+            </div>
+
+            <div class="form-group">
+                <label>Texto Callout</label>
+                <textarea class="form-control-admin" @bind="Cita.CalloutTexto"></textarea>
+            </div>
+
+            <button class="btn-save" @onclick="GuardarCita">GUARDAR CAMBIOS</button>
+
+            @if (Mensaje != null)
+            {
+                <p class="admin-message">@Mensaje</p>
+            }
+
         </div>
-    }
+    </div>
+}
+
 </div>
 
 @code {
+
     CitaDto Cita = new();
+
     string? Mensaje;
 
     private string loginEmail = "";
@@ -113,6 +277,7 @@
         if (ApiService.IsLoggedIn && ApiService.IsAdmin)
         {
             var data = await ApiService.GetCitaSemanalAsync();
+
             if (data != null)
             {
                 Cita = data;
@@ -123,6 +288,7 @@
     private async Task HandleLogin()
     {
         var ok = await ApiService.LoginAsync(loginEmail, loginPassword);
+
         if (!ok)
         {
             loginErrorMessage = "Credenciales incorrectas.";
@@ -139,16 +305,9 @@
         NavigationManager.NavigateTo("/admin/cita-semanal", true);
     }
 
-    private void HandleLogout()
-    {
-        ApiService.Logout();
-        NavigationManager.NavigateTo("/admin", true);
-    }
-
     private async Task GuardarCita()
     {
         var ok = await ApiService.ActualizarCitaSemanalAsync(Cita);
         Mensaje = ok ? "Cita actualizada correctamente." : "Error al actualizar la cita.";
     }
 }
-
