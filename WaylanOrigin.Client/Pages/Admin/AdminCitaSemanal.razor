@@ -4,19 +4,7 @@
 
 <div class="admin-dashboard-page">
 
-    <header class="admin-header">
-        <div class="admin-header-container">
-            <div class="brand-info">
-                <img src="logotipo/waylan.png" alt="Waylan Logo" class="admin-logo" />
-                <span class="admin-badge">EDITAR CITA SEMANAL</span>
-            </div>
-
-            <div class="user-info-bar">
-                <span>Hola, <strong>@ApiService.CurrentUser?.Nombre</strong></span>
-                <button class="btn-logout" @onclick="HandleLogout">Cerrar Sesión</button>
-            </div>
-        </div>
-    </header>
+   
 
     @if (!ApiService.IsLoggedIn)
     {
@@ -163,3 +151,4 @@
         Mensaje = ok ? "Cita actualizada correctamente." : "Error al actualizar la cita.";
     }
 }
+
