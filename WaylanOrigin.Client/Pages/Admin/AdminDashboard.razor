@@ -581,6 +581,70 @@
                                     </div>
                                 </div>
                             }
+                            else if (activeTab == "notas")
+                            {
+                                <!-- TAB 5: FLAVOR NOTES MANAGEMENT -->
+                                <div class="panel-section">
+                                    <div class="panel-header-row">
+                                        <h2>Notas de Sabor de Productos</h2>
+                                        <div class="add-category-inline">
+                                            <input type="text" @bind="newNoteName" placeholder="Nueva Nota de Sabor (Ej: Miel, Frutos Rojos)"
+                                                   class="form-control-inline" />
+                                            <button class="btn-create-new" @onclick="CreateNote">AGREGAR NOTA</button>
+                                        </div>
+                                    </div>
+
+                                    @if (!string.IsNullOrEmpty(noteActionMessage))
+                                    {
+                                        <div style="background-color: #E2F3E7; color: #2F6F4C; padding: 12px 18px; border-radius: 8px; margin-bottom: 20px; font-weight: 700;">
+                                            @noteActionMessage
+                                        </div>
+                                    }
+
+                                    <div class="table-container">
+                                        <table class="admin-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Nombre de la Nota de Sabor</th>
+                                                    <th>Acciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var n in availableNotes)
+                                                {
+                                                    <tr>
+                                                        <td><strong>#@n.Id</strong></td>
+                                                        <td>
+                                                            @if (editingNoteId == n.Id)
+                                                            {
+                                                                <input type="text" @bind="editingNoteName" class="form-control-table" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <span style="display: inline-block; background: #FAF6F0; border: 1px solid #E5E2DC; padding: 4px 12px; border-radius: 20px; font-weight: 600; color: #5C4033;">
+                                                                    ☕ @n.Nombre
+                                                                </span>
+                                                            }
+                                                        </td>
+                                                        <td>
+                                                            @if (editingNoteId == n.Id)
+                                                            {
+                                                                <button class="btn-action-save" @onclick="() => SaveNoteEdit(n)">Guardar</button>
+                                                                <button class="btn-action-cancel" @onclick="CancelNoteEdit">Cancelar</button>
+                                                            }
+                                                            else
+                                                            {
+                                                                <button class="btn-action-edit" @onclick="() => StartNoteEdit(n)">Editar</button>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            }
 
                         </main>
                     </div>
