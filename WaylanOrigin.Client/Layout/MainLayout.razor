@@ -439,7 +439,7 @@
         var response = await ApiService.CrearPedidoAsync(items, fullAddress);
         isProcessingCheckout = false;
 
-        if (response != null)
+        if (response != null && string.IsNullOrEmpty(response.ErrorMessage) && !string.IsNullOrEmpty(response.Codigo))
         {
             CartState.Clear();
             addressCity = "";
@@ -457,7 +457,7 @@
         }
         else
         {
-            checkoutErrorMessage = "No se pudo registrar el pedido en el servidor. Inténtalo de nuevo.";
+            checkoutErrorMessage = response?.ErrorMessage ?? "No se pudo registrar el pedido en el servidor. Inténtalo de nuevo.";
         }
     }
 

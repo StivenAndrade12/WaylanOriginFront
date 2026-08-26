@@ -1207,7 +1207,24 @@
         productFormStock = p.Stock;
         productFormDescripcion = p.Descripcion ?? "";
 
-        productFormSelectedNoteIds = p.Notas.Where(n => n.Id > 0).Select(n => n.Id).ToList();
+        productFormSelectedNoteIds = new List<int>();
+        if (p.Notas != null && p.Notas.Any())
+        {
+            foreach (var note in p.Notas)
+            {
+                int matchedId = note.Id;
+                if (matchedId <= 0 && !string.IsNullOrWhiteSpace(note.Nombre))
+                {
+                    var found = availableNotes.FirstOrDefault(an => an.Nombre.Trim().Equals(note.Nombre.Trim(), StringComparison.OrdinalIgnoreCase));
+                    if (found != null) matchedId = found.Id;
+                }
+                if (matchedId > 0 && !productFormSelectedNoteIds.Contains(matchedId))
+                {
+                    productFormSelectedNoteIds.Add(matchedId);
+                }
+            }
+        }
+
         selectedImageFile = null;
         showProductModal = true;
     }

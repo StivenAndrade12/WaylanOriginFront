@@ -1003,6 +1003,19 @@ namespace WaylanOrigin.Client.Services
                 {
                     var err = await response.Content.ReadAsStringAsync();
                     Console.WriteLine($"CrearPedidoAsync API status {response.StatusCode}: {err}");
+
+                    string errorMsg = "No se pudo registrar el pedido en el servidor. Inténtalo de nuevo.";
+                    if (err.Contains("stock", StringComparison.OrdinalIgnoreCase) || err.Contains("insuficiente", StringComparison.OrdinalIgnoreCase) || err.Contains("agotado", StringComparison.OrdinalIgnoreCase) || response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                    {
+                        errorMsg = "Uno o más productos de tu pedido se encuentran AGOTADOS o no cuentan con suficiente stock disponible en este momento.";
+                    }
+
+                    return new CrearPedidoResponseDto
+                    {
+                        Codigo = "",
+                        Total = 0,
+                        ErrorMessage = errorMsg
+                    };
                 }
             }
             catch (Exception ex)
@@ -1010,7 +1023,12 @@ namespace WaylanOrigin.Client.Services
                 Console.WriteLine($"Error CrearPedidoAsync: {ex.Message}");
             }
 
-            return null;
+            return new CrearPedidoResponseDto
+            {
+                Codigo = "",
+                Total = 0,
+                ErrorMessage = "Ocurrió un error al conectar con el servidor para registrar tu pedido."
+            };
         }
 
         public async Task<bool> ConfirmarPagoWompiAsync(string codigoSeguimiento, string statusWompi)
@@ -1412,5 +1430,6 @@ namespace WaylanOrigin.Client.Services
     {
         public string Codigo { get; set; } = string.Empty;
         public decimal Total { get; set; }
+        public string? ErrorMessage { get; set; }
     }
 }
