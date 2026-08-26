@@ -378,7 +378,7 @@
                                     @if (p.Stock <= 0)
                                     {
                                         <button class="btn-add-to-cart-red btn-out-of-stock" disabled type="button">
-                                            AGOTADO / SIN STOCK
+                                            🔒 AGOTADO / SIN STOCK
                                         </button>
                                     }
                                     else
@@ -1528,14 +1528,45 @@
 
     .btn-add-to-cart-red {
         flex: 1;
-        background-color: var(--color-btn-dark);
-        color: var(--white-pure);
-        border: none;
-        padding: 12px;
+        background-color: #281A12 !important;
+        color: #FFFFFF !important;
+        border: none !important;
+        padding: 12px 14px;
+        font-size: 0.8rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        outline: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px rgba(40, 26, 18, 0.2);
     }
 
     .btn-add-to-cart-red:hover {
-        background-color: var(--cherry-hover);
+        background-color: #3D291D !important;
+        color: #FFFFFF !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(40, 26, 18, 0.3);
+    }
+
+    .btn-add-to-cart-red.btn-out-of-stock {
+        background-color: #FEE2E2 !important;
+        color: #991B1B !important;
+        border: 1.5px solid #FCA5A5 !important;
+        cursor: not-allowed !important;
+        opacity: 1 !important;
+        box-shadow: none !important;
+        font-weight: 800;
+    }
+
+    .btn-add-to-cart-red.btn-out-of-stock:hover {
+        background-color: #FEE2E2 !important;
+        color: #991B1B !important;
+        transform: none !important;
+        box-shadow: none !important;
     }
 
     .btn-heart-action-only {
