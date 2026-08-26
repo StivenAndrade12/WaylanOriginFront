@@ -41,6 +41,7 @@ namespace WaylanOrigin.Client.Services
         public event Action? OnDataChanged;
 
         private static readonly HashSet<string> _deactivatedEmails = new(StringComparer.OrdinalIgnoreCase);
+        private static readonly System.Text.Json.JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
         private readonly CartState _cartState;
 
         private static readonly List<Product> _customProducts = new();
@@ -575,87 +576,7 @@ namespace WaylanOrigin.Client.Services
             }
         }
 
-        public async Task<List<Note>> GetNotasAsync()
-        {
-            var resultList = new List<Note>();
-            try
-            {
-                SetAuthHeader();
-                var apiNotes = await _http.GetFromJsonAsync<List<Note>>($"{ApiBaseUrl}api/Nota");
-                if (apiNotes != null && apiNotes.Any())
-                {
-                    int autoId = 1;
-                    foreach (var an in apiNotes)
-                    {
-                        if (string.IsNullOrWhiteSpace(an.Nombre)) continue;
-                        if (!resultList.Any(r => r.Nombre.Equals(an.Nombre, StringComparison.OrdinalIgnoreCase)))
-                        {
-                            resultList.Add(new Note
-                            {
-                                Id = an.Id > 0 ? an.Id : autoId++,
-                                Nombre = an.Nombre
-                            });
-                        }
-                    }
-                    return resultList;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error GetNotasAsync: {ex.Message}");
-            }
 
-            return _customNotes;
-        }
-
-        public async Task<bool> CrearNotaAsync(string nombre)
-        {
-            if (string.IsNullOrWhiteSpace(nombre)) return false;
-            try
-            {
-                SetAuthHeader();
-                await _http.PostAsJsonAsync($"{ApiBaseUrl}api/Nota", new { Nombre = nombre });
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error CrearNotaAsync: {ex.Message}");
-            }
-
-            return false;
-        }
-
-        public async Task<bool> ActualizarNotaAsync(int id, string nombre)
-        {
-            try
-            {
-                SetAuthHeader();
-                await _http.PutAsJsonAsync($"{ApiBaseUrl}api/Nota/{id}", new { Nombre = nombre });
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error ActualizarNotaAsync: {ex.Message}");
-            }
-            var local = _customNotes.FirstOrDefault(n => n.Id == id);
-            if (local != null) local.Nombre = nombre;
-            OnDataChanged?.Invoke();
-            return true;
-        }
-
-        public async Task<bool> EliminarNotaAsync(int id)
-        {
-            try
-            {
-                SetAuthHeader();
-                await _http.DeleteAsync($"{ApiBaseUrl}api/Nota/{id}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error EliminarNotaAsync: {ex.Message}");
-            }
-            _customNotes.RemoveAll(n => n.Id == id);
-            OnDataChanged?.Invoke();
-            return true;
-        }
 
         public async Task<bool> CrearProductoAsync(MultipartFormDataContent content)
         {
@@ -1252,7 +1173,109 @@ namespace WaylanOrigin.Client.Services
             return false;
         }
 
+        // --- NOTAS DE SABOR ---
+        public async Task<List<Note>> GetNotasAsync()
+        {
+            try
+            {
+                var response = await _http.GetAsync($"{ApiBaseUrl}api/Nota");
+                if (response.IsSuccessStatusCode)
+                {
+                    var rawJson = await response.Content.ReadAsStringAsync();
+                    List<NotaItemDto> items = new();
 
+                    try
+                    {
+                        using var doc = System.Text.Json.JsonDocument.Parse(rawJson);
+                        if (doc.RootElement.ValueKind == System.Text.Json.JsonValueKind.Array)
+                        {
+                            items = System.Text.Json.JsonSerializer.Deserialize<List<NotaItemDto>>(rawJson, _jsonOptions) ?? new();
+                        }
+                        else if (doc.RootElement.ValueKind == System.Text.Json.JsonValueKind.Object && doc.RootElement.TryGetProperty("value", out var valArr))
+                        {
+                            items = System.Text.Json.JsonSerializer.Deserialize<List<NotaItemDto>>(valArr.GetRawText(), _jsonOptions) ?? new();
+                        }
+                    }
+                    catch { }
+
+                    if (items != null && items.Any())
+                    {
+                        int index = 1;
+                        var list = new List<Note>();
+                        foreach (var item in items)
+                        {
+                            list.Add(new Note
+                            {
+                                Id = item.Id > 0 ? item.Id : index,
+                                Nombre = item.Nombre ?? string.Empty
+                            });
+                            index++;
+                        }
+                        return list;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error GetNotasAsync: {ex.Message}");
+            }
+
+            return _customNotes;
+        }
+
+        public async Task<bool> CrearNotaAsync(string nombre)
+        {
+            if (string.IsNullOrWhiteSpace(nombre)) return false;
+            try
+            {
+                SetAuthHeader();
+                var response = await _http.PostAsJsonAsync($"{ApiBaseUrl}api/Nota", new { nombre = nombre.Trim() });
+                if (response.IsSuccessStatusCode)
+                {
+                    int nextId = _customNotes.Any() ? _customNotes.Max(n => n.Id) + 1 : 1;
+                    if (!_customNotes.Any(n => n.Nombre.Equals(nombre.Trim(), StringComparison.OrdinalIgnoreCase)))
+                    {
+                        _customNotes.Add(new Note { Id = nextId, Nombre = nombre.Trim() });
+                    }
+                    OnDataChanged?.Invoke();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error CrearNotaAsync: {ex.Message}");
+            }
+            return false;
+        }
+
+        public async Task<bool> ActualizarNotaAsync(int id, string nuevoNombre)
+        {
+            if (id <= 0 || string.IsNullOrWhiteSpace(nuevoNombre)) return false;
+            try
+            {
+                SetAuthHeader();
+                var response = await _http.PutAsJsonAsync($"{ApiBaseUrl}api/Nota/{id}", new { id = id, nombre = nuevoNombre.Trim() });
+                if (response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.NoContent)
+                {
+                    var existing = _customNotes.FirstOrDefault(n => n.Id == id);
+                    if (existing != null) existing.Nombre = nuevoNombre.Trim();
+                    OnDataChanged?.Invoke();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error ActualizarNotaAsync: {ex.Message}");
+            }
+            return false;
+        }
+
+    }
+
+    public class NotaItemDto
+    {
+        public int Id { get; set; }
+        public string? Nombre { get; set; }
     }
 
     public class LoginResponseDto

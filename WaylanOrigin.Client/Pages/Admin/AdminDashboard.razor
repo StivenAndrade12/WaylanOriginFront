@@ -96,6 +96,15 @@
                     </svg>
                     Control Usuarios
                 </button>
+                <button class="sidebar-tab-btn @(activeTab == "notas" ? "active" : "")"
+                        @onclick='() => SetActiveTab("notas")'>
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 8v8" />
+                        <path d="M8 12h8" />
+                    </svg>
+                    Gestión Notas de Sabor
+                </button>
                 <button class="sidebar-tab-btn" @onclick='() => NavigationManager.NavigateTo("/admin/cita-semanal")'>
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="8" r="4" />
@@ -934,6 +943,51 @@
     private int editingCategoryId = 0;
     private string editingCategoryName = "";
 
+    // Notes Inline edit & creation
+    private string newNoteName = "";
+    private int editingNoteId = 0;
+    private string editingNoteName = "";
+    private string noteActionMessage = "";
+
+    private async Task CreateNote()
+    {
+        if (string.IsNullOrWhiteSpace(newNoteName)) return;
+        noteActionMessage = "";
+        bool ok = await ApiService.CrearNotaAsync(newNoteName.Trim());
+        if (ok)
+        {
+            newNoteName = "";
+            availableNotes = await ApiService.GetNotasAsync();
+            noteActionMessage = "¡Nota de sabor guardada exitosamente en la Base de Datos!";
+        }
+    }
+
+    private void StartNoteEdit(Note n)
+    {
+        editingNoteId = n.Id;
+        editingNoteName = n.Nombre;
+    }
+
+    private void CancelNoteEdit()
+    {
+        editingNoteId = 0;
+        editingNoteName = "";
+    }
+
+    private async Task SaveNoteEdit(Note n)
+    {
+        if (string.IsNullOrWhiteSpace(editingNoteName)) return;
+        noteActionMessage = "";
+        bool ok = await ApiService.ActualizarNotaAsync(n.Id, editingNoteName.Trim());
+        if (ok)
+        {
+            editingNoteId = 0;
+            editingNoteName = "";
+            availableNotes = await ApiService.GetNotasAsync();
+            noteActionMessage = "¡Nota de sabor actualizada exitosamente en la Base de Datos!";
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
         if (ApiService.IsLoggedIn)
@@ -1015,6 +1069,10 @@
             {
                 users = await ApiService.GetUsuariosAsync();
             }
+            else if (activeTab == "notas")
+            {
+                availableNotes = await ApiService.GetNotasAsync();
+            }
         }
         catch (Exception ex)
         {
@@ -1023,7 +1081,7 @@
     }
 
     // --- PRODUCTS OPERATIONS ---
-    private void OpenCreateProductModal()
+    private async Task OpenCreateProductModal()
     {
         isEditingProduct = false;
         formErrorMessage = "";
@@ -1037,6 +1095,8 @@
         productFormIntensidad = 3;
         productFormEtiqueta = "";
 
+        availableNotes = await ApiService.GetNotasAsync();
+
         productFormIdCategoria = categories.FirstOrDefault()?.Id ?? 1;
         productFormTueste = 2;
         productFormProceso = 1;
@@ -1048,7 +1108,7 @@
         showProductModal = true;
     }
 
-    private void OpenEditProductModal(Product p)
+    private async Task OpenEditProductModal(Product p)
     {
         isEditingProduct = true;
         formErrorMessage = "";
@@ -1062,6 +1122,8 @@
         productFormIntensidad = p.Intensidad;
         productFormEtiqueta = p.Etiqueta;
         editingProductImageUrl = p.ImagenUrl;
+
+        availableNotes = await ApiService.GetNotasAsync();
 
         productFormIdCategoria = (p.IdCategoria > 0 && categories.Any(c => c.Id == p.IdCategoria))
                     ? p.IdCategoria
