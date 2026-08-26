@@ -69,9 +69,19 @@ namespace WaylanOrigin.Client
 
         public void AddProduct(Product product)
         {
+            if (product.Stock <= 0)
+            {
+                return; // Cannot add out of stock items
+            }
+
             var existing = Items.FirstOrDefault(i => i.Product.Id == product.Id);
             if (existing != null)
             {
+                if (existing.Cantidad >= product.Stock)
+                {
+                    NotifyStateChanged();
+                    return; // Cannot exceed available stock
+                }
                 existing.Cantidad++;
             }
             else

@@ -191,8 +191,16 @@
                                                     <button class="btn-qty"
                                                             @onclick="() => CartState.DecreaseProduct(item.Product.Id)">-</button>
                                                     <span class="qty-val">@item.Cantidad</span>
-                                                    <button class="btn-qty" @onclick="() => CartState.AddProduct(item.Product)">+</button>
+                                                    <button class="btn-qty"
+                                                            disabled="@(item.Product.Stock > 0 && item.Cantidad >= item.Product.Stock)"
+                                                            @onclick="() => CartState.AddProduct(item.Product)">+</button>
                                                 </div>
+                                                @if (item.Product.Stock > 0 && item.Cantidad >= item.Product.Stock)
+                                                {
+                                                    <span style="font-size: 0.68rem; color: #B89A5E; font-weight: 700; display: block; margin-top: 4px;">
+                                                        Máx. disponible (@item.Product.Stock un.)
+                                                    </span>
+                                                }
                                                 <button class="btn-remove-item" @onclick="() => CartState.RemoveProduct(item.Product.Id)">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                                          class="bi bi-trash3" viewBox="0 0 16 16">

@@ -102,12 +102,42 @@ namespace WaylanOrigin.Client.Services
             catch { }
         }
 
+        private static readonly Dictionary<string, int> _productStockMap = new();
+
+        private async Task LoadProductStockMapAsync()
+        {
+            try
+            {
+                var json = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_product_stock_map");
+                if (!string.IsNullOrEmpty(json))
+                {
+                    var dict = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, int>>(json);
+                    if (dict != null)
+                    {
+                        foreach (var kvp in dict) _productStockMap[kvp.Key] = kvp.Value;
+                    }
+                }
+            }
+            catch { }
+        }
+
+        public async Task SaveProductStockMapAsync()
+        {
+            try
+            {
+                var json = System.Text.Json.JsonSerializer.Serialize(_productStockMap);
+                await _js.InvokeVoidAsync("localStorage.setItem", "waylan_product_stock_map", json);
+            }
+            catch { }
+        }
+
         public async Task InitializeAuthAsync()
         {
             try
             {
                 await _js.InvokeVoidAsync("localStorage.removeItem", "waylan_orders_cache");
                 await LoadDeactivatedUsersAsync();
+                await LoadProductStockMapAsync();
 
                 var storedToken = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_token");
                 var storedEmail = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_user_email");
@@ -468,6 +498,7 @@ namespace WaylanOrigin.Client.Services
         // --- PRODUCTOS ---
         private Product MapToProduct(ProductoReadDto dto)
         {
+            int resolvedStock = _productStockMap.TryGetValue(dto.Id.ToString(), out var s) ? s : 20;
             return new Product
             {
                 Id = dto.Id.ToString(),
@@ -478,7 +509,7 @@ namespace WaylanOrigin.Client.Services
                 Proceso = FormatProceso(dto.Proceso),
                 Descripcion = dto.Descripcion,
                 Precio = dto.Precio,
-                Stock = 0,
+                Stock = resolvedStock,
                 ImagenUrl = dto.ImagenUrl,
                 Activo = true,
                 Notas = dto.Notas ?? new List<Note>(),
@@ -492,6 +523,9 @@ namespace WaylanOrigin.Client.Services
 
         private Product MapToProduct(ProductoReadAdminDto dto)
         {
+            _productStockMap[dto.Id.ToString()] = dto.Stock;
+            _ = SaveProductStockMapAsync();
+
             return new Product
             {
                 Id = dto.Id.ToString(),
@@ -518,6 +552,7 @@ namespace WaylanOrigin.Client.Services
         {
             try
             {
+                await LoadProductStockMapAsync();
                 var dtos = await _http.GetFromJsonAsync<List<ProductoReadDto>>($"{ApiBaseUrl}api/Producto/Lista de productos");
                 if (dtos != null && dtos.Any())
                 {

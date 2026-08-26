@@ -323,12 +323,15 @@
                 <div class="regular-products-list">
                     @foreach (var p in GetFilteredProducts())
                     {
-                        <div class="product-card">
+                        <div class="product-card @(p.Stock <= 0 ? "is-out-of-stock" : "")">
                             <!-- Header Bag tag -->
-                            @if (!string.IsNullOrEmpty(p.Etiqueta))
+                            @if (p.Stock <= 0)
                             {
-                                <span
-                                class="card-status-badge @(p.Etiqueta == "NUEVO" ? "badge-new" : p.Etiqueta == "MÁS VENDIDO" ? "badge-best" : "badge-limit")">@p.Etiqueta</span>
+                                <span class="card-status-badge badge-out-of-stock">AGOTADO</span>
+                            }
+                            else if (!string.IsNullOrEmpty(p.Etiqueta))
+                            {
+                                <span class="card-status-badge @(p.Etiqueta == "NUEVO" ? "badge-new" : p.Etiqueta == "MÁS VENDIDO" ? "badge-best" : "badge-limit")">@p.Etiqueta</span>
                             }
 
                             <div class="product-image-container">
@@ -372,9 +375,18 @@
                                 <p class="product-notes">Notas: @string.Join(", ", p.Notas.Select(n => n.Nombre))</p>
                                 <span class="product-price">$@p.Precio.ToString("N0") COP</span>
                                 <div class="product-card-action">
-                                    <button class="btn-add-to-cart-red" @onclick="() => AgregarAlCarrito(p)" type="button">
-                                        AÑADIR AL CARRITO
-                                    </button>
+                                    @if (p.Stock <= 0)
+                                    {
+                                        <button class="btn-add-to-cart-red btn-out-of-stock" disabled type="button">
+                                            AGOTADO / SIN STOCK
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn-add-to-cart-red" @onclick="() => AgregarAlCarrito(p)" type="button">
+                                            AÑADIR AL CARRITO
+                                        </button>
+                                    }
                                     <button class="btn-heart-action-only" @onclick="() => ToggleFavorite(p)" type="button">
                                         @if (p.IsFavorite)
                                         {
@@ -1404,6 +1416,13 @@
         background-color: #8C2424;
     }
 
+    .badge-out-of-stock {
+        background-color: #C0392B !important;
+        color: #FFFFFF !important;
+        font-weight: 800;
+        letter-spacing: 1px;
+    }
+
     .product-image-container {
         background-color: #F3ECE2;
         height: 240px;
@@ -1509,17 +1528,10 @@
 
     .btn-add-to-cart-red {
         flex: 1;
-        background-color: var(--cherry-red);
+        background-color: var(--color-btn-dark);
         color: var(--white-pure);
         border: none;
         padding: 12px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        letter-spacing: 1.5px;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.2s;
-        outline: none;
     }
 
     .btn-add-to-cart-red:hover {
