@@ -105,14 +105,16 @@
                     </svg>
                     Gestión Notas de Sabor
                 </button>
-                <button class="sidebar-tab-btn" @onclick='() => NavigationManager.NavigateTo("/admin/cita-semanal")'>
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="8" r="4" />
-                        <path d="M12 20v-8" />
-                        <path d="M9 14l3 3l3-3" />
-                    </svg>
-                    Editar Cita Semanal
+                <button class="sidebar-tab-btn @(activeTab == "cita" ? "active" : "")"
+                 @onclick='() => SetActiveTab("cita")'>
+                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                   <circle cx="12" cy="8" r="4" />
+                  <path d="M12 20v-8" />
+                  <path d="M9 14l3 3l3-3" />
+                  </svg>
+                  Editar Cita Semanal
                 </button>
+
 
             </aside>
 
@@ -692,14 +694,25 @@
                                                             {
                                                                 <button class="btn-action-edit" @onclick="() => StartNoteEdit(n)">Editar</button>
                                                             }
+
+                                                           
                                                         </td>
                                                     </tr>
                                                 }
+
+                                              
+                                                
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
                             }
+
+                            else if (activeTab == "cita")
+                            {
+                               <AdminCitaSemanal />
+                            }
+
 
                         </main>
                     </div>
@@ -1192,6 +1205,11 @@
             {
                 availableNotes = await ApiService.GetNotasAsync();
             }
+            
+
+            
+
+            
         }
         catch (Exception ex)
         {

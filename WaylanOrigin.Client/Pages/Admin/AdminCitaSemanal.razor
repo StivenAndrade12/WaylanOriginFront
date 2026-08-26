@@ -1,11 +1,9 @@
-@page "/admin/cita-semanal"
-
 @inject ApiService ApiService
 @inject NavigationManager NavigationManager
 
 <div class="admin-dashboard-page">
 
-@if (!ApiService.IsLoggedIn)
+@if (ApiService.CurrentUser == null)
 {
     <div class="admin-login-box">
         <div class="login-card">
@@ -31,7 +29,7 @@
         </div>
     </div>
 }
-else if (!ApiService.IsAdmin)
+else if (ApiService.CurrentUser?.Rol != "Admin")
 {
     <div class="unauthorized-box">
         <div class="unauthorized-card">
@@ -55,8 +53,9 @@ else
             <h3>Hero</h3>
 
             <div class="form-group">
-                <label>Imagen Hero (URL)</label>
-                <input class="form-control-admin" @bind="Cita.HeroImageUrl" />
+                <label>Imagen Hero</label>
+                <img src="@Cita.HeroImageUrl"
+                     style="width: 250px; border-radius: 8px; margin: 10px 0;" />
             </div>
 
             <div class="form-group">
@@ -150,8 +149,9 @@ else
             <h3>Optimización</h3>
 
             <div class="form-group">
-                <label>Tarjeta 1 - Imagen (URL)</label>
-                <input class="form-control-admin" @bind="Cita.OptCard1ImageUrl" />
+                <label>Tarjeta 1 - Imagen</label>
+                <img src="@Cita.OptCard1ImageUrl"
+                     style="width: 200px; border-radius: 8px; margin: 10px 0;" />
             </div>
 
             <div class="form-group">
@@ -165,8 +165,9 @@ else
             </div>
 
             <div class="form-group">
-                <label>Tarjeta 2 - Imagen (URL)</label>
-                <input class="form-control-admin" @bind="Cita.OptCard2ImageUrl" />
+                <label>Tarjeta 2 - Imagen</label>
+                <img src="@Cita.OptCard2ImageUrl"
+                     style="width: 200px; border-radius: 8px; margin: 10px 0;" />
             </div>
 
             <div class="form-group">
@@ -265,7 +266,6 @@ else
 @code {
 
     CitaDto Cita = new();
-
     string? Mensaje;
 
     private string loginEmail = "";
@@ -277,7 +277,6 @@ else
         if (ApiService.IsLoggedIn && ApiService.IsAdmin)
         {
             var data = await ApiService.GetCitaSemanalAsync();
-
             if (data != null)
             {
                 Cita = data;
@@ -301,8 +300,6 @@ else
             ApiService.Logout();
             return;
         }
-
-        NavigationManager.NavigateTo("/admin/cita-semanal", true);
     }
 
     private async Task GuardarCita()
