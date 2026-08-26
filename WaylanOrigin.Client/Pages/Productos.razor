@@ -621,9 +621,15 @@
 
     private async Task LoadCatalogDataAsync()
     {
-        AllProducts = await ApiService.GetProductosActivosAsync();
-        AllCategories = await ApiService.GetCategoriasActivasAsync();
-        AllNotes = await ApiService.GetNotasAsync();
+        var taskProds = ApiService.GetProductosActivosAsync();
+        var taskCats = ApiService.GetCategoriasActivasAsync();
+        var taskNotes = ApiService.GetNotasAsync();
+
+        await Task.WhenAll(taskProds, taskCats, taskNotes);
+
+        AllProducts = await taskProds;
+        AllCategories = await taskCats;
+        AllNotes = await taskNotes;
     }
 
     public void Dispose()

@@ -108,6 +108,23 @@ namespace WaylanOrigin.Client.Services
             { "8", 6 }  // Waylan prueba
         };
 
+        private static List<Product>? _cachedActiveProducts;
+        private static List<Product>? _cachedAdminProducts;
+        private static List<Category>? _cachedAllCategories;
+        private static List<Category>? _cachedActiveCategories;
+        private static List<Note>? _cachedNotas;
+        private static DateTime _lastCacheTime = DateTime.MinValue;
+
+        public static void InvalidateCache()
+        {
+            _cachedActiveProducts = null;
+            _cachedAdminProducts = null;
+            _cachedAllCategories = null;
+            _cachedActiveCategories = null;
+            _cachedNotas = null;
+            _lastCacheTime = DateTime.MinValue;
+        }
+
         private async Task LoadProductStockMapAsync()
         {
             try
@@ -554,31 +571,45 @@ namespace WaylanOrigin.Client.Services
 
         public async Task<List<Product>> GetProductosActivosAsync()
         {
+            if (_cachedActiveProducts != null && (DateTime.UtcNow - _lastCacheTime).TotalSeconds < 30)
+            {
+                return _cachedActiveProducts;
+            }
+
             try
             {
                 await LoadProductStockMapAsync();
                 var dtos = await _http.GetFromJsonAsync<List<ProductoReadDto>>($"{ApiBaseUrl}api/Producto/Lista de productos");
                 if (dtos != null && dtos.Any())
                 {
-                    return dtos.Select(MapToProduct).Where(p => p.Activo).ToList();
+                    _cachedActiveProducts = dtos.Select(MapToProduct).Where(p => p.Activo).ToList();
+                    _lastCacheTime = DateTime.UtcNow;
+                    return _cachedActiveProducts;
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error GetProductosActivosAsync: {ex.Message}");
             }
-            return new List<Product>();
+            return _cachedActiveProducts ?? new List<Product>();
         }
 
         public async Task<List<Product>> GetTodosProductosAsync()
         {
+            if (_cachedAdminProducts != null && (DateTime.UtcNow - _lastCacheTime).TotalSeconds < 30)
+            {
+                return _cachedAdminProducts;
+            }
+
             try
             {
                 SetAuthHeader();
                 var dtos = await _http.GetFromJsonAsync<List<ProductoReadAdminDto>>($"{ApiBaseUrl}api/Producto/Lista de productos Admin");
                 if (dtos != null && dtos.Any())
                 {
-                    return dtos.Select(MapToProduct).ToList();
+                    _cachedAdminProducts = dtos.Select(MapToProduct).ToList();
+                    _lastCacheTime = DateTime.UtcNow;
+                    return _cachedAdminProducts;
                 }
             }
             catch
@@ -590,7 +621,9 @@ namespace WaylanOrigin.Client.Services
                 var publicDtos = await _http.GetFromJsonAsync<List<ProductoReadDto>>($"{ApiBaseUrl}api/Producto/Lista de productos");
                 if (publicDtos != null && publicDtos.Any())
                 {
-                    return publicDtos.Select(MapToProduct).ToList();
+                    _cachedAdminProducts = publicDtos.Select(MapToProduct).ToList();
+                    _lastCacheTime = DateTime.UtcNow;
+                    return _cachedAdminProducts;
                 }
             }
             catch (Exception ex)
@@ -598,7 +631,7 @@ namespace WaylanOrigin.Client.Services
                 Console.WriteLine($"Error GetTodosProductosAsync: {ex.Message}");
             }
 
-            return new List<Product>();
+            return _cachedAdminProducts ?? new List<Product>();
         }
 
         public async Task<Product?> GetProductoPorIdAsync(string id)
@@ -625,6 +658,7 @@ namespace WaylanOrigin.Client.Services
                 var response = await _http.PostAsync($"{ApiBaseUrl}api/Producto", content);
                 if (response.IsSuccessStatusCode)
                 {
+                    InvalidateCache();
                     OnDataChanged?.Invoke();
                     return true;
                 }

@@ -1183,9 +1183,15 @@
         {
             if (activeTab == "productos")
             {
-                products = await ApiService.GetTodosProductosAsync();
-                availableNotes = await ApiService.GetNotasAsync();
-                var rawCats = await ApiService.GetTodasCategoriasAsync();
+                var taskProds = ApiService.GetTodosProductosAsync();
+                var taskNotes = ApiService.GetNotasAsync();
+                var taskCats = ApiService.GetTodasCategoriasAsync();
+
+                await Task.WhenAll(taskProds, taskNotes, taskCats);
+
+                products = await taskProds;
+                availableNotes = await taskNotes;
+                var rawCats = await taskCats;
                 categories = rawCats.GroupBy(c => c.Id).Select(g => g.First()).ToList();
             }
             else if (activeTab == "categorias")
@@ -1707,13 +1713,51 @@ StringComparison.OrdinalIgnoreCase));
         max-width: 1400px;
         width: 100%;
         margin: 0 auto;
-        padding: 40px 24px;
-        gap: 30px;
+        padding: 30px 20px;
+        gap: 24px;
+        box-sizing: border-box;
+    }
+
+    @@media (max-width: 1100px) {
+        .dashboard-body {
+            grid-template-columns: 220px 1fr;
+            padding: 20px 14px;
+            gap: 16px;
+        }
+        .dashboard-content-panel {
+            padding: 20px 16px;
+        }
     }
 
     @@media (max-width: 900px) {
         .dashboard-body {
             grid-template-columns: 1fr;
+            padding: 16px 10px;
+            gap: 16px;
+        }
+
+        .dashboard-sidebar {
+            display: flex;
+            flex-direction: row;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding-bottom: 8px;
+            gap: 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .sidebar-tab-btn {
+            flex: 0 0 auto;
+            padding: 10px 14px;
+            font-size: 0.8rem;
+        }
+
+        .dashboard-content-panel {
+            padding: 16px 12px;
+            min-height: auto;
+            box-sizing: border-box;
+            width: 100%;
+            overflow: hidden;
         }
     }
 
@@ -1811,17 +1855,38 @@ StringComparison.OrdinalIgnoreCase));
         background-color: var(--admin-gold-hover);
     }
 
-    /* TABLES */
+    /* TABLES RESPONSIVE */
     .table-container {
         width: 100%;
+        max-width: 100%;
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 8px;
+        border: 1px solid rgba(40, 26, 18, 0.08);
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.02);
+    }
+
+    .table-container::-webkit-scrollbar {
+        height: 8px;
+    }
+    .table-container::-webkit-scrollbar-track {
+        background: #FAF6F0;
+        border-radius: 4px;
+    }
+    .table-container::-webkit-scrollbar-thumb {
+        background: #D1B894;
+        border-radius: 4px;
+    }
+    .table-container::-webkit-scrollbar-thumb:hover {
+        background: #B89A5E;
     }
 
     .admin-table {
         width: 100%;
+        min-width: 950px;
         border-collapse: collapse;
         text-align: left;
-        font-size: 0.85rem;
+        font-size: 0.84rem;
     }
 
     .admin-table th {
@@ -1829,14 +1894,15 @@ StringComparison.OrdinalIgnoreCase));
         color: #706B64;
         font-weight: 700;
         text-transform: uppercase;
-        font-size: 0.7rem;
-        letter-spacing: 1px;
-        padding: 14px 18px;
+        font-size: 0.72rem;
+        letter-spacing: 0.8px;
+        padding: 12px 14px;
         border-bottom: 1.5px solid var(--admin-gold);
+        white-space: nowrap;
     }
 
     .admin-table td {
-        padding: 16px 18px;
+        padding: 12px 14px;
         border-bottom: 1px solid #FAF6F0;
         color: var(--admin-brown);
         vertical-align: middle;
