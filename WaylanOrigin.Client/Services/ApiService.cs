@@ -102,7 +102,11 @@ namespace WaylanOrigin.Client.Services
             catch { }
         }
 
-        private static readonly Dictionary<string, int> _productStockMap = new();
+        private static readonly Dictionary<string, int> _productStockMap = new()
+        {
+            { "1", 0 }, // Waylan Speciality Coffee (AGOTADO en BD)
+            { "8", 6 }  // Waylan prueba
+        };
 
         private async Task LoadProductStockMapAsync()
         {
@@ -112,7 +116,7 @@ namespace WaylanOrigin.Client.Services
                 if (!string.IsNullOrEmpty(json))
                 {
                     var dict = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, int>>(json);
-                    if (dict != null)
+                    if (dict != null && dict.Any())
                     {
                         foreach (var kvp in dict) _productStockMap[kvp.Key] = kvp.Value;
                     }
@@ -498,7 +502,7 @@ namespace WaylanOrigin.Client.Services
         // --- PRODUCTOS ---
         private Product MapToProduct(ProductoReadDto dto)
         {
-            int resolvedStock = _productStockMap.TryGetValue(dto.Id.ToString(), out var s) ? s : 20;
+            int resolvedStock = _productStockMap.TryGetValue(dto.Id.ToString(), out var s) ? s : 0;
             return new Product
             {
                 Id = dto.Id.ToString(),
