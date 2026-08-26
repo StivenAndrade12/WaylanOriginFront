@@ -40,7 +40,6 @@ namespace WaylanOrigin.Client.Services
         public event Action? OnAuthStateChanged;
         public event Action? OnDataChanged;
 
-        private static readonly List<Order> _savedLocalOrders = new();
         private static readonly HashSet<string> _deactivatedEmails = new(StringComparer.OrdinalIgnoreCase);
         private readonly CartState _cartState;
 
@@ -102,49 +101,11 @@ namespace WaylanOrigin.Client.Services
             catch { }
         }
 
-        private async Task SaveLocalOrdersToStorageAsync()
-        {
-            try
-            {
-                var json = System.Text.Json.JsonSerializer.Serialize(_savedLocalOrders);
-                await _js.InvokeVoidAsync("localStorage.setItem", "waylan_orders_cache", json);
-            }
-            catch { }
-        }
-
-        private async Task LoadLocalOrdersFromStorageAsync()
-        {
-            try
-            {
-                var json = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_orders_cache");
-                if (!string.IsNullOrEmpty(json))
-                {
-                    var list = System.Text.Json.JsonSerializer.Deserialize<List<Order>>(json);
-                    if (list != null && list.Any())
-                    {
-                        foreach (var item in list)
-                        {
-                            var existing = _savedLocalOrders.FirstOrDefault(o => o.Codigo == item.Codigo);
-                            if (existing == null)
-                            {
-                                _savedLocalOrders.Add(item);
-                            }
-                            else
-                            {
-                                if (!string.IsNullOrEmpty(item.Estado)) existing.Estado = item.Estado;
-                            }
-                        }
-                    }
-                }
-            }
-            catch { }
-        }
-
         public async Task InitializeAuthAsync()
         {
             try
             {
-                await LoadLocalOrdersFromStorageAsync();
+                await _js.InvokeVoidAsync("localStorage.removeItem", "waylan_orders_cache");
                 await LoadDeactivatedUsersAsync();
 
                 var storedToken = await _js.InvokeAsync<string>("localStorage.getItem", "waylan_token");
@@ -1073,12 +1034,6 @@ namespace WaylanOrigin.Client.Services
                             ? result.CodigoSeguimiento
                             : ("PED-" + Guid.NewGuid().ToString().Substring(0, 6).ToUpper());
 
-                        var createdOrder = MapToOrder(result);
-                        if (string.IsNullOrEmpty(createdOrder.Codigo)) createdOrder.Codigo = code;
-
-                        _savedLocalOrders.RemoveAll(o => o.Codigo.Equals(code, StringComparison.OrdinalIgnoreCase));
-                        _savedLocalOrders.Add(createdOrder);
-                        await SaveLocalOrdersToStorageAsync();
                         OnDataChanged?.Invoke();
 
                         return new CrearPedidoResponseDto
@@ -1099,54 +1054,14 @@ namespace WaylanOrigin.Client.Services
                 Console.WriteLine($"Error CrearPedidoAsync: {ex.Message}");
             }
 
-            // Fallback for seamless offline experience
-            decimal fallbackTotal = items.Sum(i => i.Cantidad * (i.Precio > 0 ? i.Precio : 55000));
-            var fallbackCode = "PED-" + Guid.NewGuid().ToString().Substring(0, 6).ToUpper();
-            var fallbackOrder = new Order
-            {
-                Id = 0,
-                Codigo = fallbackCode,
-                Direccion = string.IsNullOrWhiteSpace(direccion) ? "Dirección registrada" : direccion,
-                NombreUsuario = CurrentUser?.Nombre ?? "Cliente",
-                EmailCliente = CurrentUser?.Email ?? string.Empty,
-                Total = (double)fallbackTotal,
-                Estado = "Pendiente",
-                EstadoPago = "Pendiente",
-                Fecha = DateTime.UtcNow
-            };
-            _savedLocalOrders.RemoveAll(o => o.Codigo.Equals(fallbackCode, StringComparison.OrdinalIgnoreCase));
-            _savedLocalOrders.Add(fallbackOrder);
-            await SaveLocalOrdersToStorageAsync();
-            OnDataChanged?.Invoke();
-
-            return new CrearPedidoResponseDto
-            {
-                Codigo = fallbackCode,
-                Total = fallbackTotal
-            };
+            return null;
         }
 
         public async Task<bool> ConfirmarPagoWompiAsync(string codigoSeguimiento, string statusWompi)
         {
             if (string.IsNullOrWhiteSpace(codigoSeguimiento)) return false;
-            try
-            {
-                await LoadLocalOrdersFromStorageAsync();
-                var localMatch = _savedLocalOrders.FirstOrDefault(o => o.Codigo.Equals(codigoSeguimiento, StringComparison.OrdinalIgnoreCase));
-                if (localMatch != null)
-                {
-                    if (string.IsNullOrEmpty(localMatch.Estado)) localMatch.Estado = "Pendiente";
-                    localMatch.EstadoPago = "Aprobado";
-                }
-                await SaveLocalOrdersToStorageAsync();
-                OnDataChanged?.Invoke();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error ConfirmarPagoWompiAsync: {ex.Message}");
-                return false;
-            }
+            OnDataChanged?.Invoke();
+            return true;
         }
 
         public async Task<List<Order>> GetMisPedidosAsync()
@@ -1166,23 +1081,6 @@ namespace WaylanOrigin.Client.Services
                 Console.WriteLine($"Error GetMisPedidosAsync: {ex.Message}");
             }
 
-            try
-            {
-                var allAdminOrders = await GetTodosPedidosAsync();
-                string curEmail = CurrentUser?.Email ?? "";
-                foreach (var ao in allAdminOrders)
-                {
-                    if (!result.Any(r => r.Codigo.Equals(ao.Codigo, StringComparison.OrdinalIgnoreCase)))
-                    {
-                        if (!string.IsNullOrEmpty(curEmail) && ao.EmailCliente.Equals(curEmail, StringComparison.OrdinalIgnoreCase))
-                        {
-                            result.Add(ao);
-                        }
-                    }
-                }
-            }
-            catch { }
-
             return result.GroupBy(o => o.Codigo, StringComparer.OrdinalIgnoreCase)
                          .Select(g => g.First())
                          .OrderByDescending(o => o.Fecha)
@@ -1199,21 +1097,11 @@ namespace WaylanOrigin.Client.Services
                 if (dtos != null)
                 {
                     result = dtos.Select(MapToOrder).ToList();
-                    _savedLocalOrders.RemoveAll(lo => !result.Any(r => r.Codigo.Equals(lo.Codigo, StringComparison.OrdinalIgnoreCase)));
-                    await SaveLocalOrdersToStorageAsync();
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error GetTodosPedidosAsync: {ex.Message}");
-                await LoadLocalOrdersFromStorageAsync();
-                foreach (var lo in _savedLocalOrders)
-                {
-                    if (!result.Any(r => r.Codigo.Equals(lo.Codigo, StringComparison.OrdinalIgnoreCase)))
-                    {
-                        result.Add(lo);
-                    }
-                }
             }
 
             return result.GroupBy(o => o.Codigo, StringComparer.OrdinalIgnoreCase)
@@ -1224,7 +1112,6 @@ namespace WaylanOrigin.Client.Services
 
         public async Task<Order?> GetPedidoPorCodigoAsync(string codigo)
         {
-            await LoadLocalOrdersFromStorageAsync();
             try
             {
                 SetAuthHeader();
@@ -1239,15 +1126,11 @@ namespace WaylanOrigin.Client.Services
                 Console.WriteLine($"Error GetPedidoPorCodigoAsync: {ex.Message}");
             }
 
-            var localMatch = _savedLocalOrders.FirstOrDefault(o => o.Codigo.Equals(codigo, StringComparison.OrdinalIgnoreCase));
-            if (localMatch != null) return localMatch;
-
             return null;
         }
 
         public async Task<bool> CambiarEstadoPedidoAsync(string codigo, string estado)
         {
-            await LoadLocalOrdersFromStorageAsync();
             try
             {
                 SetAuthHeader();
@@ -1259,22 +1142,6 @@ namespace WaylanOrigin.Client.Services
                     "Entregado" => 4,
                     _ => 0 // "Pendiente"
                 };
-
-                string normalizedState = enumVal switch
-                {
-                    1 => "EnPreparacion",
-                    2 => "EnTransito",
-                    3 => "EnReparto",
-                    4 => "Entregado",
-                    _ => "Pendiente"
-                };
-
-                var localMatch = _savedLocalOrders.FirstOrDefault(o => o.Codigo.Equals(codigo, StringComparison.OrdinalIgnoreCase));
-                if (localMatch != null)
-                {
-                    localMatch.Estado = normalizedState;
-                    await SaveLocalOrdersToStorageAsync();
-                }
 
                 var response = await _http.PatchAsync($"{ApiBaseUrl}api/Pedidos/{Uri.EscapeDataString(codigo)}/cambiar-estado?nuevoEstado={enumVal}", null);
                 OnDataChanged?.Invoke();
