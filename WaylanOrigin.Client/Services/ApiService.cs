@@ -34,7 +34,7 @@ namespace WaylanOrigin.Client.Services
         public bool IsLoggedIn => !string.IsNullOrEmpty(Token);
         public bool IsAdmin => IsLoggedIn && CurrentUser != null &&
             (CurrentUser.Rol == "Admin" || CurrentUser.Email.Equals("sebastiancam74@gmail.com", StringComparison.OrdinalIgnoreCase));
-        public string WompiPublicKey { get; set; } = "pub_test_W563zt7LZtn9qNMfSfZMSlY9ODRuw6bb";
+        public string WompiPublicKey { get; set; } = "pub_prod_vVUetSbk2xQGlcB69vCGP1FGqgu6kRhq";
         public string? LastLoginError { get; set; }
 
         public event Action? OnAuthStateChanged;
