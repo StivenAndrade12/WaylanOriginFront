@@ -104,8 +104,8 @@
                                                 <span class="order-value">@pedido.Fecha.ToLocalTime().ToString("g")</span>
                                             </div>
                                             <div class="order-status-block">
-                                                <span class="status-pill @(pedido.Estado.ToLower())">
-                                                    @(pedido.Estado == "EnPreparacion" ? "En Preparación" : pedido.Estado == "EnTransito" ? "En Tránsito" : pedido.Estado == "EnReparto" ? "En Reparto" : pedido.Estado)
+                                                <span class="status-pill @GetOrderStateBadgeClass(pedido.Estado)">
+                                                    @GetStatusDisplayWithIcon(pedido.Estado)
                                                 </span>
                                             </div>
                                         </div>
@@ -226,6 +226,29 @@
         {
             isLoading = false;
         }
+    }
+
+    private string GetOrderStateBadgeClass(string state)
+    {
+        var s = (state ?? "").ToLowerInvariant().Replace(" ", "").Replace("á", "a").Replace("ó", "o");
+        if (s.Contains("pendiente")) return "state-badge-pendiente";
+        if (s.Contains("preparac")) return "state-badge-preparacion";
+        if (s.Contains("transit") || s.Contains("reparto")) return "state-badge-transito";
+        if (s.Contains("entregad") || s.Contains("completad")) return "state-badge-entregado";
+        if (s.Contains("cancelad")) return "state-badge-cancelado";
+        return "state-badge-pendiente";
+    }
+
+    private string GetStatusDisplayWithIcon(string state)
+    {
+        var s = (state ?? "").ToLowerInvariant().Replace(" ", "").Replace("á", "a").Replace("ó", "o");
+        if (s.Contains("pendiente")) return "⏳ Pendiente";
+        if (s.Contains("preparac")) return "☕ En Preparación";
+        if (s.Contains("transit")) return "🚚 En Tránsito";
+        if (s.Contains("reparto")) return "📦 En Reparto";
+        if (s.Contains("entregad") || s.Contains("completad")) return "✅ Entregado";
+        if (s.Contains("cancelad")) return "❌ Cancelado";
+        return state;
     }
 }
 
@@ -520,26 +543,44 @@
     }
 
     .status-pill {
-        font-size: 0.75rem;
+        font-size: 0.78rem;
         font-weight: 800;
-        padding: 4px 12px;
-        border-radius: 4px;
-        text-transform: capitalize;
+        padding: 6px 14px;
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
     }
 
-    .status-pill.pendiente {
-        background-color: #FEF3D6;
-        color: #C47A2B;
+    .status-pill.state-badge-pendiente, .status-pill.pendiente {
+        background-color: #FEF3C7;
+        color: #92400E;
+        border: 1.5px solid #F59E0B;
     }
 
-    .status-pill.aprobado, .status-pill.enviado {
-        background-color: #E2F3E7;
-        color: #2F6F4C;
+    .status-pill.state-badge-preparacion, .status-pill.enpreparacion, .status-pill.enpreparación {
+        background-color: #E0F2FE;
+        color: #1E40AF;
+        border: 1.5px solid #3B82F6;
     }
 
-    .status-pill.cancelado {
-        background-color: #FCE8E6;
-        color: #8C2424;
+    .status-pill.state-badge-transito, .status-pill.entransito, .status-pill.enreparto {
+        background-color: #F3E8FF;
+        color: #6B21A8;
+        border: 1.5px solid #8B5CF6;
+    }
+
+    .status-pill.state-badge-entregado, .status-pill.entregado, .status-pill.completado {
+        background-color: #DCFCE7;
+        color: #15803D;
+        border: 1.5px solid #10B981;
+    }
+
+    .status-pill.state-badge-cancelado, .status-pill.cancelado {
+        background-color: #FEE2E2;
+        color: #B91C1C;
+        border: 1.5px solid #EF4444;
     }
 
     .order-card-body {
