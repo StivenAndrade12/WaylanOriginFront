@@ -128,6 +128,33 @@
                             <button class="btn-create-new" @onclick="OpenCreateProductModal">NUEVO PRODUCTO</button>
                         </div>
 
+                        @if (products.Any(p => p.Stock < 5))
+                        {
+                            <div class="stock-warning-banner">
+                                <div class="stock-banner-header">
+                                    <span class="stock-alert-icon" style="font-size: 1.2rem;">⚠️</span>
+                                    <div>
+                                        <strong>ALERTA DE INVENTARIO:</strong>
+                                        <span>Hay @products.Count(p => p.Stock < 5) producto(s) que requieren reabastecimiento pronto.</span>
+                                    </div>
+                                </div>
+                                <div class="stock-banner-pills">
+                                    @if (products.Any(p => p.Stock <= 0))
+                                    {
+                                        <span class="stock-pill-badge out-of-stock-pill">
+                                            🔴 @products.Count(p => p.Stock <= 0) AGOTADO(S) (0 un.)
+                                        </span>
+                                    }
+                                    @if (products.Any(p => p.Stock > 0 && p.Stock < 5))
+                                    {
+                                        <span class="stock-pill-badge low-stock-pill">
+                                            ⚠️ @products.Count(p => p.Stock > 0 && p.Stock < 5) STOCK CRÍTICO (&lt;5 un.)
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                        }
+
                         <div class="table-container">
                             <table class="admin-table">
                                 <thead>
@@ -148,7 +175,7 @@
                                 <tbody>
                                     @foreach (var p in PaginatedProducts)
                                     {
-                                        <tr>
+                                        <tr class="@(p.Stock <= 0 ? "row-out-of-stock" : p.Stock < 5 ? "row-low-stock" : "")">
                                             <td><strong>#@p.Id</strong></td>
                                             <td>
                                                 <img src="@ApiService.GetFullImageUrl(p.ImagenUrl)" alt="@p.Nombre"
@@ -162,10 +189,30 @@
                                                                                             p.Proceso)</span></td>
                                                     <td><strong>$@p.Precio.ToString("N0") COP</strong></td>
                                                     <td>
-                                                        <span
-                                                            class="stock-badge @(p.Stock > 10 ? "in-stock" : p.Stock > 0 ? "low-stock" : "out-of-stock")">
-                                                            @p.Stock un.
-                                                        </span>
+                                                        @if (p.Stock <= 0)
+                                                        {
+                                                            <span class="stock-badge out-of-stock">
+                                                                🔴 AGOTADO (0 un.)
+                                                            </span>
+                                                        }
+                                                        else if (p.Stock < 5)
+                                                        {
+                                                            <span class="stock-badge low-stock">
+                                                                ⚠️ CRÍTICO (@p.Stock un.)
+                                                            </span>
+                                                        }
+                                                        else if (p.Stock <= 10)
+                                                        {
+                                                            <span class="stock-badge low-stock-soft">
+                                                                📦 @p.Stock un.
+                                                            </span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="stock-badge in-stock">
+                                                                ✅ @p.Stock un.
+                                                            </span>
+                                                        }
                                                     </td>
                                                     <td>
                                                         @if (p.Notas != null && p.Notas.Any())
@@ -1803,27 +1850,111 @@ StringComparison.OrdinalIgnoreCase));
         display: inline-block;
     }
 
-    .stock-badge {
-        font-size: 0.75rem;
+    /* STOCK ALERT BANNER & HIGHLIGHTS */
+    .stock-warning-banner {
+        background-color: #FEF2F2;
+        border: 1.5px solid #FCA5A5;
+        border-left: 6px solid #DC2626;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        box-shadow: 0 2px 8px rgba(220, 38, 38, 0.08);
+    }
+
+    .stock-banner-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.88rem;
+        color: #7F1D1D;
+    }
+
+    .stock-banner-pills {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .stock-pill-badge {
+        font-size: 0.76rem;
         font-weight: 800;
-        padding: 3px 8px;
-        border-radius: 4px;
-        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 12px;
+    }
+
+    .stock-pill-badge.out-of-stock-pill {
+        background-color: #FEE2E2;
+        color: #991B1B;
+        border: 1px solid #EF4444;
+    }
+
+    .stock-pill-badge.low-stock-pill {
+        background-color: #FEF3C7;
+        color: #92400E;
+        border: 1px solid #F59E0B;
+    }
+
+    .admin-table tr.row-out-of-stock td {
+        background-color: #FEF2F2 !important;
+    }
+
+    .admin-table tr.row-out-of-stock {
+        border-left: 4px solid #DC2626 !important;
+    }
+
+    .admin-table tr.row-low-stock td {
+        background-color: #FFFBEB !important;
+    }
+
+    .admin-table tr.row-low-stock {
+        border-left: 4px solid #F59E0B !important;
+    }
+
+    .stock-badge {
+        font-size: 0.76rem;
+        font-weight: 800;
+        padding: 4px 10px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
     }
 
     .stock-badge.in-stock {
-        background-color: #E2F3E7;
-        color: #2F6F4C;
+        background-color: #DCFCE7;
+        color: #15803D;
+        border: 1px solid #22C55E;
+    }
+
+    .stock-badge.low-stock-soft {
+        background-color: #FEF9C3;
+        color: #713F12;
+        border: 1px solid #EAB308;
     }
 
     .stock-badge.low-stock {
-        background-color: #FEF3D6;
-        color: #C47A2B;
+        background-color: #FEF3C7;
+        color: #92400E;
+        border: 1.5px solid #F59E0B;
     }
 
     .stock-badge.out-of-stock {
-        background-color: #FCE8E6;
-        color: var(--admin-red);
+        background-color: #FEE2E2;
+        color: #991B1B;
+        border: 1.5px solid #EF4444;
+        animation: pulse-red 2s infinite;
+    }
+
+    @@keyframes pulse-red {
+        0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+        70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
 
     .notes-pill-group {
