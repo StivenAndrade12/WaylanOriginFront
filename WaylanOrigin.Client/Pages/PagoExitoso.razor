@@ -110,10 +110,6 @@
         {
             try
             {
-                if (status == "APPROVED" || status == "SUCCESS" || string.IsNullOrEmpty(statusVal))
-                {
-                    await ApiService.ConfirmarPagoWompiAsync(reference, "APPROVED");
-                }
                 currentOrder = await ApiService.GetPedidoPorCodigoAsync(reference);
             }
             catch

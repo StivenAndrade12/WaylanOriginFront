@@ -424,7 +424,8 @@
         var items = CartState.Items.Select(i => new CartItemDto
         {
             ProductoId = i.Product.Id,
-            Cantidad = i.Cantidad
+            Cantidad = i.Cantidad,
+            Precio = i.Product.Precio
         }).ToList();
 
         var response = await ApiService.CrearPedidoAsync(items, fullAddress);

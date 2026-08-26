@@ -1099,7 +1099,8 @@ namespace WaylanOrigin.Client.Services
                 Console.WriteLine($"Error CrearPedidoAsync: {ex.Message}");
             }
 
-            // Fallback for seamless Wompi checkout integration
+            // Fallback for seamless offline experience
+            decimal fallbackTotal = items.Sum(i => i.Cantidad * (i.Precio > 0 ? i.Precio : 55000));
             var fallbackCode = "PED-" + Guid.NewGuid().ToString().Substring(0, 6).ToUpper();
             var fallbackOrder = new Order
             {
@@ -1108,7 +1109,7 @@ namespace WaylanOrigin.Client.Services
                 Direccion = string.IsNullOrWhiteSpace(direccion) ? "Dirección registrada" : direccion,
                 NombreUsuario = CurrentUser?.Nombre ?? "Cliente",
                 EmailCliente = CurrentUser?.Email ?? string.Empty,
-                Total = items.Sum(i => i.Cantidad * 55000),
+                Total = (double)fallbackTotal,
                 Estado = "Pendiente",
                 EstadoPago = "Pendiente",
                 Fecha = DateTime.UtcNow
@@ -1121,7 +1122,7 @@ namespace WaylanOrigin.Client.Services
             return new CrearPedidoResponseDto
             {
                 Codigo = fallbackCode,
-                Total = (decimal)fallbackOrder.Total
+                Total = fallbackTotal
             };
         }
 
@@ -1130,36 +1131,6 @@ namespace WaylanOrigin.Client.Services
             if (string.IsNullOrWhiteSpace(codigoSeguimiento)) return false;
             try
             {
-                SetAuthHeader();
-
-                var webhookPayload = new
-                {
-                    @event = "transaction.updated",
-                    data = new
-                    {
-                        transaction = new
-                        {
-                            id = "wompi-" + codigoSeguimiento,
-                            status = (string.IsNullOrWhiteSpace(statusWompi) ? "APPROVED" : statusWompi.ToUpper()),
-                            reference = codigoSeguimiento,
-                            amount_in_cents = 5500000
-                        }
-                    },
-                    Signature = new
-                    {
-                        checksum = "approved_checksum"
-                    }
-                };
-
-                try
-                {
-                    await _http.PostAsJsonAsync($"{ApiBaseUrl}api/Pagos/webhook", webhookPayload);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error calling Pagos/webhook: {ex.Message}");
-                }
-
                 await LoadLocalOrdersFromStorageAsync();
                 var localMatch = _savedLocalOrders.FirstOrDefault(o => o.Codigo.Equals(codigoSeguimiento, StringComparison.OrdinalIgnoreCase));
                 if (localMatch != null)
@@ -1167,21 +1138,7 @@ namespace WaylanOrigin.Client.Services
                     if (string.IsNullOrEmpty(localMatch.Estado)) localMatch.Estado = "Pendiente";
                     localMatch.EstadoPago = "Aprobado";
                 }
-                else
-                {
-                    _savedLocalOrders.Add(new Order
-                    {
-                        Id = 0,
-                        Codigo = codigoSeguimiento,
-                        NombreUsuario = CurrentUser?.Nombre ?? "Cliente",
-                        EmailCliente = CurrentUser?.Email ?? string.Empty,
-                        Estado = "Pendiente",
-                        EstadoPago = "Aprobado",
-                        Fecha = DateTime.UtcNow
-                    });
-                }
                 await SaveLocalOrdersToStorageAsync();
-
                 OnDataChanged?.Invoke();
                 return true;
             }
@@ -1440,6 +1397,7 @@ namespace WaylanOrigin.Client.Services
     {
         public string ProductoId { get; set; } = string.Empty;
         public int Cantidad { get; set; }
+        public decimal Precio { get; set; }
     }
 
     public class UsuarioReadDto
