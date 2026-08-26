@@ -324,7 +324,11 @@ namespace WaylanOrigin.Client.Services
                         return true;
                     }
 
-                    if (response.StatusCode == System.Net.HttpStatusCode.NotFound ||
+                    if (_deactivatedEmails.Contains(email) || lowerErr.Contains("desactivad") || lowerErr.Contains("deshabilitad") || lowerErr.Contains("inactiv"))
+                    {
+                        LastLoginError = "Esta cuenta ha sido desactivada por el administrador. Comunícate con soporte para más información.";
+                    }
+                    else if (response.StatusCode == System.Net.HttpStatusCode.NotFound ||
                         lowerErr.Contains("no existe") || lowerErr.Contains("no encontrado") ||
                         lowerErr.Contains("not found") || lowerErr.Contains("no registrado") ||
                         lowerErr.Contains("usuario no existe"))
@@ -334,10 +338,6 @@ namespace WaylanOrigin.Client.Services
                     else if (lowerErr.Contains("tu cuenta aun no ha sido activada") || lowerErr.Contains("no ha sido activada"))
                     {
                         LastLoginError = "Tu cuenta aún no ha sido activada.";
-                    }
-                    else if (lowerErr.Contains("desactivada") || lowerErr.Contains("deshabilitada") || lowerErr.Contains("inactiva"))
-                    {
-                        LastLoginError = "Esta cuenta ha sido desactivada por el administrador. Comunícate con soporte para más información.";
                     }
                     else if (lowerErr.Contains("contraseña") || lowerErr.Contains("password") || lowerErr.Contains("incorrect"))
                     {

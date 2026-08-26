@@ -329,7 +329,14 @@
         }
         else
         {
-            if (!string.IsNullOrEmpty(ApiService.LastLoginError) && ApiService.LastLoginError.Contains("no ha sido activada"))
+            if (!string.IsNullOrEmpty(ApiService.LastLoginError) &&
+                (ApiService.LastLoginError.Contains("desactivada", StringComparison.OrdinalIgnoreCase) ||
+                 ApiService.LastLoginError.Contains("deshabilitada", StringComparison.OrdinalIgnoreCase) ||
+                 ApiService.LastLoginError.Contains("inactiva", StringComparison.OrdinalIgnoreCase)))
+            {
+                errorMessage = ApiService.LastLoginError;
+            }
+            else if (!string.IsNullOrEmpty(ApiService.LastLoginError) && ApiService.LastLoginError.Contains("no ha sido activada", StringComparison.OrdinalIgnoreCase))
             {
                 verifyEmail = loginEmail;
                 ChangeMode(AuthMode.Verify);
