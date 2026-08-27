@@ -8,7 +8,7 @@
 <div class="payment-status-page">
     <div class="receipt-card">
         <!-- STATUS HEADER -->
-        @if (status == "APPROVED" || status == "SUCCESS" || string.IsNullOrEmpty(status))
+        @if (isSuccess)
         {
             <div class="status-icon-wrapper success">
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor"
@@ -21,7 +21,7 @@
             <p class="status-description">Gracias por tu compra. Wompi ha procesado tu pago de forma segura y nuestro equipo
                 ya está preparando tu café de especialidad.</p>
         }
-        else if (status == "PENDING")
+        else if (isPending)
         {
             <div class="status-icon-wrapper pending">
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor"
@@ -85,9 +85,15 @@
 </div>
 
 @code {
-    private string status = "APPROVED";
+    private string status = "PENDING";
     private string reference = "PED-N/A";
     private Order? currentOrder;
+    private bool isSuccess => status == "APPROVED" || status == "SUCCESS" || 
+                              (currentOrder != null && (string.Equals(currentOrder.Estado, "Aprobado", StringComparison.OrdinalIgnoreCase) || 
+                                                        string.Equals(currentOrder.EstadoPago, "Aprobado", StringComparison.OrdinalIgnoreCase)));
+    private bool isPending => !isSuccess && (status == "PENDING" || 
+                              (currentOrder != null && (string.Equals(currentOrder.Estado, "Pendiente", StringComparison.OrdinalIgnoreCase) || 
+                                                        string.Equals(currentOrder.Estado, "Creado", StringComparison.OrdinalIgnoreCase))));
 
     protected override async Task OnInitializedAsync()
     {
@@ -100,7 +106,7 @@
             status = statusVal.ToUpper();
         }
 
-        var refVal = query["ref"] ?? query["reference"];
+        var refVal = query["ref"] ?? query["reference"] ?? query["id"];
         if (!string.IsNullOrEmpty(refVal))
         {
             reference = refVal;

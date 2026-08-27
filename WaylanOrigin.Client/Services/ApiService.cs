@@ -187,13 +187,12 @@ namespace WaylanOrigin.Client.Services
                 if (!string.IsNullOrEmpty(storedToken))
                 {
                     Token = storedToken;
-                    bool isAdminStored = (!string.IsNullOrEmpty(storedEmail) && (storedEmail.Equals("sebastiancam74@gmail.com", StringComparison.OrdinalIgnoreCase) || storedEmail.Equals("vaquiroedinson@gmail.com", StringComparison.OrdinalIgnoreCase))) || string.Equals(storedRol, "Admin", StringComparison.OrdinalIgnoreCase);
 
                     CurrentUser = new User
                     {
                         Email = storedEmail ?? "usuario@correo.com",
                         Nombre = storedNombre ?? "Usuario",
-                        Rol = isAdminStored ? "Admin" : "Cliente"
+                        Rol = "Cliente" // Se asigna temporalmente y se confirma con el backend
                     };
                     SetAuthHeader();
 
@@ -215,7 +214,7 @@ namespace WaylanOrigin.Client.Services
                             CurrentUser.Id = profile.Id;
                             CurrentUser.Email = profile.Email ?? CurrentUser.Email;
                             CurrentUser.Nombre = string.IsNullOrWhiteSpace(profile.Nombre) ? CurrentUser.Nombre : profile.Nombre;
-                            CurrentUser.Rol = isBackendAdmin ? "Admin" : (string.Equals(storedRol, "Admin", StringComparison.OrdinalIgnoreCase) ? "Admin" : "Cliente");
+                            CurrentUser.Rol = isBackendAdmin ? "Admin" : "Cliente";
                             CurrentUser.Activo = profile.Activo;
                         }
                     }
@@ -1083,7 +1082,9 @@ namespace WaylanOrigin.Client.Services
                         return new CrearPedidoResponseDto
                         {
                             Codigo = code,
-                            Total = result.Total
+                            Total = result.Total,
+                            Integrity = result.Integrity,
+                            Signature = result.Signature
                         };
                     }
                 }
@@ -1496,6 +1497,8 @@ namespace WaylanOrigin.Client.Services
         public decimal Total { get; set; }
         public string? Estado { get; set; }
         public string? EstadoPago { get; set; }
+        public string? Integrity { get; set; }
+        public string? Signature { get; set; }
         public DateTime FechaPedido { get; set; }
         public List<DetallePedidoReadDto>? Detalles { get; set; }
     }

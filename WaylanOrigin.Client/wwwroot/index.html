@@ -177,11 +177,14 @@
                 var checkout = new WidgetCheckout(config);
                 checkout.open(function (result) {
                     var transaction = result ? result.transaction : {};
-                    var status = (transaction && transaction.status) ? transaction.status : 'APPROVED';
+                    var status = (transaction && transaction.status) ? transaction.status : 'PENDING';
                     console.log('Transacción finalizada. ID: ', transaction ? transaction.id : 'N/A', ' Estado: ', status);
                     if (redirectUrl) {
                         var separator = redirectUrl.indexOf('?') !== -1 ? '&' : '?';
                         var targetUrl = redirectUrl + separator + 'status=' + encodeURIComponent(status) + '&ref=' + encodeURIComponent(reference || '');
+                        if (transaction && transaction.id) {
+                            targetUrl += '&wompi_id=' + encodeURIComponent(transaction.id);
+                        }
                         window.location.href = targetUrl;
                     }
                 });
@@ -189,7 +192,7 @@
                 console.error('Error al inicializar Widget Wompi:', err);
                 if (redirectUrl) {
                     var separator = redirectUrl.indexOf('?') !== -1 ? '&' : '?';
-                    window.location.href = redirectUrl + separator + 'status=PENDING&ref=' + encodeURIComponent(reference || '');
+                    window.location.href = redirectUrl + separator + 'status=ERROR&ref=' + encodeURIComponent(reference || '');
                 }
             }
         };
