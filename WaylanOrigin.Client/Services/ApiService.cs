@@ -33,7 +33,7 @@ namespace WaylanOrigin.Client.Services
         public User? CurrentUser { get; private set; }
         public bool IsLoggedIn => !string.IsNullOrEmpty(Token);
         public bool IsAdmin => IsLoggedIn && CurrentUser != null &&
-            (CurrentUser.Rol == "Admin" || CurrentUser.Email.Equals("sebastiancam74@gmail.com", StringComparison.OrdinalIgnoreCase) || CurrentUser.Email.Equals("vaquiroedinson@gmail.com", StringComparison.OrdinalIgnoreCase));
+            string.Equals(CurrentUser.Rol, "Admin", StringComparison.OrdinalIgnoreCase);
         public string WompiPublicKey { get; set; } = "pub_prod_vVUetSbk2xQGlcB69vCGP1FGqgu6kRhq";
         public string? LastLoginError { get; set; }
 
@@ -198,7 +198,7 @@ namespace WaylanOrigin.Client.Services
                             CurrentUser.Id = profile.Id;
                             CurrentUser.Email = profile.Email ?? CurrentUser.Email;
                             CurrentUser.Nombre = string.IsNullOrWhiteSpace(profile.Nombre) ? CurrentUser.Nombre : profile.Nombre;
-                            CurrentUser.Rol = (isAdminStored || isBackendAdmin) ? "Admin" : "Cliente";
+                            CurrentUser.Rol = isBackendAdmin ? "Admin" : (string.Equals(storedRol, "Admin", StringComparison.OrdinalIgnoreCase) ? "Admin" : "Cliente");
                             CurrentUser.Activo = profile.Activo;
                         }
                     }
@@ -329,8 +329,8 @@ namespace WaylanOrigin.Client.Services
                                 {
                                     Id = profile.Id,
                                     Email = profile.Email ?? email,
-                                    Nombre = string.IsNullOrWhiteSpace(profile.Nombre) ? (isAdminEmail || isBackendAdmin ? "Administrador Principal" : "Usuario Activo") : profile.Nombre,
-                                    Rol = (isAdminEmail || isBackendAdmin) ? "Admin" : "Cliente",
+                                    Nombre = string.IsNullOrWhiteSpace(profile.Nombre) ? (isBackendAdmin ? "Administrador" : "Usuario Activo") : profile.Nombre,
+                                    Rol = isBackendAdmin ? "Admin" : "Cliente",
                                     Activo = profile.Activo
                                 };
                             }
