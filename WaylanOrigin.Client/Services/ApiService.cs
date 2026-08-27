@@ -35,7 +35,24 @@ namespace WaylanOrigin.Client.Services
         public bool IsAdmin => IsLoggedIn && CurrentUser != null &&
             string.Equals(CurrentUser.Rol, "Admin", StringComparison.OrdinalIgnoreCase);
         public string WompiPublicKey { get; set; } = "pub_prod_vVUetSbk2xQGlcB69vCGP1FGqgu6kRhq";
+        public string WompiIntegritySecret { get; set; } = "prod_integrity_Mjq1cDQE6clUxTRaiy9XfBEGtFU34N0k";
         public string? LastLoginError { get; set; }
+
+        public string GenerateWompiIntegrityHash(string reference, long amountInCents)
+        {
+            if (string.IsNullOrEmpty(WompiIntegritySecret)) return "";
+            try
+            {
+                string raw = $"{reference}{amountInCents}COP{WompiIntegritySecret}";
+                using var sha256 = System.Security.Cryptography.SHA256.Create();
+                byte[] bytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(raw));
+                return Convert.ToHexString(bytes).ToLowerInvariant();
+            }
+            catch
+            {
+                return "";
+            }
+        }
 
         public event Action? OnAuthStateChanged;
         public event Action? OnDataChanged;

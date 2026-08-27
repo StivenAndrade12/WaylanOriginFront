@@ -452,7 +452,9 @@
             string reference = response.Codigo;
             long amountInCents = (long)(response.Total * 100);
             string redirectUrl = NavigationManager.ToAbsoluteUri("pago-exitoso").ToString();
-            string integrityHash = response.Integrity ?? response.Signature ?? "";
+            string integrityHash = !string.IsNullOrEmpty(response.Integrity) ? response.Integrity :
+                                   (!string.IsNullOrEmpty(response.Signature) ? response.Signature :
+                                   ApiService.GenerateWompiIntegrityHash(reference, amountInCents));
 
             await JS.InvokeVoidAsync("abrirWidgetWompi", publicKey, reference, amountInCents, redirectUrl, integrityHash);
         }
