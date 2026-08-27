@@ -1387,6 +1387,7 @@ StringComparison.OrdinalIgnoreCase));
         bool success;
         if (isEditingProduct)
         {
+            await ApiService.UpdateLocalProductStockAsync(productFormId, productFormStock);
             success = await ApiService.ActualizarProductoAsync(productFormId, content);
         }
         else

@@ -516,10 +516,33 @@ namespace WaylanOrigin.Client.Services
             return "Pendiente";
         }
 
+        public async Task UpdateLocalProductStockAsync(string id, int stock)
+        {
+            _productStockMap[id] = stock;
+            await SaveProductStockMapAsync();
+            InvalidateCache();
+            OnDataChanged?.Invoke();
+        }
+
         // --- PRODUCTOS ---
         private Product MapToProduct(ProductoReadDto dto)
         {
-            int resolvedStock = _productStockMap.TryGetValue(dto.Id.ToString(), out var s) ? s : 0;
+            int resolvedStock;
+            if (dto.Stock >= 0)
+            {
+                resolvedStock = dto.Stock;
+                _productStockMap[dto.Id.ToString()] = resolvedStock;
+            }
+            else if (_productStockMap.TryGetValue(dto.Id.ToString(), out var s))
+            {
+                resolvedStock = s;
+            }
+            else
+            {
+                resolvedStock = 10;
+                _productStockMap[dto.Id.ToString()] = resolvedStock;
+            }
+
             return new Product
             {
                 Id = dto.Id.ToString(),
@@ -728,6 +751,7 @@ namespace WaylanOrigin.Client.Services
                 var response = await _http.PutAsync($"{ApiBaseUrl}api/Producto/{id}", content);
                 if (response.IsSuccessStatusCode)
                 {
+                    InvalidateCache();
                     OnDataChanged?.Invoke();
                     return true;
                 }
@@ -1407,6 +1431,7 @@ namespace WaylanOrigin.Client.Services
         public string Proceso { get; set; } = string.Empty;
         public string? Descripcion { get; set; }
         public decimal Precio { get; set; }
+        public int Stock { get; set; } = -1;
         public string ImagenUrl { get; set; } = string.Empty;
         public List<Note>? Notas { get; set; } = new List<Note>();
     }
