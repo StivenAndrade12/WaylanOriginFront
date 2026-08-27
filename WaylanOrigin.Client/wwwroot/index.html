@@ -162,15 +162,19 @@
             return Math.floor((Date.now() - (window.lastWaylanActivityTime || Date.now())) / 1000);
         };
 
-        window.abrirWidgetWompi = function (publicKey, reference, amountInCents, redirectUrl) {
+        window.abrirWidgetWompi = function (publicKey, reference, amountInCents, redirectUrl, integrity) {
             try {
-                var checkout = new WidgetCheckout({
+                var config = {
                     currency: 'COP',
                     amountInCents: amountInCents,
                     reference: reference,
                     publicKey: publicKey,
                     redirectUrl: redirectUrl
-                });
+                };
+                if (integrity && typeof integrity === 'string' && integrity.trim().length > 0) {
+                    config.signature = { integrity: integrity.trim() };
+                }
+                var checkout = new WidgetCheckout(config);
                 checkout.open(function (result) {
                     var transaction = result ? result.transaction : {};
                     var status = (transaction && transaction.status) ? transaction.status : 'APPROVED';

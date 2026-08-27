@@ -1502,6 +1502,8 @@ namespace WaylanOrigin.Client.Services
     {
         public string Codigo { get; set; } = string.Empty;
         public decimal Total { get; set; }
+        public string? Integrity { get; set; }
+        public string? Signature { get; set; }
         public string? ErrorMessage { get; set; }
     }
 }
