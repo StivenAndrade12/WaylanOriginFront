@@ -33,7 +33,7 @@ namespace WaylanOrigin.Client.Services
         public User? CurrentUser { get; private set; }
         public bool IsLoggedIn => !string.IsNullOrEmpty(Token);
         public bool IsAdmin => IsLoggedIn && CurrentUser != null &&
-            (CurrentUser.Rol == "Admin" || CurrentUser.Email.Equals("sebastiancam74@gmail.com", StringComparison.OrdinalIgnoreCase));
+            (CurrentUser.Rol == "Admin" || CurrentUser.Email.Equals("sebastiancam74@gmail.com", StringComparison.OrdinalIgnoreCase) || CurrentUser.Email.Equals("vaquiroedinson@gmail.com", StringComparison.OrdinalIgnoreCase));
         public string WompiPublicKey { get; set; } = "pub_prod_vVUetSbk2xQGlcB69vCGP1FGqgu6kRhq";
         public string? LastLoginError { get; set; }
 
@@ -170,7 +170,7 @@ namespace WaylanOrigin.Client.Services
                 if (!string.IsNullOrEmpty(storedToken))
                 {
                     Token = storedToken;
-                    bool isAdminStored = (!string.IsNullOrEmpty(storedEmail) && storedEmail.Equals("sebastiancam74@gmail.com", StringComparison.OrdinalIgnoreCase)) || string.Equals(storedRol, "Admin", StringComparison.OrdinalIgnoreCase);
+                    bool isAdminStored = (!string.IsNullOrEmpty(storedEmail) && (storedEmail.Equals("sebastiancam74@gmail.com", StringComparison.OrdinalIgnoreCase) || storedEmail.Equals("vaquiroedinson@gmail.com", StringComparison.OrdinalIgnoreCase))) || string.Equals(storedRol, "Admin", StringComparison.OrdinalIgnoreCase);
 
                     CurrentUser = new User
                     {
@@ -282,7 +282,7 @@ namespace WaylanOrigin.Client.Services
                 return false;
             }
 
-            bool isAdminEmail = email.Equals("sebastiancam74@gmail.com", StringComparison.OrdinalIgnoreCase);
+            bool isAdminEmail = email.Equals("sebastiancam74@gmail.com", StringComparison.OrdinalIgnoreCase) || email.Equals("vaquiroedinson@gmail.com", StringComparison.OrdinalIgnoreCase);
             bool isValidAdminPass = password == "Bruno282006";
 
             try
