@@ -102,11 +102,7 @@ namespace WaylanOrigin.Client.Services
             catch { }
         }
 
-        private static readonly Dictionary<string, int> _productStockMap = new()
-        {
-            { "1", 0 }, // Waylan Speciality Coffee (AGOTADO en BD)
-            { "8", 6 }  // Waylan prueba
-        };
+        private static readonly Dictionary<string, int> _productStockMap = new();
 
         private static List<Product>? _cachedActiveProducts;
         private static List<Product>? _cachedAdminProducts;
@@ -602,6 +598,19 @@ namespace WaylanOrigin.Client.Services
             try
             {
                 await LoadProductStockMapAsync();
+                SetAuthHeader();
+                var adminDtos = await _http.GetFromJsonAsync<List<ProductoReadAdminDto>>($"{ApiBaseUrl}api/Producto/Lista de productos Admin");
+                if (adminDtos != null && adminDtos.Any())
+                {
+                    _cachedActiveProducts = adminDtos.Select(MapToProduct).Where(p => p.Activo).ToList();
+                    _lastCacheTime = DateTime.UtcNow;
+                    return _cachedActiveProducts;
+                }
+            }
+            catch { }
+
+            try
+            {
                 var dtos = await _http.GetFromJsonAsync<List<ProductoReadDto>>($"{ApiBaseUrl}api/Producto/Lista de productos");
                 if (dtos != null && dtos.Any())
                 {
