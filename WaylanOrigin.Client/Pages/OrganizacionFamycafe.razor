@@ -1,37 +1,44 @@
 @page "/organizacion/famycafe"
 
+@inject ApiService Api
+@using WaylanOrigin.Client.Models
+
 <div class="famycafe-container">
 
     <!-- Breadcrumb -->
     <div class="fc-breadcrumb">
         <a href="productores"><span class="arrow">←</span> Productores Aliados</a>
         <span class="separator">&gt;</span>
-        <span class="active">FAMYCAFE</span>
+        <span class="active">@org?.Nombre</span>
     </div>
 
     <!-- Hero Section -->
     <div class="fc-hero">
         <div class="fc-hero-info">
-            <h1 class="fc-main-title">FAMYCAFE</h1>
+
+            <!-- Título dinámico -->
+            <h1 class="fc-main-title">@org?.Nombre</h1>
 
             <div class="separador-contenedor">
-                <img src="logotipo/5.png" alt="Logo Famycafe" class="icono-hoja">
+
+                <!-- Logo dinámico -->
+                <img src="@org?.Logo" alt="Logo @org?.Nombre" class="icono-hoja">
+
                 <div class="linea-dorada"></div>
             </div>
 
             <div class="contenido-texto">
-                <p class="texto-descripcion">
-                    Asociación de familias cafeteras comprometidas con la calidad y la sostenibilidad.
-                </p>
-                <p class="texto-descripcion">
-                    Desde 1995 trabajamos por el bienestar de nuestros caficultores, promoviendo prácticas responsables
-                    y cafés de alta calidad.
-                </p>
+
+                <!-- Descripciones dinámicas -->
+                <p class="texto-descripcion">@org?.Descripcion1</p>
+                <p class="texto-descripcion">@org?.Descripcion2</p>
+
             </div>
         </div>
 
+        <!-- Imagen Hero dinámica -->
         <div class="fc-hero-image">
-            <img src="imagenes/camp.png" alt="Familias cafeteras" />
+            <img src="@org?.HeroImagen" alt="@org?.Nombre" />
         </div>
     </div>
 
@@ -42,7 +49,9 @@
             <div class="fc-stat-icon">
                 <img src="logotipo/org1.png" class="fc-icon-img" alt="Icono">
             </div>
-            <h3 class="fc-stat-number">1995</h3>
+
+            <!-- Año dinámico -->
+            <h3 class="fc-stat-number">@org?.AnoFundacion</h3>
             <p class="fc-stat-label">Año de fundación</p>
         </div>
 
@@ -50,7 +59,9 @@
             <div class="fc-stat-icon">
                 <img src="logotipo/org2.png" class="fc-icon-img" alt="Icono">
             </div>
-            <h3 class="fc-stat-number">120+</h3>
+
+            <!-- Familias dinámico -->
+            <h3 class="fc-stat-number">@org?.Familias</h3>
             <p class="fc-stat-label">Familias caficultores</p>
         </div>
 
@@ -58,7 +69,9 @@
             <div class="fc-stat-icon">
                 <img src="logotipo/org3.png" class="fc-icon-img" alt="Icono">
             </div>
-            <h3 class="fc-stat-number">3.500+</h3>
+
+            <!-- Hectáreas dinámico -->
+            <h3 class="fc-stat-number">@org?.Hectareas</h3>
             <p class="fc-stat-label">Hectáreas cultivadas</p>
         </div>
 
@@ -66,7 +79,9 @@
             <div class="fc-stat-icon">
                 <img src="logotipo/org4.png" class="fc-icon-img" alt="Icono">
             </div>
-            <h3 class="fc-stat-number">Sostenibilidad</h3>
+
+            <!-- Enfoque dinámico -->
+            <h3 class="fc-stat-number">@org?.Enfoque</h3>
             <p class="fc-stat-label">Nuestro compromiso</p>
         </div>
 
@@ -74,60 +89,33 @@
 
     <!-- Productores Grid Section -->
     <div class="fc-section-title-bar">
-        <h2>Productores que hacen parte de FAMYCAFE</h2>
+        <h2>Productores que hacen parte de @org?.Nombre</h2>
         <a href="todos-los-productores" class="fc-view-all">VER TODOS ➔</a>
     </div>
 
     <div class="fc-productores-grid">
 
-        <div class="fc-producer-card">
-            <div class="fc-card-img">
-                <img src="imagenes/ñ1.png" alt="Juan Carlos Restrepo" />
-            </div>
-            <div class="fc-card-content">
-                <h3>Juan Carlos Restrepo</h3>
-                <p class="fc-finca">Finca El Paraíso</p>
-                <p class="fc-location">Caldas, Colombia</p>
-                <a href="perfil/juan" class="fc-btn-profile">VER PERFIL ➔</a>
-            </div>
-        </div>
+        <!-- Tarjetas dinámicas de productores destacados -->
+        @if (destacados != null)
+        {
+            @foreach (var p in destacados)
+            {
+                <div class="fc-producer-card">
+                    <div class="fc-card-img">
+                        <img src="@p.ImagenPrincipal" alt="@p.Nombre" />
+                    </div>
 
-        <div class="fc-producer-card">
-            <div class="fc-card-img">
-                <img src="imagenes/ñ2.png" alt="María Elvira Gómez" />
-            </div>
-            <div class="fc-card-content">
-                <h3>María Elvira Gómez</h3>
-                <p class="fc-finca">Finca La Esperanza</p>
-                <p class="fc-location">Antioquia, Colombia</p>
-                <a href="perfil/maria" class="fc-btn-profile">VER PERFIL ➔</a>
-            </div>
-        </div>
+                    <div class="fc-card-content">
+                        <h3>@p.Nombre</h3>
+                        <p class="fc-finca">@p.Finca</p>
+                        <p class="fc-location">@p.Ubicacion</p>
+                        <a href="perfil/@p.Id" class="fc-btn-profile">VER PERFIL ➔</a>
+                    </div>
+                </div>
+            }
+        }
 
-        <div class="fc-producer-card">
-            <div class="fc-card-img">
-                <img src="imagenes/ñ3.png" alt="Carlos Alberto Ruiz" />
-            </div>
-            <div class="fc-card-content">
-                <h3>Carlos Alberto Ruiz</h3>
-                <p class="fc-finca">Finca La Montaña</p>
-                <p class="fc-location">Cauca, Colombia</p>
-                <a href="perfil/carlos" class="fc-btn-profile">VER PERFIL ➔</a>
-            </div>
-        </div>
-
-        <div class="fc-producer-card">
-            <div class="fc-card-img">
-                <img src="imagenes/ñ4.png" alt="Elena Mendoza" />
-            </div>
-            <div class="fc-card-content">
-                <h3>Elena Mendoza</h3>
-                <p class="fc-finca">Finca Vista Hermosa</p>
-                <p class="fc-location">Tolima, Colombia</p>
-                <a href="perfil/elena" class="fc-btn-profile">VER PERFIL ➔</a>
-            </div>
-        </div>
-
+        <!-- Tarjeta "Más productores" -->
         <div class="fc-producer-card fc-more-card">
             <div class="fc-more-content">
                 <div class="fc-user-icon">
@@ -144,3 +132,29 @@
     </div>
 
 </div>
+
+@code {
+    OrganizationModel org;
+    List<ProductorModel> productores;
+    List<ProductorModel> destacados;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // 1. Cargar organización desde backend
+        org = await Api.GetOrganizacionByIdAsync("famycafe");
+
+        // 2. Cargar todos los productores
+        var todos = await Api.GetProductoresAsync();
+
+        // 3. Filtrar los productores que pertenecen a esta organización
+        productores = todos
+            .Where(p => p.OrganizacionId == "famycafe")
+            .ToList();
+
+        // 4. Filtrar los destacados (máx 4)
+        destacados = todos
+            .Where(p => org?.DestacadosIds.Contains(p.Id) == true)
+            .Take(4)
+            .ToList();
+    }
+}

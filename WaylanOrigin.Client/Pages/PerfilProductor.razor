@@ -1,4 +1,5 @@
 @page "/perfil/{id}"
+
 @inject IJSRuntime JS
 @namespace WaylanOrigin.Client.Pages
 @using WaylanOrigin.Client.Models
@@ -287,29 +288,25 @@
 
 </div>
 
+@inject ApiService ApiService
+
 @code {
-    [Parameter]
-    public string id { get; set; }
-
+    [Parameter] public string id { get; set; }
     private ProductorModel productor;
-
-    
-    private async Task MoverGaleria(int px)
-    {
-        await JS.InvokeVoidAsync("eval", $"document.querySelector('.perfil-galeria').scrollBy({{ left: {px}, behavior: 'smooth' }})");
-    }
-
     private string tabActiva = "historia";
 
-    void CambiarTab(string tab)
+    protected override async Task OnInitializedAsync()
     {
-        tabActiva = tab;
-    }
+        // 1. Intentar obtener del backend
+        productor = await ApiService.GetProductorByIdAsync(id);
 
-    protected override void OnInitialized()
-    {
-        productor = ProductoresData.Lista.FirstOrDefault(p => p.Id == id);
+        // 2. Fallback si el backend no responde
+        if (productor == null)
+        {
+            productor = ProductoresData.Lista.FirstOrDefault(p => p.Id == id);
+        }
 
+        // 3. Si aún así no existe, crear uno vacío
         if (productor == null)
         {
             productor = new ProductorModel
@@ -325,8 +322,21 @@
                 Variedades = "",
                 Experiencia = "",
                 ImagenPrincipal = "imagenes/camp.png",
-                Galeria = new List<string>()
+                Galeria = new List<string>(),
+                Procesos = new List<ProcesoModel>()
             };
         }
     }
+
+    private async Task MoverGaleria(int px)
+    {
+        await JS.InvokeVoidAsync("eval", $"document.querySelector('.perfil-galeria').scrollBy({{ left: {px}, behavior: 'smooth' }})");
+    }
+
+    void CambiarTab(string tab)
+    {
+        tabActiva = tab;
+    }
+}
+
 }

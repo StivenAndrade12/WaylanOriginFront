@@ -115,6 +115,26 @@
                   Editar Cita Semanal
                 </button>
 
+                <button class="sidebar-tab-btn @(activeTab == "productores" ? "active" : "")"
+                 @onclick='() => SetActiveTab("productores")'>
+                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                 <circle cx="12" cy="8" r="4" />
+                 <path d="M12 20v-8" />
+                 <path d="M9 14l3 3l3-3" />
+                 </svg>
+                 Gestión Productores
+               </button>
+
+               <button class="sidebar-tab-btn @(activeTab == "organizaciones" ? "active" : "")"
+                     @onclick='() => SetActiveTab("organizaciones")'>
+                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2l9 4v6c0 5-4 9-9 10-5-1-9-5-9-10V6l9-4z" />
+                 </svg>
+                 Organizaciones
+               </button>
+
+
+
 
             </aside>
 
@@ -712,6 +732,18 @@
                             {
                                <AdminCitaSemanal />
                             }
+
+                            else if (activeTab == "productores")
+                            {
+                                <AdminProductores />
+                            }
+
+                            else if (activeTab == "organizaciones")
+                           {
+                              <AdminOrganizacion />
+                        }
+
+
 
 
                         </main>
@@ -1387,7 +1419,7 @@ StringComparison.OrdinalIgnoreCase));
         bool success;
         if (isEditingProduct)
         {
-            await ApiService.UpdateLocalProductStockAsync(productFormId, productFormStock);
+           
             success = await ApiService.ActualizarProductoAsync(productFormId, content);
         }
         else

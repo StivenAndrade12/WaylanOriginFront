@@ -1,0 +1,162 @@
+@page "/admin/organizacion/{Id}"
+
+@using Microsoft.AspNetCore.Components.Forms
+@using WaylanOrigin.Client.Services
+
+@inject ApiService Api
+
+<h2 class="admin-title">Editar organización (@org?.Nombre)</h2>
+
+@if (isLoading)
+{
+    <p>Cargando organización...</p>
+}
+else if (org == null)
+{
+    <p>No se encontró la organización.</p>
+}
+else
+{
+    <EditForm Model="org" OnValidSubmit="GuardarCambios">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="admin-form-grid">
+
+            <!-- HERO SECTION -->
+            <h3>Hero (imagen y textos)</h3>
+
+            <div class="admin-field">
+                <label>Título (Nombre)</label>
+                <InputText @bind-Value="org.Nombre" class="admin-input" />
+            </div>
+
+            <div class="admin-field">
+                <label>Imagen grande (HeroImagen - URL)</label>
+                <InputText @bind-Value="org.HeroImagen" class="admin-input" placeholder="URL de la imagen" />
+                
+                <!-- Selector de archivo desde la PC -->
+                <InputFile OnChange="SubirHeroImagen" accept="image/*" class="admin-input" style="margin-top: 5px;" />
+
+                @if (!string.IsNullOrEmpty(org.HeroImagen))
+                {
+                    <div style="margin-top: 10px;">
+                        <img src="@org.HeroImagen" alt="Vista previa Hero" style="max-height: 120px; border-radius: 6px; border: 1px solid #ccc;" />
+                    </div>
+                }
+            </div>
+
+            <div class="admin-field">
+                <label>Descripción 1</label>
+                <InputTextArea @bind-Value="org.Descripcion1" class="admin-textarea" />
+            </div>
+
+            <div class="admin-field">
+                <label>Descripción 2</label>
+                <InputTextArea @bind-Value="org.Descripcion2" class="admin-textarea" />
+            </div>
+
+            <!-- STATS SECTION -->
+            <h3>Panel de estadísticas</h3>
+
+            <div class="admin-field">
+                <label>Año de fundación</label>
+                <InputText @bind-Value="org.AnoFundacion" class="admin-input" />
+            </div>
+
+            <div class="admin-field">
+                <label>Familias caficultoras</label>
+                <InputText @bind-Value="org.Familias" class="admin-input" />
+            </div>
+
+            <div class="admin-field">
+                <label>Hectáreas cultivadas</label>
+                <InputText @bind-Value="org.Hectareas" class="admin-input" />
+            </div>
+
+            <div class="admin-field">
+                <label>Enfoque / compromiso</label>
+                <InputText @bind-Value="org.Enfoque" class="admin-input" />
+            </div>
+
+            <!-- PRODUCTORES DESTACADOS -->
+            <h3>Productores Destacados en Inicio (Máx. 4)</h3>
+
+            @for (int i = 0; i < 4; i++)
+            {
+                var index = i;
+                <div class="admin-field">
+                    <label>Productor Destacado #@(index + 1)</label>
+                    <select class="admin-input" @bind="org.DestacadosIds[index]">
+                        <option value="">-- Sin seleccionar --</option>
+                        @foreach (var prod in listaProductores)
+                        {
+                            <option value="@prod.Id">@prod.Nombre (@prod.Finca)</option>
+                        }
+                    </select>
+                </div>
+            }
+
+        </div>
+
+        <button type="submit" class="admin-btn-save" style="margin-top: 20px;">Guardar cambios</button>
+
+        @if (!string.IsNullOrEmpty(mensaje))
+        {
+            <p class="admin-message">@mensaje</p>
+        }
+    </EditForm>
+}
+
+@code {
+    [Parameter] public string Id { get; set; }
+
+    OrganizationModel org;
+    List<ProductorModel> listaProductores = new();
+    bool isLoading = true;
+    string mensaje;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        
+        org = await Api.GetOrganizacionByIdAsync(Id);
+        var todosProductores = await Api.GetProductoresAsync();
+        
+        // Filtrar solo los productores que pertenecen a esta organización
+        listaProductores = todosProductores
+            .Where(p => p.OrganizacionId == Id)
+            .ToList();
+
+        // Asegurar que la lista DestacadosIds exista y tenga 4 casillas preparadas
+        if (org != null)
+        {
+            org.DestacadosIds ??= new List<string>();
+            while (org.DestacadosIds.Count < 4)
+            {
+                org.DestacadosIds.Add("");
+            }
+        }
+
+        isLoading = false;
+    }
+
+    private async Task SubirHeroImagen(InputFileChangeEventArgs e)
+    {
+        if (e.File != null)
+        {
+            var url = await Api.UploadImageAsync(e.File);
+            if (!string.IsNullOrEmpty(url))
+            {
+                org.HeroImagen = url;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private async Task GuardarCambios()
+    {
+        var ok = await Api.UpdateOrganizacionAsync(org);
+        mensaje = ok ? "Cambios guardados correctamente." : "Error al guardar los cambios.";
+    }
+}

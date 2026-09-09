@@ -23,12 +23,14 @@ public class ProductorModel
     public string FincaDescripcion { get; set; }
     public string FincaImagen { get; set; }
 
-    // PROCESOS
     public string ProcesosDescripcion { get; set; }
     public string SostenibilidadDescripcion { get; set; }
     public string ProcesosFooterTexto { get; set; }
 
     public List<ProcesoModel> Procesos { get; set; }
+
+    // ⭐ ESTA ES LA QUE FALTABA
+    public string OrganizacionId { get; set; }
 }
 
 public class ProcesoModel
@@ -37,4 +39,6 @@ public class ProcesoModel
     public string Titulo { get; set; }
     public string Descripcion { get; set; }
     public string Imagen { get; set; }
+
+    public string OrganizacionId { get; set; }   // "famycafe", "tres-nevados"
 }

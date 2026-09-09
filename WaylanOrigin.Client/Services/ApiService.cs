@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Microsoft.JSInterop;
 using WaylanOrigin.Client.Models;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace WaylanOrigin.Client.Services
 {
@@ -1314,6 +1315,195 @@ namespace WaylanOrigin.Client.Services
 
             return false;
         }
+
+        public async Task<OrganizationModel?> GetOrganizacionByIdAsync(string id)
+        {
+            try
+            {
+                var result = await _http.GetFromJsonAsync<OrganizationModel>($"{ApiBaseUrl}api/Organizaciones/{id}");
+                if (result != null) return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error GetOrganizacionByIdAsync: {ex.Message}");
+            }
+
+            return null;
+        }
+
+        public async Task<bool> UpdateOrganizacionAsync(OrganizationModel org)
+        {
+            try
+            {
+                SetAuthHeader();
+                var response = await _http.PutAsJsonAsync($"{ApiBaseUrl}api/Organizaciones/{org.Id}", org);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    OnDataChanged?.Invoke();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error UpdateOrganizacionAsync: {ex.Message}");
+            }
+
+            return false;
+        }
+
+        public async Task<List<ProductorModel>> GetProductoresAsync()
+        {
+            try
+            {
+                var result = await _http.GetFromJsonAsync<List<ProductorModel>>($"{ApiBaseUrl}api/Productores");
+                if (result != null) return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error GetProductoresAsync: {ex.Message}");
+            }
+
+            return ProductoresData.Lista;
+        }
+
+        public async Task<ProductorModel?> GetProductorByIdAsync(string id)
+        {
+            try
+            {
+                var result = await _http.GetFromJsonAsync<ProductorModel>($"{ApiBaseUrl}api/Productores/{id}");
+                if (result != null) return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error GetProductorByIdAsync: {ex.Message}");
+            }
+
+            return ProductoresData.Lista.FirstOrDefault(p => p.Id == id);
+        }
+
+        public async Task<List<OrganizationModel>> GetOrganizacionesAsync()
+        {
+            try
+            {
+                var result = await _http.GetFromJsonAsync<List<OrganizationModel>>($"{ApiBaseUrl}api/Organizaciones");
+                if (result != null)
+                    return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error GetOrganizacionesAsync: {ex.Message}");
+            }
+
+            return new List<OrganizationModel>();
+        }
+
+
+        public async Task<bool> CrearProductorAsync(ProductorModel productor)
+        {
+            try
+            {
+                SetAuthHeader();
+                var response = await _http.PostAsJsonAsync($"{ApiBaseUrl}api/Productores", productor);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    OnDataChanged?.Invoke();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error CrearProductorAsync: {ex.Message}");
+            }
+
+            return false;
+        }
+
+        public async Task<bool> ActualizarProductorAsync(ProductorModel productor)
+        {
+            try
+            {
+                SetAuthHeader();
+                var response = await _http.PutAsJsonAsync($"{ApiBaseUrl}api/Productores/{productor.Id}", productor);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    OnDataChanged?.Invoke();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error ActualizarProductorAsync: {ex.Message}");
+            }
+
+            return false;
+        }
+
+        public async Task<bool> EliminarProductorAsync(string id)
+        {
+            try
+            {
+                SetAuthHeader();
+                var response = await _http.DeleteAsync($"{ApiBaseUrl}api/Productores/{id}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    OnDataChanged?.Invoke();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error EliminarProductorAsync: {ex.Message}");
+            }
+
+            return false;
+        }
+
+        public async Task<string?> UploadImageAsync(IBrowserFile file)
+        {
+            try
+            {
+                SetAuthHeader();
+                using var content = new MultipartFormDataContent();
+
+                // Limite de 10 MB de lectura
+                var fileStream = file.OpenReadStream(maxAllowedSize: 1024 * 1024 * 10);
+                var streamContent = new StreamContent(fileStream);
+
+                streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+                content.Add(streamContent, "file", file.Name);
+
+                // Hace el POST al backend para subir la imagen
+                var response = await _http.PostAsync($"{ApiBaseUrl}api/Upload", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = await response.Content.ReadFromJsonAsync<UploadResponse>();
+                    return result?.Url;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error UploadImageAsync: {ex.Message}");
+            }
+
+            return null;
+        }
+
+        // Clase auxiliar para recibir la respuesta de la API
+        public class UploadResponse
+        {
+            public string Url { get; set; } = string.Empty;
+        }
+
+
+
+
+
+
 
         // --- NOTAS DE SABOR ---
         public async Task<List<Note>> GetNotasAsync()

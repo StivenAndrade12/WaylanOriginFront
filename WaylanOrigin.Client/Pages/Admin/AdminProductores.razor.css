@@ -1,0 +1,208 @@
+/* ============================
+   SECCIÓN GENERAL
+   ============================ */
+
+.panel-section {
+    background: #FAF6F0;
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid #E5E2DC;
+    margin-bottom: 25px;
+}
+
+.panel-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.panel-header-row h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: #1A100A;
+    margin: 0;
+}
+
+/* ============================
+   BOTONES
+   ============================ */
+
+.btn-create-new {
+    background-color: #B89A5E;
+    color: #1A100A;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-create-new:hover {
+    background-color: #A88A4E;
+}
+
+.btn-save {
+    background-color: #B89A5E;
+    color: #1A100A;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-cancel {
+    background-color: #E5E2DC;
+    color: #1A100A;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-action-edit {
+    background-color: #B89A5E;
+    color: #1A100A;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-action-edit:hover {
+    background-color: #A88A4E;
+}
+
+.btn-action-delete {
+    background-color: #D9534F;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-action-delete:hover {
+    background-color: #C64541;
+}
+
+/* ============================
+   FORMULARIO
+   ============================ */
+
+.form-control-admin {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #D6D2CC;
+    border-radius: 6px;
+    background: #FFFFFF;
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+}
+
+textarea.form-control-admin {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    margin-top: 25px;
+    margin-bottom: 10px;
+    color: #1A100A;
+}
+
+/* ============================
+   TABLA
+   ============================ */
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #FFFFFF;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.admin-table th {
+    background: #F0ECE6;
+    padding: 12px;
+    text-align: left;
+    font-weight: 700;
+    color: #1A100A;
+}
+
+.admin-table td {
+    padding: 12px;
+    border-bottom: 1px solid #E5E2DC;
+}
+
+.admin-table tr:hover {
+    background: #FAF6F0;
+}
+
+/* ============================
+   GALERÍA
+   ============================ */
+
+.gallery-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.gallery-item input {
+    flex: 1;
+}
+
+.gallery-item button {
+    background-color: #D9534F;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+/* ============================
+   PROCESOS
+   ============================ */
+
+.proceso-box {
+    background: #FFFFFF;
+    border: 1px solid #E5E2DC;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.proceso-box label {
+    font-weight: 700;
+    margin-top: 10px;
+}
+
+.proceso-box input,
+.proceso-box textarea {
+    margin-bottom: 10px;
+}
+
+.btn-add-proceso {
+    background-color: #B89A5E;
+    color: #1A100A;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.btn-add-proceso:hover {
+    background-color: #A88A4E;
+}
