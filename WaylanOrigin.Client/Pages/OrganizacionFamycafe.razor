@@ -22,7 +22,7 @@
             <div class="separador-contenedor">
 
                 <!-- Logo dinámico -->
-                <img src="@org?.Logo" alt="Logo @org?.Nombre" class="icono-hoja">
+                <img src="@org?.ImagenLogo" alt="Logo @org?.Nombre" class="icono-hoja">
 
                 <div class="linea-dorada"></div>
             </div>
@@ -43,50 +43,37 @@
     </div>
 
     <!-- Panel de estadísticas -->
-    <div class="fc-stats-panel">
+    <!-- Panel de estadísticas -->
+    <div class="tn-stats-panel">
 
-        <div class="fc-stat-item">
-            <div class="fc-stat-icon">
-                <img src="logotipo/org1.png" class="fc-icon-img" alt="Icono">
+        <div class="tn-stat-item">
+            <div class="tn-stat-icon">
+                <img src="logotipo/org1.png" class="tn-icon-img" alt="Icono">
             </div>
-
-            <!-- Año dinámico -->
-            <h3 class="fc-stat-number">@org?.AnoFundacion</h3>
-            <p class="fc-stat-label">Año de fundación</p>
+            <!-- Año escrito directo -->
+            <h3 class="tn-stat-number">2015</h3>
+            <p class="tn-stat-label">Año de fundación</p>
         </div>
 
-        <div class="fc-stat-item">
-            <div class="fc-stat-icon">
-                <img src="logotipo/org2.png" class="fc-icon-img" alt="Icono">
+        <div class="tn-stat-item">
+            <div class="tn-stat-icon">
+                <img src="logotipo/org2.png" class="tn-icon-img" alt="Icono">
             </div>
-
-            <!-- Familias dinámico -->
-            <h3 class="fc-stat-number">@org?.Familias</h3>
-            <p class="fc-stat-label">Familias caficultores</p>
+            <!-- Familias escrito directo -->
+            <h3 class="tn-stat-number">120+</h3>
+            <p class="tn-stat-label">Familias caficultoras</p>
         </div>
 
-        <div class="fc-stat-item">
-            <div class="fc-stat-icon">
-                <img src="logotipo/org3.png" class="fc-icon-img" alt="Icono">
+        <div class="tn-stat-item">
+            <div class="tn-stat-icon">
+                <img src="logotipo/org3.png" class="tn-icon-img" alt="Icono">
             </div>
-
-            <!-- Hectáreas dinámico -->
-            <h3 class="fc-stat-number">@org?.Hectareas</h3>
-            <p class="fc-stat-label">Hectáreas cultivadas</p>
-        </div>
-
-        <div class="fc-stat-item">
-            <div class="fc-stat-icon">
-                <img src="logotipo/org4.png" class="fc-icon-img" alt="Icono">
-            </div>
-
-            <!-- Enfoque dinámico -->
-            <h3 class="fc-stat-number">@org?.Enfoque</h3>
-            <p class="fc-stat-label">Nuestro compromiso</p>
+            <!-- Hectáreas escrito directo -->
+            <h3 class="tn-stat-number">450</h3>
+            <p class="tn-stat-label">Hectáreas cultivadas</p>
         </div>
 
     </div>
-
     <!-- Productores Grid Section -->
     <div class="fc-section-title-bar">
         <h2>Productores que hacen parte de @org?.Nombre</h2>
@@ -107,8 +94,7 @@
 
                     <div class="fc-card-content">
                         <h3>@p.Nombre</h3>
-                        <p class="fc-finca">@p.Finca</p>
-                        <p class="fc-location">@p.Ubicacion</p>
+
                         <a href="perfil/@p.Id" class="fc-btn-profile">VER PERFIL ➔</a>
                     </div>
                 </div>
@@ -140,21 +126,31 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // 1. Cargar organización desde backend
-        org = await Api.GetOrganizacionByIdAsync("famycafe");
+        // 1. Cargar organización Famycafé (ID numérico 1)
+        org = await Api.GetOrganizacionByIdAsync(id: 1);
 
         // 2. Cargar todos los productores
         var todos = await Api.GetProductoresAsync();
 
-        // 3. Filtrar los productores que pertenecen a esta organización
-        productores = todos
-            .Where(p => p.OrganizacionId == "famycafe")
-            .ToList();
+        // 3. Filtrar los productores de esta organización
+        if (todos != null && org != null)
+        {
+            productores = todos
+                .Where(p => p.IdOrganizacion == org.Id)
+                .ToList();
+        }
+        else
+        {
+            productores = new List<ProductorModel>();
+        }
 
-        // 4. Filtrar los destacados (máx 4)
-        destacados = todos
-            .Where(p => org?.DestacadosIds.Contains(p.Id) == true)
+        // 4. Filtrar los 4 destacados
+        destacados = productores
+            .Where(p => p.Destacado)
             .Take(4)
             .ToList();
     }
 }
+
+
+

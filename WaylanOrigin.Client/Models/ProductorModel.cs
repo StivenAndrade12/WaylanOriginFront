@@ -3,42 +3,20 @@ using System.Collections.Generic;
 
 public class ProductorModel
 {
-    public string Id { get; set; }
-    public string Nombre { get; set; }
-    public string Finca { get; set; }
-    public string Ubicacion { get; set; }
-    public string Frase { get; set; }
+    public int Id { get; set; }
+    public int IdOrganizacion { get; set; }
+    public bool Destacado { get; set; }
 
-    public string HistoriaTitulo { get; set; }
-    public string HistoriaTexto { get; set; }
+    public string Nombre { get; set; } = string.Empty;
+    public string ImagenPrincipal { get; set; } = string.Empty;
+    public string Frase { get; set; } = string.Empty;
 
-    public string Altitud { get; set; }
-    public string Proceso { get; set; }
-    public string Variedades { get; set; }
-    public string Experiencia { get; set; }
+    public string HistoriaTitulo { get; set; } = string.Empty;
+    public string HistoriaTexto { get; set; } = string.Empty;
+    public string SostenibilidadDescripcion { get; set; } = string.Empty;
 
-    public string ImagenPrincipal { get; set; }
-    public List<string> Galeria { get; set; }
-
-    public string FincaDescripcion { get; set; }
-    public string FincaImagen { get; set; }
-
-    public string ProcesosDescripcion { get; set; }
-    public string SostenibilidadDescripcion { get; set; }
-    public string ProcesosFooterTexto { get; set; }
-
-    public List<ProcesoModel> Procesos { get; set; }
-
-    // ⭐ ESTA ES LA QUE FALTABA
-    public string OrganizacionId { get; set; }
+    // Relaciones de Entity Framework
+    public OrganizationModel? Organizacion { get; set; }
+    public List<ProcedimientoModel> Procedimientos { get; set; } = new();
 }
 
-public class ProcesoModel
-{
-    public int Numero { get; set; }
-    public string Titulo { get; set; }
-    public string Descripcion { get; set; }
-    public string Imagen { get; set; }
-
-    public string OrganizacionId { get; set; }   // "famycafe", "tres-nevados"
-}

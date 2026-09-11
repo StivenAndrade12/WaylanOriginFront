@@ -1316,7 +1316,7 @@ namespace WaylanOrigin.Client.Services
             return false;
         }
 
-        public async Task<OrganizationModel?> GetOrganizacionByIdAsync(string id)
+        public async Task<OrganizationModel?> GetOrganizacionByIdAsync(int id)
         {
             try
             {
@@ -1330,7 +1330,6 @@ namespace WaylanOrigin.Client.Services
 
             return null;
         }
-
         public async Task<bool> UpdateOrganizacionAsync(OrganizationModel org)
         {
             try
@@ -1367,7 +1366,7 @@ namespace WaylanOrigin.Client.Services
             return ProductoresData.Lista;
         }
 
-        public async Task<ProductorModel?> GetProductorByIdAsync(string id)
+        public async Task<ProductorModel?> GetProductorByIdAsync(int id)
         {
             try
             {

@@ -1,10 +1,9 @@
-
 @page "/admin/productores"
 
+
 @using WaylanOrigin.Client.Services
+@using WaylanOrigin.Client.Models
 @using Microsoft.AspNetCore.Components.Forms
-
-
 
 @inject ApiService ApiService
 
@@ -24,9 +23,9 @@
         <table class="admin-table">
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Nombre</th>
-                    <th>Finca</th>
-                    <th>Ubicación</th>
+                    <th>Destacado</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -34,9 +33,9 @@
                 @foreach (var p in productores)
                 {
                     <tr>
+                        <td>@p.Id</td>
                         <td>@p.Nombre</td>
-                        <td>@p.Finca</td>
-                        <td>@p.Ubicacion</td>
+                        <td>@(p.Destacado ? "Sí" : "No")</td>
                         <td>
                             <button type="button" class="btn-action-edit" @onclick="() => EditarProductor(p)">Editar</button>
                             <button type="button" class="btn-action-delete" @onclick="() => EliminarProductor(p.Id)">Eliminar</button>
@@ -51,7 +50,7 @@
     {
         <div class="panel-section" style="margin-top: 30px;">
 
-            <h2 class="section-title">Editar Productor</h2>
+            <h2 class="section-title">@(productorEdit.Id == 0 ? "Nuevo Productor" : "Editar Productor")</h2>
 
             <EditForm Model="productorEdit" OnValidSubmit="Guardar">
                 <DataAnnotationsValidator />
@@ -59,118 +58,106 @@
                 <!-- INFORMACIÓN GENERAL -->
                 <h3 class="section-title">Información General</h3>
 
-                <InputText class="form-control-admin" @bind-Value="productorEdit.Nombre" placeholder="Nombre del productor" />
-                <InputText class="form-control-admin" @bind-Value="productorEdit.Finca" placeholder="Nombre de la finca" />
-                <InputText class="form-control-admin" @bind-Value="productorEdit.Ubicacion" placeholder="Ubicación" />
-                <InputText class="form-control-admin" @bind-Value="productorEdit.Frase" placeholder="Frase representativa" />
+                <div class="form-group mb-3">
+                    <label>Nombre del Productor</label>
+                    <InputText class="form-control-admin" @bind-Value="productorEdit.Nombre" placeholder="Nombre completo" />
+                </div>
 
-                <label class="section-label">Organización</label>
-                <select class="form-control-admin" @bind="productorEdit.OrganizacionId">
-                    <option value="">Sin organización</option>
-                    @foreach (var org in organizaciones)
-                    {
-                        <option value="@org.Id">@org.Nombre</option>
-                    }
-                </select>
+                <div class="form-group mb-3">
+                    <label>Frase Representativa</label>
+                    <InputText class="form-control-admin" @bind-Value="productorEdit.Frase" placeholder="Frase célebre o cita" />
+                </div>
 
-                <!-- HISTORIA -->
-                <h3 class="section-title">Historia</h3>
+                <div class="form-group mb-3">
+                    <label class="section-label">Organización</label>
+                    <select class="form-control-admin" @bind="productorEdit.IdOrganizacion">
+                        <option value="0">-- Seleccionar Organización --</option>
+                        @foreach (var org in organizaciones)
+                        {
+                            <option value="@org.Id">@org.Nombre</option>
+                        }
+                    </select>
+                </div>
 
-                <InputText class="form-control-admin" @bind-Value="productorEdit.HistoriaTitulo" placeholder="Título de la historia" />
-                <InputTextArea class="form-control-admin" @bind-Value="productorEdit.HistoriaTexto" placeholder="Texto de la historia" />
+                <div class="form-group mb-3">
+                    <label>
+                        <InputCheckbox @bind-Value="productorEdit.Destacado" /> Marcar como Productor Destacado
+                    </label>
+                </div>
 
-                <!-- DETALLES TÉCNICOS -->
-                <h3 class="section-title">Detalles Técnicos</h3>
+                <!-- HISTORIA Y SOSTENIBILIDAD -->
+                <h3 class="section-title">Historia y Sostenibilidad</h3>
 
-                <InputText class="form-control-admin" @bind-Value="productorEdit.Altitud" placeholder="Altitud" />
-                <InputText class="form-control-admin" @bind-Value="productorEdit.Proceso" placeholder="Proceso" />
-                <InputText class="form-control-admin" @bind-Value="productorEdit.Variedades" placeholder="Variedades" />
-                <InputText class="form-control-admin" @bind-Value="productorEdit.Experiencia" placeholder="Experiencia" />
+                <div class="form-group mb-3">
+                    <label>Título de la Historia</label>
+                    <InputText class="form-control-admin" @bind-Value="productorEdit.HistoriaTitulo" placeholder="Título para la sección de historia" />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label>Texto de la Historia</label>
+                    <InputTextArea class="form-control-admin" @bind-Value="productorEdit.HistoriaTexto" rows="4" placeholder="Relato detallado..." />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label>Descripción de Sostenibilidad</label>
+                    <InputTextArea class="form-control-admin" @bind-Value="productorEdit.SostenibilidadDescripcion" rows="3" placeholder="Prácticas sostenibles..." />
+                </div>
 
                 <!-- IMAGEN PRINCIPAL -->
                 <h3 class="section-title">Imagen Principal</h3>
 
-                <InputText class="form-control-admin" @bind-Value="productorEdit.ImagenPrincipal" placeholder="URL de imagen principal" />
-                <InputFile OnChange="SubirImagenPrincipal" accept="image/*" class="form-control-admin" />
+                <div class="form-group mb-3">
+                    <InputText class="form-control-admin" @bind-Value="productorEdit.ImagenPrincipal" placeholder="URL de la imagen principal" />
+                    <InputFile OnChange="SubirImagenPrincipal" accept="image/*" class="form-control-admin mt-2" />
 
-                @if (!string.IsNullOrEmpty(productorEdit.ImagenPrincipal))
-                {
-                    <div style="margin-top: 5px;">
-                        <img src="@productorEdit.ImagenPrincipal" alt="Vista previa principal" style="max-height: 100px; border-radius: 4px;" />
-                    </div>
-                }
+                    @if (!string.IsNullOrEmpty(productorEdit.ImagenPrincipal))
+                    {
+                        <div style="margin-top: 8px;">
+                            <img src="@productorEdit.ImagenPrincipal" alt="Vista previa principal" style="max-height: 120px; border-radius: 4px; border: 1px solid #ccc;" />
+                        </div>
+                    }
+                </div>
 
-                <!-- GALERÍA -->
-                <h3 class="section-title">Galería de Imágenes</h3>
+                <!-- PROCEDIMIENTOS -->
+                <h3 class="section-title">Procedimientos</h3>
 
-                @for (int i = 0; i < productorEdit.Galeria.Count; i++)
-                {
-                    var index = i;
-                    <div class="gallery-item" style="margin-bottom: 10px;">
-                        <InputText class="form-control-admin" @bind-Value="productorEdit.Galeria[index]" placeholder="URL de la imagen" />
-                        <InputFile OnChange="@(e => SubirImagenGaleria(e, index))" accept="image/*" class="form-control-admin" />
-                        <button type="button" class="btn-action-delete" @onclick="() => EliminarImagen(productorEdit.Galeria[index])">Eliminar</button>
-
-                        @if (!string.IsNullOrEmpty(productorEdit.Galeria[index]))
-                        {
-                            <img src="@productorEdit.Galeria[index]" alt="Vista previa galería" style="max-height: 80px; margin-top: 5px; display: block;" />
-                        }
-                    </div>
-                }
-
-                <button type="button" class="btn-create-new" @onclick="AgregarImagen">Agregar Imagen</button>
-
-                <!-- FINCA -->
-                <h3 class="section-title">Información de la Finca</h3>
-
-                <InputTextArea class="form-control-admin" @bind-Value="productorEdit.FincaDescripcion" placeholder="Descripción de la finca" />
-                <InputText class="form-control-admin" @bind-Value="productorEdit.FincaImagen" placeholder="URL de imagen de la finca" />
-                <InputFile OnChange="SubirImagenFinca" accept="image/*" class="form-control-admin" />
-
-                @if (!string.IsNullOrEmpty(productorEdit.FincaImagen))
-                {
-                    <div style="margin-top: 5px;">
-                        <img src="@productorEdit.FincaImagen" alt="Vista previa finca" style="max-height: 100px; border-radius: 4px;" />
-                    </div>
-                }
-
-                <!-- PROCESOS -->
-                <h3 class="section-title">Procesos</h3>
-
-                <InputTextArea class="form-control-admin" @bind-Value="productorEdit.ProcesosDescripcion" placeholder="Descripción general de procesos" />
-                <InputTextArea class="form-control-admin" @bind-Value="productorEdit.SostenibilidadDescripcion" placeholder="Descripción de sostenibilidad" />
-                <InputTextArea class="form-control-admin" @bind-Value="productorEdit.ProcesosFooterTexto" placeholder="Texto final de procesos" />
-
-                <h4 class="section-title">Lista de Procesos</h4>
-
-                @for (int i = 0; i < productorEdit.Procesos.Count; i++)
+                @for (int i = 0; i < productorEdit.Procedimientos.Count; i++)
                 {
                     var index = i;
-                    var pr = productorEdit.Procesos[index];
-                    <div class="proceso-box" style="margin-bottom: 15px; border: 1px solid #ddd; padding: 10px; border-radius: 6px;">
-                        <label>Número</label>
-                        <InputNumber class="form-control-admin" @bind-Value="pr.Numero" />
+                    var proc = productorEdit.Procedimientos[index];
+                    <div class="proceso-box" style="margin-bottom: 15px; border: 1px solid #ddd; padding: 15px; border-radius: 6px; background-color: #f9f9f9;">
+                        
+                        <div class="form-group mb-2">
+                            <label>Nombre del Procedimiento</label>
+                            <InputText class="form-control-admin" @bind-Value="proc.Nombre" placeholder="Ej: Recolección" />
+                        </div>
 
-                        <label>Título</label>
-                        <InputText class="form-control-admin" @bind-Value="pr.Titulo" />
+                        <div class="form-group mb-2">
+                            <label>Título</label>
+                            <InputText class="form-control-admin" @bind-Value="proc.Titulo" placeholder="Ej: Selección manual de grano" />
+                        </div>
 
-                        <label>Descripción</label>
-                        <InputTextArea class="form-control-admin" @bind-Value="pr.Descripcion" />
+                        <div class="form-group mb-2">
+                            <label>Descripción</label>
+                            <InputTextArea class="form-control-admin" @bind-Value="proc.Descripcion" rows="2" />
+                        </div>
 
-                        <label>Imagen (URL)</label>
-                        <InputText class="form-control-admin" @bind-Value="pr.Imagen" />
-                        <InputFile OnChange="@(e => SubirImagenProceso(e, index))" accept="image/*" class="form-control-admin" />
+                        <div class="form-group mb-2">
+                            <label>Imagen (URL)</label>
+                            <InputText class="form-control-admin" @bind-Value="proc.Imagen" placeholder="URL de la imagen" />
+                            <InputFile OnChange="@(e => SubirImagenProcedimiento(e, index))" accept="image/*" class="form-control-admin mt-1" />
 
-                        @if (!string.IsNullOrEmpty(pr.Imagen))
-                        {
-                            <img src="@pr.Imagen" alt="Vista previa proceso" style="max-height: 80px; margin-top: 5px; display: block;" />
-                        }
+                            @if (!string.IsNullOrEmpty(proc.Imagen))
+                            {
+                                <img src="@proc.Imagen" alt="Vista previa procedimiento" style="max-height: 80px; margin-top: 5px; display: block; border-radius: 4px;" />
+                            }
+                        </div>
 
-                        <button type="button" class="btn-action-delete" style="margin-top: 10px;" @onclick="() => EliminarProceso(pr)">Eliminar Proceso</button>
+                        <button type="button" class="btn-action-delete" style="margin-top: 10px;" @onclick="() => EliminarProcedimiento(proc)">Eliminar Procedimiento</button>
                     </div>
                 }
 
-                <button type="button" class="btn-add-proceso" @onclick="AgregarProceso">Agregar Proceso</button>
+                <button type="button" class="btn-add-proceso mb-3" @onclick="AgregarProcedimiento">Agregar Procedimiento</button>
 
                 <!-- BOTONES -->
                 <div style="margin-top: 25px;">
@@ -184,64 +171,54 @@
 </div>
 
 @code {
-    List<ProductorModel> productores = new();
-    List<OrganizationModel> organizaciones = new();
-    ProductorModel productorEdit = new();
-    bool editando = false;
+    private List<ProductorModel> productores = new();
+    private List<OrganizationModel> organizaciones = new();
+    private ProductorModel productorEdit = new();
+    private bool editando = false;
 
     protected override async Task OnInitializedAsync()
     {
-        productores = await ApiService.GetProductoresAsync();
-        organizaciones = await ApiService.GetOrganizacionesAsync();
+        productores = await ApiService.GetProductoresAsync() ?? new List<ProductorModel>();
+        organizaciones = await ApiService.GetOrganizacionesAsync() ?? new List<OrganizationModel>();
     }
 
-    void NuevoProductor()
+    private void NuevoProductor()
     {
         productorEdit = new ProductorModel
         {
-            Galeria = new List<string>(),
-            Procesos = new List<ProcesoModel>()
+            Procedimientos = new List<ProcedimientoModel>()
         };
 
         editando = true;
     }
 
-    void EditarProductor(ProductorModel p)
+    private void EditarProductor(ProductorModel p)
     {
         productorEdit = new ProductorModel
         {
             Id = p.Id,
+            IdOrganizacion = p.IdOrganizacion,
+            Destacado = p.Destacado,
             Nombre = p.Nombre,
-            Finca = p.Finca,
-            Ubicacion = p.Ubicacion,
             Frase = p.Frase,
-            OrganizacionId = p.OrganizacionId,
             HistoriaTitulo = p.HistoriaTitulo,
             HistoriaTexto = p.HistoriaTexto,
-            Altitud = p.Altitud,
-            Proceso = p.Proceso,
-            Variedades = p.Variedades,
-            Experiencia = p.Experiencia,
-            ImagenPrincipal = p.ImagenPrincipal,
-            Galeria = p.Galeria?.ToList() ?? new List<string>(),
-            FincaDescripcion = p.FincaDescripcion,
-            FincaImagen = p.FincaImagen,
-            ProcesosDescripcion = p.ProcesosDescripcion,
             SostenibilidadDescripcion = p.SostenibilidadDescripcion,
-            ProcesosFooterTexto = p.ProcesosFooterTexto,
-            Procesos = p.Procesos?.Select(x => new ProcesoModel
+            ImagenPrincipal = p.ImagenPrincipal,
+            Procedimientos = p.Procedimientos?.Select(x => new ProcedimientoModel
             {
-                Numero = x.Numero,
+                Id = x.Id,
+                Nombre = x.Nombre,
                 Titulo = x.Titulo,
                 Descripcion = x.Descripcion,
-                Imagen = x.Imagen
-            }).ToList() ?? new List<ProcesoModel>()
+                Imagen = x.Imagen,
+                IdProductor = x.IdProductor
+            }).ToList() ?? new List<ProcedimientoModel>()
         };
 
         editando = true;
     }
 
-    // MÉTODOS PARA SUBIR IMÁGENES
     private async Task SubirImagenPrincipal(InputFileChangeEventArgs e)
     {
         if (e.File != null)
@@ -255,70 +232,33 @@
         }
     }
 
-    private async Task SubirImagenGaleria(InputFileChangeEventArgs e, int index)
+    private async Task SubirImagenProcedimiento(InputFileChangeEventArgs e, int index)
     {
-        if (e.File != null)
+        if (e.File != null && index < productorEdit.Procedimientos.Count)
         {
             var url = await ApiService.UploadImageAsync(e.File);
             if (!string.IsNullOrEmpty(url))
             {
-                productorEdit.Galeria[index] = url;
+                productorEdit.Procedimientos[index].Imagen = url;
                 StateHasChanged();
             }
         }
     }
 
-    private async Task SubirImagenFinca(InputFileChangeEventArgs e)
+    private void AgregarProcedimiento()
     {
-        if (e.File != null)
+        productorEdit.Procedimientos.Add(new ProcedimientoModel());
+    }
+
+    private void EliminarProcedimiento(ProcedimientoModel proc)
+    {
+        productorEdit.Procedimientos.Remove(proc);
+    }
+
+    private async Task Guardar()
+    {
+        if (productorEdit.Id == 0)
         {
-            var url = await ApiService.UploadImageAsync(e.File);
-            if (!string.IsNullOrEmpty(url))
-            {
-                productorEdit.FincaImagen = url;
-                StateHasChanged();
-            }
-        }
-    }
-
-    private async Task SubirImagenProceso(InputFileChangeEventArgs e, int index)
-    {
-        if (e.File != null)
-        {
-            var url = await ApiService.UploadImageAsync(e.File);
-            if (!string.IsNullOrEmpty(url))
-            {
-                productorEdit.Procesos[index].Imagen = url;
-                StateHasChanged();
-            }
-        }
-    }
-
-    void AgregarImagen()
-    {
-        productorEdit.Galeria.Add("");
-    }
-
-    void EliminarImagen(string img)
-    {
-        productorEdit.Galeria.Remove(img);
-    }
-
-    void AgregarProceso()
-    {
-        productorEdit.Procesos.Add(new ProcesoModel());
-    }
-
-    void EliminarProceso(ProcesoModel pr)
-    {
-        productorEdit.Procesos.Remove(pr);
-    }
-
-    async Task Guardar()
-    {
-        if (string.IsNullOrEmpty(productorEdit.Id))
-        {
-            productorEdit.Id = Guid.NewGuid().ToString();
             await ApiService.CrearProductorAsync(productorEdit);
         }
         else
@@ -327,16 +267,16 @@
         }
 
         editando = false;
-        productores = await ApiService.GetProductoresAsync();
+        productores = await ApiService.GetProductoresAsync() ?? new List<ProductorModel>();
     }
 
-    async Task EliminarProductor(string id)
+    private async Task EliminarProductor(int id)
     {
-        await ApiService.EliminarProductorAsync(id);
-        productores = await ApiService.GetProductoresAsync();
+        await ApiService.EliminarProductorAsync(id.ToString());
+        productores = await ApiService.GetProductoresAsync() ?? new List<ProductorModel>();
     }
 
-    void Cancelar()
+    private void Cancelar()
     {
         editando = false;
     }
