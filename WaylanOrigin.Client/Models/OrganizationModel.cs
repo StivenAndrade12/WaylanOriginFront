@@ -1,24 +1,30 @@
 namespace WaylanOrigin.Client.Models;
 
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 public class OrganizationModel
 {
     public int Id { get; set; }
-    
+
+    [JsonPropertyName("nombre")]
     public string Nombre { get; set; } = string.Empty;
 
-    // Mapea tanto el JSON de respuesta ("imagenLogo") como el nombre original
     [JsonPropertyName("imagenLogo")]
-    public string ImagenLogo { get; set; } = string.Empty;
+    public string? ImagenLogo { get; set; }
 
-    // Mapea la clave "imagenHero" que devuelve el servidor al deserializar el JSON
     [JsonPropertyName("imagenHero")]
-    public string HeroImagen { get; set; } = string.Empty;
+    public string? HeroImagen { get; set; }
 
-    public string Descripcion1 { get; set; } = string.Empty;
-    public string Descripcion2 { get; set; } = string.Empty;
-    public string Enfoque { get; set; } = string.Empty;
+    [JsonPropertyName("descripcion1")]
+    public string? Descripcion1 { get; set; }
 
+    [JsonPropertyName("descripcion2")]
+    public string? Descripcion2 { get; set; }
+
+    [JsonPropertyName("enfoque")]
+    public string? Enfoque { get; set; }
+
+    [JsonPropertyName("productoresDestacados")]
     public List<ProductorModel> Productores { get; set; } = new();
-}
+}

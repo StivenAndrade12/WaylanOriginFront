@@ -1,6 +1,5 @@
 @page "/admin/productores"
 
-
 @using WaylanOrigin.Client.Services
 @using WaylanOrigin.Client.Models
 @using Microsoft.AspNetCore.Components.Forms
@@ -14,9 +13,20 @@
         <button type="button" class="btn-create-new" @onclick="NuevoProductor">NUEVO PRODUCTOR</button>
     </div>
 
-    @if (productores == null)
+    @if (!string.IsNullOrEmpty(mensajeAlerta))
     {
-        <p>Cargando...</p>
+        <div class="admin-message-banner" style="margin: 15px 0; padding: 12px; border-radius: 6px; background-color: @(esErrorAlerta ? "#ffebee" : "#e8f5e9"); color: @(esErrorAlerta ? "#c62828" : "#2e7d32"); border: 1px solid @(esErrorAlerta ? "#ffcdd2" : "#c8e6c9");">
+            <strong>@mensajeAlerta</strong>
+        </div>
+    }
+
+    @if (isLoading)
+    {
+        <p>Cargando productores...</p>
+    }
+    else if (productores == null || !productores.Any())
+    {
+        <div class="alert alert-info">No hay productores registrados. Puedes crear uno con el botón superior.</div>
     }
     else
     {
@@ -24,7 +34,10 @@
             <thead>
                 <tr>
                     <th>ID</th>
+                    <th>Imagen</th>
                     <th>Nombre</th>
+                    <th>Organización</th>
+                    <th>Ubicación</th>
                     <th>Destacado</th>
                     <th>Acciones</th>
                 </tr>
@@ -33,9 +46,19 @@
                 @foreach (var p in productores)
                 {
                     <tr>
-                        <td>@p.Id</td>
-                        <td>@p.Nombre</td>
-                        <td>@(p.Destacado ? "Sí" : "No")</td>
+                        <td><strong>#@p.Id</strong></td>
+                        <td>
+                            <img src="@ApiService.GetFullImageUrl(p.ImagenPrincipal)" alt="@p.Nombre"
+                                 style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 1px solid #ccc;" />
+                        </td>
+                        <td><strong>@p.Nombre</strong></td>
+                        <td>
+                            <span class="badge-org" style="background: #eef2ff; color: #3730a3; padding: 4px 8px; border-radius: 4px; font-weight: 500;">
+                                @(ObtenerNombreOrganizacion(p.IdOrganizacion, p.OrganizacionNombre))
+                            </span>
+                        </td>
+                        <td>@(string.IsNullOrEmpty(p.Ubicacion) ? "—" : p.Ubicacion)</td>
+                        <td>@(p.Destacado ? "★ Sí" : "No")</td>
                         <td>
                             <button type="button" class="btn-action-edit" @onclick="() => EditarProductor(p)">Editar</button>
                             <button type="button" class="btn-action-delete"
@@ -49,20 +72,37 @@
 
     @if (editando)
     {
-        <div class="panel-section" style="margin-top: 30px;">
+        <div class="panel-section" style="margin-top: 30px; border-top: 2px solid #eee; padding-top: 25px;">
 
-            <h2 class="section-title">@(productorEdit.Id == 0 ? "Nuevo Productor" : "Editar Productor")</h2>
+            <h2 class="section-title">@(productorEdit.Id == 0 ? "Nuevo Productor" : $"Editar Productor #{productorEdit.Id}: {productorEdit.Nombre}")</h2>
 
-            <EditForm Model="productorEdit" OnValidSubmit="Guardar">
+            <EditForm Model="productorEdit">
                 <DataAnnotationsValidator />
 
                 <!-- INFORMACIÓN GENERAL -->
-                <h3 class="section-title">Información General</h3>
+                <h3 class="section-title">Información General y Organización</h3>
 
                 <div class="form-group mb-3">
-                    <label>Nombre del Productor</label>
+                    <label>Nombre del Productor *</label>
                     <InputText class="form-control-admin" @bind-Value="productorEdit.Nombre"
                                placeholder="Nombre completo" />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label class="section-label">Organización Perteneciente *</label>
+                    <select class="form-control-admin" @bind="productorEdit.IdOrganizacion">
+                        <option value="0">-- Seleccionar Organización --</option>
+                        @foreach (var org in organizaciones)
+                        {
+                            <option value="@org.Id">@org.Nombre (ID: @org.Id)</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label>Ubicación / Región</label>
+                    <InputText class="form-control-admin" @bind-Value="productorEdit.Ubicacion"
+                               placeholder="Ej: Planadas, Tolima — Colombia" />
                 </div>
 
                 <div class="form-group mb-3">
@@ -72,18 +112,7 @@
                 </div>
 
                 <div class="form-group mb-3">
-                    <label class="section-label">Organización</label>
-                    <select class="form-control-admin" @bind="productorEdit.IdOrganizacion">
-                        <option value="0">-- Seleccionar Organización --</option>
-                        @foreach (var org in organizaciones)
-                        {
-                            <option value="@org.Id">@org.Nombre</option>
-                        }
-                    </select>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label>
+                    <label style="cursor: pointer;">
                         <InputCheckbox @bind-Value="productorEdit.Destacado" /> Marcar como Productor Destacado
                     </label>
                 </div>
@@ -98,15 +127,15 @@
                 </div>
 
                 <div class="form-group mb-3">
-                    <label>Texto de la Historia</label>
-                    <InputTextArea class="form-control-admin" @bind-Value="productorEdit.HistoriaTexto" rows="4"
-                                   placeholder="Relato detallado..." />
+                    <label>Texto de la Historia / Trayectoria</label>
+                    <InputTextArea class="form-control-admin" @bind-Value="productorEdit.Historia" rows="4"
+                                   placeholder="Relato detallado de la historia del productor..." />
                 </div>
 
                 <div class="form-group mb-3">
                     <label>Descripción de Sostenibilidad</label>
                     <InputTextArea class="form-control-admin" @bind-Value="productorEdit.SostenibilidadDescripcion" rows="3"
-                                   placeholder="Prácticas sostenibles..." />
+                                   placeholder="Prácticas sostenibles y cuidado ambiental..." />
                 </div>
 
                 <!-- IMAGEN PRINCIPAL -->
@@ -120,14 +149,14 @@
                     @if (!string.IsNullOrEmpty(productorEdit.ImagenPrincipal))
                     {
                         <div style="margin-top: 8px;">
-                            <img src="@productorEdit.ImagenPrincipal" alt="Vista previa principal"
+                            <img src="@ApiService.GetFullImageUrl(productorEdit.ImagenPrincipal)" alt="Vista previa principal"
                                  style="max-height: 120px; border-radius: 4px; border: 1px solid #ccc;" />
                         </div>
                     }
                 </div>
 
                 <!-- PROCEDIMIENTOS -->
-                <h3 class="section-title">Procedimientos</h3>
+                <h3 class="section-title">Procedimientos del Productor</h3>
 
                 @for (int i = 0; i < productorEdit.Procedimientos.Count; i++)
                 {
@@ -138,13 +167,13 @@
 
                         <div class="form-group mb-2">
                             <label>Nombre del Procedimiento</label>
-                            <InputText class="form-control-admin" @bind-Value="proc.Nombre" placeholder="Ej: Recolección" />
+                            <InputText class="form-control-admin" @bind-Value="proc.Nombre" placeholder="Ej: Recolección selectiva" />
                         </div>
 
                         <div class="form-group mb-2">
                             <label>Título</label>
                             <InputText class="form-control-admin" @bind-Value="proc.Titulo"
-                                       placeholder="Ej: Selección manual de grano" />
+                                       placeholder="Ej: Selección manual de grano en punto óptimo" />
                         </div>
 
                         <div class="form-group mb-2">
@@ -153,14 +182,14 @@
                         </div>
 
                         <div class="form-group mb-2">
-                            <label>Imagen (URL)</label>
+                            <label>Imagen (URL o subir archivo)</label>
                             <InputText class="form-control-admin" @bind-Value="proc.Imagen" placeholder="URL de la imagen" />
                             <InputFile OnChange="@(e => SubirImagenProcedimiento(e, index))" accept="image/*"
                                        class="form-control-admin mt-1" />
 
                             @if (!string.IsNullOrEmpty(proc.Imagen))
                             {
-                                <img src="@proc.Imagen" alt="Vista previa procedimiento"
+                                <img src="@ApiService.GetFullImageUrl(proc.Imagen)" alt="Vista previa procedimiento"
                                      style="max-height: 80px; margin-top: 5px; display: block; border-radius: 4px;" />
                             }
                         </div>
@@ -170,39 +199,78 @@
                     </div>
                 }
 
-                <button type="button" class="btn-add-proceso mb-3" @onclick="AgregarProcedimiento">Agregar
-                    Procedimiento</button>
+                <button type="button" class="btn-add-proceso mb-3" @onclick="AgregarProcedimiento">
+                    + Agregar Procedimiento
+                </button>
 
-                    <!-- BOTONES -->
-                    <div style="margin-top: 25px;">
-                        <button class="btn-save" type="submit">Guardar</button>
-                        <button type="button" class="btn-cancel" @onclick="Cancelar">Cancelar</button>
-                    </div>
+                <!-- BOTONES DE ACCIÓN (type="button" para evitar recarga de página) -->
+                <div style="margin-top: 25px;">
+                    <button class="btn-save" type="button" @onclick="Guardar" disabled="@isSaving">
+                        @(isSaving ? "Guardando..." : "Guardar Productor")
+                    </button>
+                    <button type="button" class="btn-cancel" @onclick="Cancelar" style="margin-left: 10px;">
+                        Cancelar
+                    </button>
+                </div>
 
-                </EditForm>
-            </div>
-        }
-    </div>
+            </EditForm>
+        </div>
+    }
+</div>
 
 @code {
     private List<ProductorModel> productores = new();
     private List<OrganizationModel> organizaciones = new();
     private ProductorModel productorEdit = new();
     private bool editando = false;
+    private bool isLoading = true;
+    private bool isSaving = false;
+    private string mensajeAlerta = string.Empty;
+    private bool esErrorAlerta = false;
 
     protected override async Task OnInitializedAsync()
     {
-        productores = await ApiService.GetProductoresAsync() ?? new List<ProductorModel>();
-        organizaciones = await ApiService.GetOrganizacionesAsync() ?? new List<OrganizationModel>();
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        try
+        {
+            isLoading = true;
+            organizaciones = await ApiService.GetOrganizacionesAsync() ?? new List<OrganizationModel>();
+            productores = await ApiService.GetProductoresAsync() ?? new List<ProductorModel>();
+        }
+        catch (Exception ex)
+        {
+            mensajeAlerta = $"Error al cargar datos: {ex.Message}";
+            esErrorAlerta = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private string ObtenerNombreOrganizacion(int idOrg, string? orgNombre)
+    {
+        if (idOrg > 0)
+        {
+            var match = organizaciones.FirstOrDefault(o => o.Id == idOrg);
+            if (match != null) return match.Nombre;
+        }
+        return !string.IsNullOrEmpty(orgNombre) ? orgNombre : "Sin asignar";
     }
 
     private void NuevoProductor()
     {
         productorEdit = new ProductorModel
         {
+            IdOrganizacion = organizaciones.FirstOrDefault()?.Id ?? 1,
             Procedimientos = new List<ProcedimientoModel>()
         };
 
+        mensajeAlerta = string.Empty;
         editando = true;
     }
 
@@ -211,14 +279,18 @@
         productorEdit = new ProductorModel
         {
             Id = p.Id,
-            IdOrganizacion = p.IdOrganizacion,
+            IdOrganizacion = p.IdOrganizacion > 0 ? p.IdOrganizacion : (organizaciones.FirstOrDefault()?.Id ?? 1),
             Destacado = p.Destacado,
             Nombre = p.Nombre,
+            Ubicacion = p.Ubicacion,
+            Historia = p.Historia,
+            ImagenUrl = p.ImagenUrl,
             Frase = p.Frase,
             HistoriaTitulo = p.HistoriaTitulo,
             HistoriaTexto = p.HistoriaTexto,
             SostenibilidadDescripcion = p.SostenibilidadDescripcion,
             ImagenPrincipal = p.ImagenPrincipal,
+            OrganizacionNombre = p.OrganizacionNombre,
             Procedimientos = p.Procedimientos?.Select(x => new ProcedimientoModel
             {
                 Id = x.Id,
@@ -230,6 +302,7 @@
             }).ToList() ?? new List<ProcedimientoModel>()
         };
 
+        mensajeAlerta = string.Empty;
         editando = true;
     }
 
@@ -237,11 +310,20 @@
     {
         if (e.File != null)
         {
-            var url = await ApiService.UploadImageAsync(e.File);
-            if (!string.IsNullOrEmpty(url))
+            try
             {
-                productorEdit.ImagenPrincipal = url;
-                StateHasChanged();
+                var url = await ApiService.UploadImageAsync(e.File);
+                if (!string.IsNullOrEmpty(url))
+                {
+                    productorEdit.ImagenPrincipal = url;
+                    productorEdit.ImagenUrl = url;
+                    StateHasChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                mensajeAlerta = $"Error al subir imagen principal: {ex.Message}";
+                esErrorAlerta = true;
             }
         }
     }
@@ -250,11 +332,19 @@
     {
         if (e.File != null && index < productorEdit.Procedimientos.Count)
         {
-            var url = await ApiService.UploadImageAsync(e.File);
-            if (!string.IsNullOrEmpty(url))
+            try
             {
-                productorEdit.Procedimientos[index].Imagen = url;
-                StateHasChanged();
+                var url = await ApiService.UploadImageAsync(e.File);
+                if (!string.IsNullOrEmpty(url))
+                {
+                    productorEdit.Procedimientos[index].Imagen = url;
+                    StateHasChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                mensajeAlerta = $"Error al subir imagen de procedimiento: {ex.Message}";
+                esErrorAlerta = true;
             }
         }
     }
@@ -271,28 +361,114 @@
 
     private async Task Guardar()
     {
-        if (productorEdit.Id == 0)
+        if (string.IsNullOrWhiteSpace(productorEdit.Nombre))
         {
-            await ApiService.CrearProductorAsync(productorEdit);
-        }
-        else
-        {
-            await ApiService.ActualizarProductorAsync(productorEdit);
+            mensajeAlerta = "El nombre del productor es obligatorio.";
+            esErrorAlerta = true;
+            return;
         }
 
-        editando = false;
-        productores = await ApiService.GetProductoresAsync() ?? new List<ProductorModel>();
+        if (productorEdit.IdOrganizacion <= 0 && organizaciones.Any())
+        {
+            productorEdit.IdOrganizacion = organizaciones.First().Id;
+        }
+
+        try
+        {
+            isSaving = true;
+            esErrorAlerta = false;
+
+            if (productorEdit.Id == 0)
+            {
+                var ok = await ApiService.CrearProductorAsync(productorEdit);
+                if (ok)
+                {
+                    // Actualización optimista: agregamos directamente a la lista sin re-consultar a Azure
+                    productores.Add(productorEdit);
+                    mensajeAlerta = $"¡Productor '{productorEdit.Nombre}' creado exitosamente!";
+                    esErrorAlerta = false;
+                    editando = false;
+                }
+                else
+                {
+                    mensajeAlerta = "Error al crear el productor en el servidor.";
+                    esErrorAlerta = true;
+                }
+            }
+            else
+            {
+                var ok = await ApiService.ActualizarProductorAsync(productorEdit);
+                if (ok)
+                {
+                    // Actualización optimista: modificamos directamente el registro en memoria
+                    var idx = productores.FindIndex(p => p.Id == productorEdit.Id);
+                    if (idx >= 0)
+                    {
+                        productores[idx] = productorEdit;
+                    }
+                    else
+                    {
+                        productores.Add(productorEdit);
+                    }
+
+                    mensajeAlerta = $"¡Productor '{productorEdit.Nombre}' actualizado exitosamente!";
+                    esErrorAlerta = false;
+                    editando = false;
+                }
+                else
+                {
+                    mensajeAlerta = "Error al actualizar el productor en el servidor.";
+                    esErrorAlerta = true;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeAlerta = $"Error inesperado al guardar: {ex.Message}";
+            esErrorAlerta = true;
+        }
+        finally
+        {
+            isSaving = false;
+            StateHasChanged();
+        }
     }
 
-    // ✅ CORRECTO (Pasa el id como entero directo)
     private async Task EliminarProductor(int id)
     {
-        await ApiService.EliminarProductorAsync(id);
-        productores = await ApiService.GetProductoresAsync() ?? new List<ProductorModel>();
+        try
+        {
+            var p = productores.FirstOrDefault(x => x.Id == id);
+            var nombre = p?.Nombre ?? $"#{id}";
+
+            var ok = await ApiService.EliminarProductorAsync(id);
+            if (ok)
+            {
+                // Remoción optimista local: no se re-consulta para evitar race conditions
+                productores.RemoveAll(x => x.Id == id);
+                mensajeAlerta = $"Productor '{nombre}' eliminado correctamente.";
+                esErrorAlerta = false;
+            }
+            else
+            {
+                mensajeAlerta = $"No se pudo eliminar el productor '{nombre}'.";
+                esErrorAlerta = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeAlerta = $"Error al eliminar productor: {ex.Message}";
+            esErrorAlerta = true;
+        }
+        finally
+        {
+            StateHasChanged();
+        }
     }
 
     private void Cancelar()
     {
         editando = false;
+        mensajeAlerta = string.Empty;
     }
-}
+}

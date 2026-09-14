@@ -1,3 +1,4 @@
+@page "/admin/organizacion"
 @page "/admin/organizacion/{Id:int}"
 
 @using Microsoft.AspNetCore.Components.Forms
@@ -6,148 +7,291 @@
 
 @inject ApiService Api
 
-<h2 class="admin-title">Editar Organización: @org?.Nombre</h2>
+<div class="panel-section">
+    <div class="panel-header-row">
+        <h2 class="admin-title">Configuración de Organización @(org != null ? $": {org.Nombre}" : "")</h2>
+    </div>
 
-@if (isLoading)
-{
-    <p>Cargando datos de la organización...</p>
-}
-else if (org == null)
-{
-    <p>No se encontró la organización especificada.</p>
-}
-else
-{
-    <EditForm Model="org" OnSubmit="GuardarCambios">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-
-        <div class="admin-form-grid">
-
-            <!-- SECCIÓN GENERAL Y HERO -->
-            <h3>Información Principal y Hero</h3>
-
-            <div class="admin-field">
-                <label>Nombre de la Organización</label>
-                <InputText @bind-Value="org.Nombre" class="admin-input" />
-            </div>
-
-            <div class="admin-field">
-                <label>Imagen Logo (URL)</label>
-                <InputText @bind-Value="org.ImagenLogo" class="admin-input" placeholder="ej: logotipo/5.png" />
-                <InputFile OnChange="SubirLogo" accept="image/*" class="admin-input" style="margin-top: 5px;" />
-
-                @if (!string.IsNullOrEmpty(org.ImagenLogo))
-                {
-                    <div style="margin-top: 8px;">
-                        <img src="@org.ImagenLogo" alt="Vista previa Logo"
-                             style="max-height: 80px; border-radius: 4px; border: 1px solid #ccc; padding: 4px; background: #fff;" />
-                    </div>
-                }
-            </div>
-
-            <div class="admin-field">
-                <label>Imagen del Hero (URL)</label>
-                <InputText @bind-Value="org.HeroImagen" class="admin-input" placeholder="ej: imagenes/camp.png" />
-                <InputFile OnChange="SubirHeroImagen" accept="image/*" class="admin-input" style="margin-top: 5px;" />
-
-                @if (!string.IsNullOrEmpty(org.HeroImagen))
-                {
-                    <div style="margin-top: 8px;">
-                        <img src="@org.HeroImagen" alt="Vista previa Hero"
-                             style="max-height: 120px; border-radius: 6px; border: 1px solid #ccc;" />
-                    </div>
-                }
-            </div>
-
-            <div class="admin-field">
-                <label>Descripción 1</label>
-                <InputTextArea @bind-Value="org.Descripcion1" class="admin-textarea" rows="3" />
-            </div>
-
-            <div class="admin-field">
-                <label>Descripción 2</label>
-                <InputTextArea @bind-Value="org.Descripcion2" class="admin-textarea" rows="3" />
-            </div>
-
-            <!-- ENFOQUE -->
-            <h3>Enfoque</h3>
-
-            <div class="admin-field">
-                <label>Enfoque / Compromiso</label>
-                <InputText @bind-Value="org.Enfoque" class="admin-input" />
-            </div>
-
-        </div>
-
-        <button type="submit" class="admin-btn-save" style="margin-top: 20px;">Guardar cambios</button>
-
-        @if (!string.IsNullOrEmpty(mensaje))
+    @if (isLoading)
+    {
+        <p>Cargando datos de la organización...</p>
+    }
+    else if (org == null)
+    {
+        <div class="alert alert-warning">No se encontró la organización especificada.</div>
+    }
+    else
+    {
+        @if (organizaciones.Count > 1)
         {
-            <p class="admin-message" style="margin-top: 10px; font-weight: bold;">@mensaje</p>
+            <div class="admin-field" style="margin-bottom: 20px;">
+                <label><strong>Seleccionar Organización a Gestionar:</strong></label>
+                <select class="admin-input" value="@org.Id" @onchange="CambiarOrganizacionSeleccionada">
+                    @foreach (var o in organizaciones)
+                    {
+                        <option value="@o.Id">@o.Nombre (ID: @o.Id)</option>
+                    }
+                </select>
+            </div>
         }
-    </EditForm>
-}
+
+        <EditForm Model="org">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="admin-form-grid">
+
+                <!-- SECCIÓN GENERAL Y HERO -->
+                <h3>Información Principal y Hero</h3>
+
+                <div class="admin-field">
+                    <label>Nombre de la Organización</label>
+                    <InputText @bind-Value="org.Nombre" class="admin-input" />
+                </div>
+
+                <div class="admin-field">
+                    <label>Imagen Logo (URL o Subir archivo)</label>
+                    <InputText @bind-Value="org.ImagenLogo" class="admin-input" placeholder="ej: https://... o logotipo/5.png" />
+                    <InputFile OnChange="SubirLogo" accept="image/*" class="admin-input" style="margin-top: 5px;" />
+
+                    @if (!string.IsNullOrEmpty(org.ImagenLogo))
+                    {
+                        <div style="margin-top: 8px;">
+                            <img src="@Api.GetFullImageUrl(org.ImagenLogo)" alt="Vista previa Logo"
+                                 style="max-height: 80px; border-radius: 4px; border: 1px solid #ccc; padding: 4px; background: #fff;" />
+                        </div>
+                    }
+                </div>
+
+                <div class="admin-field">
+                    <label>Imagen del Hero (URL o Subir archivo)</label>
+                    <InputText @bind-Value="org.HeroImagen" class="admin-input" placeholder="ej: https://... o imagenes/camp.png" />
+                    <InputFile OnChange="SubirHeroImagen" accept="image/*" class="admin-input" style="margin-top: 5px;" />
+
+                    @if (!string.IsNullOrEmpty(org.HeroImagen))
+                    {
+                        <div style="margin-top: 8px;">
+                            <img src="@Api.GetFullImageUrl(org.HeroImagen)" alt="Vista previa Hero"
+                                 style="max-height: 120px; border-radius: 6px; border: 1px solid #ccc;" />
+                        </div>
+                    }
+                </div>
+
+                <div class="admin-field">
+                    <label>Descripción 1</label>
+                    <InputTextArea @bind-Value="org.Descripcion1" class="admin-textarea" rows="3" />
+                </div>
+
+                <div class="admin-field">
+                    <label>Descripción 2</label>
+                    <InputTextArea @bind-Value="org.Descripcion2" class="admin-textarea" rows="3" />
+                </div>
+
+                <!-- ENFOQUE -->
+                <h3>Enfoque y Filosofía</h3>
+
+                <div class="admin-field">
+                    <label>Enfoque / Compromiso</label>
+                    <InputText @bind-Value="org.Enfoque" class="admin-input" />
+                </div>
+
+            </div>
+
+            <!-- BOTÓN GUARDAR (type="button" para evitar recarga HTML nativa) -->
+            <div style="margin-top: 25px;">
+                <button type="button" class="admin-btn-save" @onclick="GuardarCambios" disabled="@isSaving">
+                    @(isSaving ? "Guardando cambios..." : "Guardar cambios")
+                </button>
+            </div>
+
+            @if (!string.IsNullOrEmpty(mensaje))
+            {
+                <p class="admin-message" style="margin-top: 15px; font-weight: bold; color: @(esError ? "#d9534f" : "#2e7d32");">
+                    @mensaje
+                </p>
+            }
+        </EditForm>
+
+        @if (productoresOrganizacion.Any())
+        {
+            <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee;">
+                <h3>Productores vinculados a esta Organización (@productoresOrganizacion.Count)</h3>
+                <ul style="margin-top: 10px; padding-left: 20px;">
+                    @foreach (var p in productoresOrganizacion)
+                    {
+                        <li><strong>@p.Nombre</strong> @(p.Destacado ? "★ (Destacado)" : "")</li>
+                    }
+                </ul>
+            </div>
+        }
+    }
+</div>
 
 @code {
     [Parameter] public int Id { get; set; }
 
+    private List<OrganizationModel> organizaciones = new();
     private OrganizationModel? org;
     private List<ProductorModel> productoresOrganizacion = new();
     private bool isLoading = true;
+    private bool isSaving = false;
+    private bool esError = false;
     private string mensaje = string.Empty;
-
-    private IBrowserFile? logoFile;
-    private IBrowserFile? heroFile;
 
     protected override async Task OnInitializedAsync()
     {
-        isLoading = true;
+        await CargarDatos();
+    }
 
-        var organizaciones = await Api.GetOrganizacionesAsync();
-
-        if (organizaciones != null && organizaciones.Any())
+    private async Task CargarDatos()
+    {
+        try
         {
-            org = organizaciones.FirstOrDefault(o => o.Id == Id)
-                  ?? organizaciones.FirstOrDefault();
-        }
+            isLoading = true;
 
+            organizaciones = await Api.GetOrganizacionesAsync();
+
+            if (organizaciones != null && organizaciones.Any())
+            {
+                if (Id > 0)
+                {
+                    org = organizaciones.FirstOrDefault(o => o.Id == Id) ?? organizaciones.FirstOrDefault();
+                }
+                else
+                {
+                    org = organizaciones.FirstOrDefault();
+                }
+            }
+
+            await CargarProductoresDeOrganizacion();
+        }
+        catch (Exception ex)
+        {
+            mensaje = $"Error cargando datos: {ex.Message}";
+            esError = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task CambiarOrganizacionSeleccionada(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int selectedId))
+        {
+            org = organizaciones.FirstOrDefault(o => o.Id == selectedId);
+            await CargarProductoresDeOrganizacion();
+        }
+    }
+
+    private async Task CargarProductoresDeOrganizacion()
+    {
+        if (org == null) return;
         var todosProductores = await Api.GetProductoresAsync();
-        if (todosProductores != null && org != null)
+        if (todosProductores != null)
         {
             productoresOrganizacion = todosProductores
                 .Where(p => p.IdOrganizacion == org.Id)
                 .ToList();
         }
-
-        isLoading = false;
     }
 
-    private void SubirLogo(InputFileChangeEventArgs e)
+    private async Task SubirLogo(InputFileChangeEventArgs e)
     {
-        if (e.File != null) logoFile = e.File;
+        if (e.File != null && org != null)
+        {
+            try
+            {
+                mensaje = "Subiendo logotipo...";
+                esError = false;
+                var url = await Api.UploadImageAsync(e.File);
+                if (!string.IsNullOrEmpty(url))
+                {
+                    org.ImagenLogo = url;
+                    mensaje = "Logotipo subido y enlazado correctamente.";
+                }
+                else
+                {
+                    mensaje = "No se pudo subir la imagen del logotipo.";
+                    esError = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                mensaje = $"Error subiendo logotipo: {ex.Message}";
+                esError = true;
+            }
+            finally
+            {
+                StateHasChanged();
+            }
+        }
     }
 
-    private void SubirHeroImagen(InputFileChangeEventArgs e)
+    private async Task SubirHeroImagen(InputFileChangeEventArgs e)
     {
-        if (e.File != null) heroFile = e.File;
+        if (e.File != null && org != null)
+        {
+            try
+            {
+                mensaje = "Subiendo imagen hero...";
+                esError = false;
+                var url = await Api.UploadImageAsync(e.File);
+                if (!string.IsNullOrEmpty(url))
+                {
+                    org.HeroImagen = url;
+                    mensaje = "Imagen hero subida y enlazada correctamente.";
+                }
+                else
+                {
+                    mensaje = "No se pudo subir la imagen hero.";
+                    esError = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                mensaje = $"Error subiendo imagen hero: {ex.Message}";
+                esError = true;
+            }
+            finally
+            {
+                StateHasChanged();
+            }
+        }
     }
 
     private async Task GuardarCambios()
     {
         if (org == null) return;
 
-        mensaje = "Guardando...";
-
-        var ok = await Api.UpdateOrganizacionAsync(org);
-        if (ok)
+        try
         {
-            mensaje = "¡Cambios guardados correctamente!";
+            isSaving = true;
+            mensaje = "Guardando cambios...";
+            esError = false;
+
+            var ok = await Api.UpdateOrganizacionAsync(org);
+            if (ok)
+            {
+                mensaje = "¡Cambios guardados correctamente!";
+                esError = false;
+            }
+            else
+            {
+                mensaje = "Error al intentar guardar los cambios en el servidor.";
+                esError = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            mensaje = $"Error inesperado al guardar: {ex.Message}";
+            esError = true;
+        }
+        finally
+        {
+            isSaving = false;
             StateHasChanged();
         }
-        else
-        {
-            mensaje = "Error al intentar guardar los cambios.";
-        }
     }
-}
+}
