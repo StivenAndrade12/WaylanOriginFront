@@ -3,6 +3,8 @@ using System.Net.Http.Json;
 using Microsoft.JSInterop;
 using WaylanOrigin.Client.Models;
 using Microsoft.AspNetCore.Components.Forms;
+using System.Text.Json;
+using System.Text;
 
 namespace WaylanOrigin.Client.Services
 {
@@ -1320,8 +1322,9 @@ namespace WaylanOrigin.Client.Services
         {
             try
             {
-                var result = await _http.GetFromJsonAsync<OrganizationModel>($"{ApiBaseUrl}api/Organizaciones/{id}");
-                if (result != null) return result;
+                // 1. Obtenemos la lista completa ya que el backend no soporta GET por ID individual
+                var lista = await GetOrganizacionesAsync();
+                return lista?.FirstOrDefault(o => o.Id == id);
             }
             catch (Exception ex)
             {
@@ -1330,32 +1333,95 @@ namespace WaylanOrigin.Client.Services
 
             return null;
         }
+
+
         public async Task<bool> UpdateOrganizacionAsync(OrganizationModel org)
         {
             try
             {
                 SetAuthHeader();
-                var response = await _http.PutAsJsonAsync($"{ApiBaseUrl}api/Organizaciones/{org.Id}", org);
+
+                if (org == null) return false;
+                if (org.Id <= 0) org.Id = 1;
+
+                // Enviamos las variaciones de nombres para asegurar compatibilidad con su API
+                var keyValues = new List<KeyValuePair<string, string>>
+        {
+            new("Nombre", org.Nombre ?? ""),
+            new("Logo", org.ImagenLogo ?? ""),
+            new("ImagenLogo", org.ImagenLogo ?? ""),
+            new("HeroImagen", org.HeroImagen ?? ""),
+            new("imagenHero", org.HeroImagen ?? ""),
+            new("Descripcion1", org.Descripcion1 ?? ""),
+            new("Descripcion2", org.Descripcion2 ?? ""),
+            new("Enfoque", org.Enfoque ?? "")
+        };
+
+                using var content = new FormUrlEncodedContent(keyValues);
+
+                var response = await _http.PutAsync($"{ApiBaseUrl}api/Organizacion/{org.Id}", content);
 
                 if (response.IsSuccessStatusCode)
                 {
+                    var jsonString = await response.Content.ReadAsStringAsync();
+
+                    // Leemos el JSON permitiendo que 'imagenHero' coincida con 'HeroImagen'
+                    var options = new System.Text.Json.JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+
+                    var orgActualizada = System.Text.Json.JsonSerializer.Deserialize<OrganizationModel>(jsonString, options);
+
+                    if (orgActualizada != null)
+                    {
+                        org.ImagenLogo = orgActualizada.ImagenLogo;
+                        org.HeroImagen = orgActualizada.HeroImagen;
+                    }
+
                     OnDataChanged?.Invoke();
                     return true;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error UpdateOrganizacionAsync: {ex.Message}");
+                Console.WriteLine($"Excepción en UpdateOrganizacionAsync: {ex.Message}");
             }
 
             return false;
+        }
+
+        public async Task<List<OrganizationModel>> GetOrganizacionesAsync()
+        {
+            try
+            {
+                // Configuramos para ignorar diferencias entre mayúsculas y minúsculas (ej: imagenHero vs HeroImagen)
+                var options = new System.Text.Json.JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                var response = await _http.GetAsync($"{ApiBaseUrl}api/Organizacion");
+                if (response.IsSuccessStatusCode)
+                {
+                    var jsonString = await response.Content.ReadAsStringAsync();
+                    var result = System.Text.Json.JsonSerializer.Deserialize<List<OrganizationModel>>(jsonString, options);
+                    if (result != null) return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error GetOrganizacionesAsync: {ex.Message}");
+            }
+
+            return new List<OrganizationModel>();
         }
 
         public async Task<List<ProductorModel>> GetProductoresAsync()
         {
             try
             {
-                var result = await _http.GetFromJsonAsync<List<ProductorModel>>($"{ApiBaseUrl}api/Productores");
+                var result = await _http.GetFromJsonAsync<List<ProductorModel>>($"{ApiBaseUrl}api/Productor");
                 if (result != null) return result;
             }
             catch (Exception ex)
@@ -1366,11 +1432,13 @@ namespace WaylanOrigin.Client.Services
             return ProductoresData.Lista;
         }
 
+
+
         public async Task<ProductorModel?> GetProductorByIdAsync(int id)
         {
             try
             {
-                var result = await _http.GetFromJsonAsync<ProductorModel>($"{ApiBaseUrl}api/Productores/{id}");
+                var result = await _http.GetFromJsonAsync<ProductorModel>($"{ApiBaseUrl}api/Productor/{id}");
                 if (result != null) return result;
             }
             catch (Exception ex)
@@ -1381,35 +1449,38 @@ namespace WaylanOrigin.Client.Services
             return ProductoresData.Lista.FirstOrDefault(p => p.Id == id);
         }
 
-        public async Task<List<OrganizationModel>> GetOrganizacionesAsync()
-        {
-            try
-            {
-                var result = await _http.GetFromJsonAsync<List<OrganizationModel>>($"{ApiBaseUrl}api/Organizaciones");
-                if (result != null)
-                    return result;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error GetOrganizacionesAsync: {ex.Message}");
-            }
-
-            return new List<OrganizationModel>();
-        }
-
-
         public async Task<bool> CrearProductorAsync(ProductorModel productor)
         {
             try
             {
                 SetAuthHeader();
-                var response = await _http.PostAsJsonAsync($"{ApiBaseUrl}api/Productores", productor);
+
+                using var content = new MultipartFormDataContent();
+                content.Add(new StringContent(productor.Nombre ?? ""), "Nombre");
+                content.Add(new StringContent(productor.Frase ?? ""), "Frase");
+                content.Add(new StringContent(productor.HistoriaTitulo ?? ""), "HistoriaTitulo");
+                content.Add(new StringContent(productor.HistoriaTexto ?? ""), "HistoriaTexto");
+                content.Add(new StringContent(productor.SostenibilidadDescripcion ?? ""), "SostenibilidadDescripcion");
+                content.Add(new StringContent(productor.Destacado.ToString().ToLower()), "Destacado");
+                content.Add(new StringContent(productor.IdOrganizacion.ToString()), "IdOrganizacion");
+
+                // Si la imagen viene vacía, enviamos una URL válida por defecto para que la API no rebote el [Required]
+                var imagenUrl = string.IsNullOrWhiteSpace(productor.ImagenPrincipal)
+                    ? "https://via.placeholder.com/300"
+                    : productor.ImagenPrincipal;
+
+                content.Add(new StringContent(imagenUrl), "ImagenPrincipal");
+
+                var response = await _http.PostAsync($"{ApiBaseUrl}api/Productor", content);
 
                 if (response.IsSuccessStatusCode)
                 {
                     OnDataChanged?.Invoke();
                     return true;
                 }
+
+                var error = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error CrearProductor ({response.StatusCode}): {error}");
             }
             catch (Exception ex)
             {
@@ -1424,13 +1495,39 @@ namespace WaylanOrigin.Client.Services
             try
             {
                 SetAuthHeader();
-                var response = await _http.PutAsJsonAsync($"{ApiBaseUrl}api/Productores/{productor.Id}", productor);
+
+                if (productor.Id <= 0)
+                {
+                    Console.WriteLine("Error: El ID del productor es 0 o inválido.");
+                    return false;
+                }
+
+                using var content = new MultipartFormDataContent();
+                content.Add(new StringContent(productor.Id.ToString()), "Id");
+                content.Add(new StringContent(productor.Nombre ?? ""), "Nombre");
+                content.Add(new StringContent(productor.Frase ?? ""), "Frase");
+                content.Add(new StringContent(productor.HistoriaTitulo ?? ""), "HistoriaTitulo");
+                content.Add(new StringContent(productor.HistoriaTexto ?? ""), "HistoriaTexto");
+                content.Add(new StringContent(productor.SostenibilidadDescripcion ?? ""), "SostenibilidadDescripcion");
+                content.Add(new StringContent(productor.Destacado.ToString().ToLower()), "Destacado");
+                content.Add(new StringContent(productor.IdOrganizacion.ToString()), "IdOrganizacion");
+
+                // Campo obligatorio que faltaba
+                var imagenUrl = string.IsNullOrWhiteSpace(productor.ImagenPrincipal)
+                    ? "https://via.placeholder.com/300"
+                    : productor.ImagenPrincipal;
+                content.Add(new StringContent(imagenUrl), "ImagenPrincipal");
+
+                var response = await _http.PutAsync($"{ApiBaseUrl}api/Productor/{productor.Id}", content);
 
                 if (response.IsSuccessStatusCode)
                 {
                     OnDataChanged?.Invoke();
                     return true;
                 }
+
+                var error = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error ActualizarProductor ({response.StatusCode}): {error}");
             }
             catch (Exception ex)
             {
@@ -1439,13 +1536,12 @@ namespace WaylanOrigin.Client.Services
 
             return false;
         }
-
-        public async Task<bool> EliminarProductorAsync(string id)
+        public async Task<bool> EliminarProductorAsync(int id)
         {
             try
             {
                 SetAuthHeader();
-                var response = await _http.DeleteAsync($"{ApiBaseUrl}api/Productores/{id}");
+                var response = await _http.DeleteAsync($"{ApiBaseUrl}api/Productor/{id}");
 
                 if (response.IsSuccessStatusCode)
                 {

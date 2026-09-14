@@ -83,7 +83,7 @@
                     </div>
                     <div class="tn-card-content">
                         <h3>@p.Nombre</h3>
-                       
+
                         <a href="perfil/@p.Id" class="tn-btn-profile">VER PERFIL ➔</a>
                     </div>
                 </div>
@@ -108,35 +108,44 @@
 </div>
 
 @code {
-    OrganizationModel org;
-    List<ProductorModel> productores;
-    List<ProductorModel> destacados;
+    OrganizationModel? org;
+    List<ProductorModel> productores = new List<ProductorModel>();
+    List<ProductorModel> destacados = new List<ProductorModel>();
 
     protected override async Task OnInitializedAsync()
     {
-        // 1. Cargar organización Tres Nevados (ID numérico 2)
-        org = await Api.GetOrganizacionByIdAsync(2);
+        // 1. Cargar las organizaciones reales desde la BD
+        var listaOrganizaciones = await Api.GetOrganizacionesAsync();
 
-        // 2. Cargar todos los productores
-        var todos = await Api.GetProductoresAsync();
-
-        // 3. Filtrar los productores de esta organización
-        if (todos != null && org != null)
+        if (listaOrganizaciones != null && listaOrganizaciones.Count > 0)
         {
-            productores = todos
-                .Where(p => p.IdOrganizacion == org.Id)
-                .ToList();
-        }
-        else
-        {
-            productores = new List<ProductorModel>();
+            // Buscamos la organización por Nombre que contenga "Nevados" o tomamos la primera
+            org = listaOrganizaciones.FirstOrDefault(o => o.Nombre != null && o.Nombre.Contains("Nevados",
+StringComparison.OrdinalIgnoreCase))
+                  ?? listaOrganizaciones.FirstOrDefault();
         }
 
-        // 4. Filtrar los 4 destacados
-        destacados = productores
-            .Where(p => p.Destacado)
-            .Take(4)
-            .ToList();
+        // 2. Cargar productores si se encontró la organización
+        if (org != null)
+        {
+            var todos = await Api.GetProductoresAsync();
+
+            if (todos != null)
+            {
+                // Filtrar los productores de esta organización
+                productores = todos
+                    .Where(p => p.IdOrganizacion == org.Id)
+                    .ToList();
+
+                // Filtrar los destacados
+                destacados = productores
+                    .Where(p => p.Destacado)
+                    .Take(4)
+                    .ToList();
+            }
+        }
     }
 }
+
+
 

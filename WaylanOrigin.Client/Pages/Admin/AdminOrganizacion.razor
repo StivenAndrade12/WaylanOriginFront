@@ -18,7 +18,7 @@ else if (org == null)
 }
 else
 {
-    <EditForm Model="org" OnValidSubmit="GuardarCambios">
+    <EditForm Model="org" OnSubmit="GuardarCambios">
         <DataAnnotationsValidator />
         <ValidationSummary />
 
@@ -40,7 +40,8 @@ else
                 @if (!string.IsNullOrEmpty(org.ImagenLogo))
                 {
                     <div style="margin-top: 8px;">
-                        <img src="@org.ImagenLogo" alt="Vista previa Logo" style="max-height: 80px; border-radius: 4px; border: 1px solid #ccc; padding: 4px; background: #fff;" />
+                        <img src="@org.ImagenLogo" alt="Vista previa Logo"
+                             style="max-height: 80px; border-radius: 4px; border: 1px solid #ccc; padding: 4px; background: #fff;" />
                     </div>
                 }
             </div>
@@ -53,7 +54,8 @@ else
                 @if (!string.IsNullOrEmpty(org.HeroImagen))
                 {
                     <div style="margin-top: 8px;">
-                        <img src="@org.HeroImagen" alt="Vista previa Hero" style="max-height: 120px; border-radius: 6px; border: 1px solid #ccc;" />
+                        <img src="@org.HeroImagen" alt="Vista previa Hero"
+                             style="max-height: 120px; border-radius: 6px; border: 1px solid #ccc;" />
                     </div>
                 }
             </div>
@@ -95,49 +97,40 @@ else
     private bool isLoading = true;
     private string mensaje = string.Empty;
 
+    private IBrowserFile? logoFile;
+    private IBrowserFile? heroFile;
+
     protected override async Task OnInitializedAsync()
     {
         isLoading = true;
-        
-        // Pasamos directamente el 'Id' (int) sin .ToString()
-        org = await Api.GetOrganizacionByIdAsync(Id);
 
-        // Si necesitas traer la lista de productores vinculados
+        var organizaciones = await Api.GetOrganizacionesAsync();
+
+        if (organizaciones != null && organizaciones.Any())
+        {
+            org = organizaciones.FirstOrDefault(o => o.Id == Id)
+                  ?? organizaciones.FirstOrDefault();
+        }
+
         var todosProductores = await Api.GetProductoresAsync();
-        if (todosProductores != null)
+        if (todosProductores != null && org != null)
         {
             productoresOrganizacion = todosProductores
-                .Where(p => p.IdOrganizacion == Id)
+                .Where(p => p.IdOrganizacion == org.Id)
                 .ToList();
         }
 
         isLoading = false;
     }
 
-    private async Task SubirLogo(InputFileChangeEventArgs e)
+    private void SubirLogo(InputFileChangeEventArgs e)
     {
-        if (e.File != null && org != null)
-        {
-            var url = await Api.UploadImageAsync(e.File);
-            if (!string.IsNullOrEmpty(url))
-            {
-                org.ImagenLogo = url;
-                StateHasChanged();
-            }
-        }
+        if (e.File != null) logoFile = e.File;
     }
 
-    private async Task SubirHeroImagen(InputFileChangeEventArgs e)
+    private void SubirHeroImagen(InputFileChangeEventArgs e)
     {
-        if (e.File != null && org != null)
-        {
-            var url = await Api.UploadImageAsync(e.File);
-            if (!string.IsNullOrEmpty(url))
-            {
-                org.HeroImagen = url;
-                StateHasChanged();
-            }
-        }
+        if (e.File != null) heroFile = e.File;
     }
 
     private async Task GuardarCambios()
@@ -145,7 +138,16 @@ else
         if (org == null) return;
 
         mensaje = "Guardando...";
+
         var ok = await Api.UpdateOrganizacionAsync(org);
-        mensaje = ok ? "¡Cambios guardados correctamente!" : "Error al intentar guardar los cambios.";
+        if (ok)
+        {
+            mensaje = "¡Cambios guardados correctamente!";
+            StateHasChanged();
+        }
+        else
+        {
+            mensaje = "Error al intentar guardar los cambios.";
+        }
     }
 }
