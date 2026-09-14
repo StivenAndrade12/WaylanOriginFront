@@ -222,6 +222,7 @@
     private List<ProductorModel> productores = new();
     private List<OrganizationModel> organizaciones = new();
     private ProductorModel productorEdit = new();
+    private IBrowserFile? selectedImageFile;
     private bool editando = false;
     private bool isLoading = true;
     private bool isSaving = false;
@@ -264,6 +265,7 @@
 
     private void NuevoProductor()
     {
+        selectedImageFile = null;
         productorEdit = new ProductorModel
         {
             IdOrganizacion = organizaciones.FirstOrDefault()?.Id ?? 1,
@@ -276,6 +278,7 @@
 
     private void EditarProductor(ProductorModel p)
     {
+        selectedImageFile = null;
         productorEdit = new ProductorModel
         {
             Id = p.Id,
@@ -312,6 +315,7 @@
         {
             try
             {
+                selectedImageFile = e.File;
                 var url = await ApiService.UploadImageAsync(e.File);
                 if (!string.IsNullOrEmpty(url))
                 {
@@ -322,7 +326,7 @@
             }
             catch (Exception ex)
             {
-                mensajeAlerta = $"Error al subir imagen principal: {ex.Message}";
+                mensajeAlerta = $"Error al cargar imagen principal: {ex.Message}";
                 esErrorAlerta = true;
             }
         }
@@ -380,7 +384,7 @@
 
             if (productorEdit.Id == 0)
             {
-                var ok = await ApiService.CrearProductorAsync(productorEdit);
+                var ok = await ApiService.CrearProductorAsync(productorEdit, selectedImageFile);
                 if (ok)
                 {
                     // Actualización optimista: agregamos directamente a la lista sin re-consultar a Azure
@@ -388,16 +392,17 @@
                     mensajeAlerta = $"¡Productor '{productorEdit.Nombre}' creado exitosamente!";
                     esErrorAlerta = false;
                     editando = false;
+                    selectedImageFile = null;
                 }
                 else
                 {
-                    mensajeAlerta = "Error al crear el productor en el servidor.";
+                    mensajeAlerta = "Error al crear el productor en el servidor. Verifica que los campos requeridos estén completos.";
                     esErrorAlerta = true;
                 }
             }
             else
             {
-                var ok = await ApiService.ActualizarProductorAsync(productorEdit);
+                var ok = await ApiService.ActualizarProductorAsync(productorEdit, selectedImageFile);
                 if (ok)
                 {
                     // Actualización optimista: modificamos directamente el registro en memoria
@@ -414,10 +419,11 @@
                     mensajeAlerta = $"¡Productor '{productorEdit.Nombre}' actualizado exitosamente!";
                     esErrorAlerta = false;
                     editando = false;
+                    selectedImageFile = null;
                 }
                 else
                 {
-                    mensajeAlerta = "Error al actualizar el productor en el servidor.";
+                    mensajeAlerta = "Error al actualizar el productor en el servidor. Verifica que los campos requeridos estén completos.";
                     esErrorAlerta = true;
                 }
             }
@@ -469,6 +475,7 @@
     private void Cancelar()
     {
         editando = false;
+        selectedImageFile = null;
         mensajeAlerta = string.Empty;
     }
 }

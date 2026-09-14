@@ -133,6 +133,8 @@
     private List<OrganizationModel> organizaciones = new();
     private OrganizationModel? org;
     private List<ProductorModel> productoresOrganizacion = new();
+    private IBrowserFile? selectedLogoFile;
+    private IBrowserFile? selectedHeroFile;
     private bool isLoading = true;
     private bool isSaving = false;
     private bool esError = false;
@@ -181,6 +183,8 @@
         if (int.TryParse(e.Value?.ToString(), out int selectedId))
         {
             org = organizaciones.FirstOrDefault(o => o.Id == selectedId);
+            selectedLogoFile = null;
+            selectedHeroFile = null;
             await CargarProductoresDeOrganizacion();
         }
     }
@@ -203,23 +207,18 @@
         {
             try
             {
-                mensaje = "Subiendo logotipo...";
-                esError = false;
+                selectedLogoFile = e.File;
                 var url = await Api.UploadImageAsync(e.File);
                 if (!string.IsNullOrEmpty(url))
                 {
                     org.ImagenLogo = url;
-                    mensaje = "Logotipo subido y enlazado correctamente.";
-                }
-                else
-                {
-                    mensaje = "No se pudo subir la imagen del logotipo.";
-                    esError = true;
+                    mensaje = "Logotipo seleccionado correctamente para guardar.";
+                    esError = false;
                 }
             }
             catch (Exception ex)
             {
-                mensaje = $"Error subiendo logotipo: {ex.Message}";
+                mensaje = $"Error cargando logotipo: {ex.Message}";
                 esError = true;
             }
             finally
@@ -235,23 +234,18 @@
         {
             try
             {
-                mensaje = "Subiendo imagen hero...";
-                esError = false;
+                selectedHeroFile = e.File;
                 var url = await Api.UploadImageAsync(e.File);
                 if (!string.IsNullOrEmpty(url))
                 {
                     org.HeroImagen = url;
-                    mensaje = "Imagen hero subida y enlazada correctamente.";
-                }
-                else
-                {
-                    mensaje = "No se pudo subir la imagen hero.";
-                    esError = true;
+                    mensaje = "Imagen hero seleccionada correctamente para guardar.";
+                    esError = false;
                 }
             }
             catch (Exception ex)
             {
-                mensaje = $"Error subiendo imagen hero: {ex.Message}";
+                mensaje = $"Error cargando imagen hero: {ex.Message}";
                 esError = true;
             }
             finally
@@ -271,9 +265,11 @@
             mensaje = "Guardando cambios...";
             esError = false;
 
-            var ok = await Api.UpdateOrganizacionAsync(org);
+            var ok = await Api.UpdateOrganizacionAsync(org, selectedLogoFile, selectedHeroFile);
             if (ok)
             {
+                selectedLogoFile = null;
+                selectedHeroFile = null;
                 mensaje = "¡Cambios guardados correctamente!";
                 esError = false;
             }

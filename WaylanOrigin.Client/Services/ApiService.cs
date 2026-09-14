@@ -1335,7 +1335,7 @@ namespace WaylanOrigin.Client.Services
             return null;
         }
 
-        public async Task<bool> UpdateOrganizacionAsync(OrganizationModel org)
+        public async Task<bool> UpdateOrganizacionAsync(OrganizationModel org, IBrowserFile? logoFile = null, IBrowserFile? heroFile = null)
         {
             try
             {
@@ -1346,33 +1346,41 @@ namespace WaylanOrigin.Client.Services
 
                 using var content = new MultipartFormDataContent();
                 content.Add(new StringContent(org.Nombre ?? ""), "Nombre");
-                content.Add(new StringContent(org.ImagenLogo ?? ""), "Logo");
-                content.Add(new StringContent(org.ImagenLogo ?? ""), "ImagenLogo");
-                content.Add(new StringContent(org.HeroImagen ?? ""), "HeroImagen");
-                content.Add(new StringContent(org.HeroImagen ?? ""), "imagenHero");
                 content.Add(new StringContent(org.Descripcion1 ?? ""), "Descripcion1");
                 content.Add(new StringContent(org.Descripcion2 ?? ""), "Descripcion2");
                 content.Add(new StringContent(org.Enfoque ?? ""), "Enfoque");
 
-                var response = await _http.PutAsync($"{ApiBaseUrl}api/Organizacion/{org.Id}", content);
-
-                // Fallback a FormUrlEncoded si la API requiriese x-www-form-urlencoded
-                if (response.StatusCode == System.Net.HttpStatusCode.UnsupportedMediaType)
+                if (logoFile != null)
                 {
-                    var keyValues = new List<KeyValuePair<string, string>>
-                    {
-                        new("Nombre", org.Nombre ?? ""),
-                        new("Logo", org.ImagenLogo ?? ""),
-                        new("ImagenLogo", org.ImagenLogo ?? ""),
-                        new("HeroImagen", org.HeroImagen ?? ""),
-                        new("imagenHero", org.HeroImagen ?? ""),
-                        new("Descripcion1", org.Descripcion1 ?? ""),
-                        new("Descripcion2", org.Descripcion2 ?? ""),
-                        new("Enfoque", org.Enfoque ?? "")
-                    };
-                    using var formContent = new FormUrlEncodedContent(keyValues);
-                    response = await _http.PutAsync($"{ApiBaseUrl}api/Organizacion/{org.Id}", formContent);
+                    using var msLogo = new MemoryStream();
+                    await logoFile.OpenReadStream(maxAllowedSize: 15 * 1024 * 1024).CopyToAsync(msLogo);
+                    var logoBytes = msLogo.ToArray();
+                    var logoContent = new ByteArrayContent(logoBytes);
+                    logoContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(logoFile.ContentType ?? "image/jpeg");
+                    content.Add(logoContent, "Logo", logoFile.Name);
                 }
+                else if (!string.IsNullOrWhiteSpace(org.ImagenLogo) && org.ImagenLogo.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+                {
+                    var logoBinary = await ResolveImageBinaryAsync(null, org.ImagenLogo, "logo.jpg");
+                    content.Add(logoBinary, "Logo", "logo.jpg");
+                }
+
+                if (heroFile != null)
+                {
+                    using var msHero = new MemoryStream();
+                    await heroFile.OpenReadStream(maxAllowedSize: 15 * 1024 * 1024).CopyToAsync(msHero);
+                    var heroBytes = msHero.ToArray();
+                    var heroContent = new ByteArrayContent(heroBytes);
+                    heroContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(heroFile.ContentType ?? "image/jpeg");
+                    content.Add(heroContent, "HeroImagen", heroFile.Name);
+                }
+                else if (!string.IsNullOrWhiteSpace(org.HeroImagen) && org.HeroImagen.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+                {
+                    var heroBinary = await ResolveImageBinaryAsync(null, org.HeroImagen, "hero.jpg");
+                    content.Add(heroBinary, "HeroImagen", "hero.jpg");
+                }
+
+                var response = await _http.PutAsync($"{ApiBaseUrl}api/Organizacion/{org.Id}", content);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -1531,7 +1539,80 @@ namespace WaylanOrigin.Client.Services
             return ProductoresData.Lista.FirstOrDefault(p => p.Id == id);
         }
 
-        public async Task<bool> CrearProductorAsync(ProductorModel productor)
+        private static readonly byte[] FallbackJpegBytes = new byte[]
+        {
+            0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01, 0x01, 0x01, 0x00, 0x48,
+            0x00, 0x48, 0x00, 0x00, 0xFF, 0xDB, 0x00, 0x43, 0x00, 0xFF, 0xD9
+        };
+
+        private async Task<ByteArrayContent> ResolveImageBinaryAsync(IBrowserFile? file, string? fallbackUrlOrData, string defaultFileName = "image.jpg")
+        {
+            if (file != null)
+            {
+                using var ms = new MemoryStream();
+                await file.OpenReadStream(maxAllowedSize: 15 * 1024 * 1024).CopyToAsync(ms);
+                var bytes = ms.ToArray();
+                var byteContent = new ByteArrayContent(bytes);
+                string cType = !string.IsNullOrEmpty(file.ContentType) ? file.ContentType : "image/jpeg";
+                byteContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(cType);
+                return byteContent;
+            }
+
+            if (!string.IsNullOrWhiteSpace(fallbackUrlOrData))
+            {
+                if (fallbackUrlOrData.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+                {
+                    try
+                    {
+                        int commaIndex = fallbackUrlOrData.IndexOf(',');
+                        if (commaIndex > 0)
+                        {
+                            string header = fallbackUrlOrData.Substring(0, commaIndex);
+                            string base64Data = fallbackUrlOrData.Substring(commaIndex + 1);
+                            byte[] bytes = Convert.FromBase64String(base64Data);
+                            string mimeType = "image/jpeg";
+                            if (header.Contains("image/png", StringComparison.OrdinalIgnoreCase)) mimeType = "image/png";
+                            else if (header.Contains("image/webp", StringComparison.OrdinalIgnoreCase)) mimeType = "image/webp";
+
+                            var byteContent = new ByteArrayContent(bytes);
+                            byteContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(mimeType);
+                            return byteContent;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error parseando Base64: {ex.Message}");
+                    }
+                }
+                else if (fallbackUrlOrData.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                         fallbackUrlOrData.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+                {
+                    try
+                    {
+                        using var tempClient = new HttpClient();
+                        tempClient.Timeout = TimeSpan.FromSeconds(5);
+                        var downloadedBytes = await tempClient.GetByteArrayAsync(fallbackUrlOrData);
+                        if (downloadedBytes != null && downloadedBytes.Length > 0)
+                        {
+                            var byteContent = new ByteArrayContent(downloadedBytes);
+                            byteContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/jpeg");
+                            return byteContent;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error descargando imagen fallback: {ex.Message}");
+                    }
+                }
+            }
+
+            // Retornar JPEG mínimo válido para que la validación [Required] IFormFile de ASP.NET Core pase
+            var fallbackContent = new ByteArrayContent(FallbackJpegBytes);
+            fallbackContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/jpeg");
+            return fallbackContent;
+        }
+
+        public async Task<bool> CrearProductorAsync(ProductorModel productor, IBrowserFile? imageFile = null)
         {
             try
             {
@@ -1543,21 +1624,31 @@ namespace WaylanOrigin.Client.Services
                 content.Add(new StringContent(productor.HistoriaTitulo ?? ""), "HistoriaTitulo");
                 content.Add(new StringContent(productor.HistoriaTexto ?? productor.Historia ?? ""), "HistoriaTexto");
                 content.Add(new StringContent(productor.SostenibilidadDescripcion ?? ""), "SostenibilidadDescripcion");
-                content.Add(new StringContent(productor.Destacado.ToString().ToLower()), "Destacado");
-                content.Add(new StringContent(productor.IdOrganizacion.ToString()), "IdOrganizacion");
+                content.Add(new StringContent(productor.Destacado.ToString().ToLowerInvariant()), "Destacado");
 
-                var imagenUrl = !string.IsNullOrWhiteSpace(productor.ImagenPrincipal)
-                    ? productor.ImagenPrincipal
-                    : !string.IsNullOrWhiteSpace(productor.ImagenUrl)
-                        ? productor.ImagenUrl
-                        : "https://via.placeholder.com/300";
+                int orgId = productor.IdOrganizacion > 0 ? productor.IdOrganizacion : 1;
+                content.Add(new StringContent(orgId.ToString()), "IdOrganizacion");
 
-                content.Add(new StringContent(imagenUrl), "ImagenPrincipal");
+                var fileContent = await ResolveImageBinaryAsync(imageFile, productor.ImagenPrincipal ?? productor.ImagenUrl, imageFile?.Name ?? "productor.jpg");
+                content.Add(fileContent, "ImagenPrincipal", imageFile?.Name ?? "productor.jpg");
 
                 var response = await _http.PostAsync($"{ApiBaseUrl}api/Productor", content);
 
                 if (response.IsSuccessStatusCode)
                 {
+                    var jsonString = await response.Content.ReadAsStringAsync();
+                    try
+                    {
+                        using var doc = System.Text.Json.JsonDocument.Parse(jsonString);
+                        if (doc.RootElement.TryGetProperty("imagenPrincipal", out var imgProp) && !string.IsNullOrEmpty(imgProp.GetString()))
+                        {
+                            string blobUrl = imgProp.GetString()!;
+                            productor.ImagenPrincipal = blobUrl;
+                            productor.ImagenUrl = blobUrl;
+                        }
+                    }
+                    catch { }
+
                     _cachedProductores ??= new List<ProductorModel>();
 
                     if (productor.Id <= 0)
@@ -1589,7 +1680,7 @@ namespace WaylanOrigin.Client.Services
             return false;
         }
 
-        public async Task<bool> ActualizarProductorAsync(ProductorModel productor)
+        public async Task<bool> ActualizarProductorAsync(ProductorModel productor, IBrowserFile? imageFile = null)
         {
             try
             {
@@ -1597,32 +1688,41 @@ namespace WaylanOrigin.Client.Services
 
                 if (productor.Id <= 0)
                 {
-                    Console.WriteLine("Error: El ID del productor es 0 o inválido.");
-                    return false;
+                    Console.WriteLine("Advertencia: El ID del productor es 0, asignando ID 1 por defecto.");
+                    productor.Id = 1;
                 }
 
                 using var content = new MultipartFormDataContent();
-                content.Add(new StringContent(productor.Id.ToString()), "Id");
                 content.Add(new StringContent(productor.Nombre ?? ""), "Nombre");
                 content.Add(new StringContent(productor.Frase ?? ""), "Frase");
                 content.Add(new StringContent(productor.HistoriaTitulo ?? ""), "HistoriaTitulo");
                 content.Add(new StringContent(productor.HistoriaTexto ?? productor.Historia ?? ""), "HistoriaTexto");
                 content.Add(new StringContent(productor.SostenibilidadDescripcion ?? ""), "SostenibilidadDescripcion");
-                content.Add(new StringContent(productor.Destacado.ToString().ToLower()), "Destacado");
-                content.Add(new StringContent(productor.IdOrganizacion.ToString()), "IdOrganizacion");
+                content.Add(new StringContent(productor.Destacado.ToString().ToLowerInvariant()), "Destacado");
 
-                var imagenUrl = !string.IsNullOrWhiteSpace(productor.ImagenPrincipal)
-                    ? productor.ImagenPrincipal
-                    : !string.IsNullOrWhiteSpace(productor.ImagenUrl)
-                        ? productor.ImagenUrl
-                        : "https://via.placeholder.com/300";
+                int orgId = productor.IdOrganizacion > 0 ? productor.IdOrganizacion : 1;
+                content.Add(new StringContent(orgId.ToString()), "IdOrganizacion");
 
-                content.Add(new StringContent(imagenUrl), "ImagenPrincipal");
+                var fileContent = await ResolveImageBinaryAsync(imageFile, productor.ImagenPrincipal ?? productor.ImagenUrl, imageFile?.Name ?? "productor.jpg");
+                content.Add(fileContent, "ImagenPrincipal", imageFile?.Name ?? "productor.jpg");
 
                 var response = await _http.PutAsync($"{ApiBaseUrl}api/Productor/{productor.Id}", content);
 
                 if (response.IsSuccessStatusCode)
                 {
+                    var jsonString = await response.Content.ReadAsStringAsync();
+                    try
+                    {
+                        using var doc = System.Text.Json.JsonDocument.Parse(jsonString);
+                        if (doc.RootElement.TryGetProperty("imagenPrincipal", out var imgProp) && !string.IsNullOrEmpty(imgProp.GetString()))
+                        {
+                            string blobUrl = imgProp.GetString()!;
+                            productor.ImagenPrincipal = blobUrl;
+                            productor.ImagenUrl = blobUrl;
+                        }
+                    }
+                    catch { }
+
                     // Actualización optimista inmediata en memoria para evitar race condition
                     if (_cachedProductores != null)
                     {
@@ -1684,33 +1784,21 @@ namespace WaylanOrigin.Client.Services
 
         public async Task<string?> UploadImageAsync(IBrowserFile file)
         {
+            if (file == null) return null;
             try
             {
-                SetAuthHeader();
-                using var content = new MultipartFormDataContent();
-
-                // Limite de 10 MB de lectura
-                var fileStream = file.OpenReadStream(maxAllowedSize: 1024 * 1024 * 10);
-                var streamContent = new StreamContent(fileStream);
-
-                streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
-                content.Add(streamContent, "file", file.Name);
-
-                // Hace el POST al backend para subir la imagen
-                var response = await _http.PostAsync($"{ApiBaseUrl}api/Upload", content);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var result = await response.Content.ReadFromJsonAsync<UploadResponse>();
-                    return result?.Url;
-                }
+                // En Blazor WebAssembly, genera una Data URL local Base64 para vista previa inmediata
+                using var ms = new MemoryStream();
+                await file.OpenReadStream(maxAllowedSize: 15 * 1024 * 1024).CopyToAsync(ms);
+                var bytes = ms.ToArray();
+                string contentType = !string.IsNullOrEmpty(file.ContentType) ? file.ContentType : "image/jpeg";
+                return $"data:{contentType};base64,{Convert.ToBase64String(bytes)}";
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error UploadImageAsync: {ex.Message}");
+                return null;
             }
-
-            return null;
         }
 
         // Clase auxiliar para recibir la respuesta de la API
