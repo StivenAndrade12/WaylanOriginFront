@@ -177,24 +177,48 @@
     margin: 0;
 }
 
-/* Botón "Leer más" */
+.historia-texto-truncado {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.8;
+    color: #4a3b32;
+    font-size: 1.05rem;
+    margin: 0;
+}
+
+.historia-texto-completo {
+    display: block;
+    line-height: 1.8;
+    color: #4a3b32;
+    font-size: 1.05rem;
+    margin: 0;
+}
+
+/* Botón "Leer más" / "Leer menos" */
 .btn-leer-mas {
     align-self: flex-start;
     background-color: #241103; /* Marrón casi negro */
     color: #ffffff;
-    padding: 12px 28px;
+    padding: 10px 24px;
+    border: none;
     border-radius: 8px;
-    text-decoration: none;
-    font-weight: bold;
-    font-size: 0.95rem;
+    font-weight: 600;
+    font-size: 0.92rem;
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    transition: background-color 0.3s ease;
+    gap: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 12px rgba(36, 17, 3, 0.15);
 }
 
 .btn-leer-mas:hover {
     background-color: #3d2314;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(36, 17, 3, 0.25);
 }
 
 /* Columna Derecha: Tarjeta de Ficha Técnica */
@@ -752,20 +776,20 @@
 /* BANNER INFERIOR */
 .finca-bottom-banner {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     background-color: #f5efe6;
-    padding: 24px 35px;
+    padding: 22px 35px;
     border-radius: 18px;
-    gap: 30px;
     width: 100%;
     box-sizing: border-box;
+    border: 1px solid rgba(235, 220, 203, 0.6);
 }
 
 .banner-izq {
     display: flex;
     align-items: center;
     gap: 20px;
+    width: 100%;
 }
 
 .banner-icono {
@@ -777,6 +801,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 .finca-extra {
@@ -784,22 +809,6 @@
     color: #4a3b32;
     line-height: 1.6;
     margin: 0;
-}
-
-.finca-bottom-banner .btn-leer-mas {
-    background-color: #241103;
-    padding: 14px 28px;
-    font-size: 0.95rem;
-    border-radius: 10px;
-    text-decoration: none;
-    color: #fff;
-    font-weight: 600;
-    white-space: nowrap;
-    transition: background 0.2s ease;
-}
-
-.finca-bottom-banner .btn-leer-mas:hover {
-    background-color: #3d2314;
 }
 
 /* ==========================================================================
@@ -1023,9 +1032,9 @@
     border-radius: 18px;
     padding: 18px 28px;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
     width: 100%;
     box-sizing: border-box;
 }

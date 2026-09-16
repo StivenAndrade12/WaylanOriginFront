@@ -3,46 +3,36 @@
 @inject ApiService Api
 @using WaylanOrigin.Client.Models
 
-<div class="famycafe-container">
+<div class="tresnevados-container">
 
     <!-- Breadcrumb -->
-    <div class="fc-breadcrumb">
+    <div class="tn-breadcrumb">
         <a href="productores"><span class="arrow">←</span> Productores Aliados</a>
         <span class="separator">&gt;</span>
         <span class="active">@org?.Nombre</span>
     </div>
 
     <!-- Hero Section -->
-    <div class="fc-hero">
-        <div class="fc-hero-info">
-
-            <!-- Título dinámico -->
-            <h1 class="fc-main-title">@org?.Nombre</h1>
+    <div class="tn-hero">
+        <div class="tn-hero-info">
+            <h1 class="tn-main-title">@org?.Nombre</h1>
 
             <div class="separador-contenedor">
-
-                <!-- Logo dinámico -->
-                <img src="@org?.ImagenLogo" alt="Logo @org?.Nombre" class="icono-hoja">
-
+                <img src="@(string.IsNullOrEmpty(org?.ImagenLogo) ? "logotipo/fcf.png" : org.ImagenLogo)" alt="Logo @org?.Nombre" class="icono-hoja">
                 <div class="linea-dorada"></div>
             </div>
 
             <div class="contenido-texto">
-
-                <!-- Descripciones dinámicas -->
                 <p class="texto-descripcion">@org?.Descripcion1</p>
                 <p class="texto-descripcion">@org?.Descripcion2</p>
-
             </div>
         </div>
 
-        <!-- Imagen Hero dinámica -->
-        <div class="fc-hero-image">
-            <img src="@org?.HeroImagen" alt="@org?.Nombre" />
+        <div class="tn-hero-image">
+            <img src="@(string.IsNullOrEmpty(org?.HeroImagen) ? "https://storagewaylan.blob.core.windows.net/imagenes/456de9b3-4bd7-4fc2-8097-249e1fcb251b.png" : org.HeroImagen)" alt="@org?.Nombre" />
         </div>
     </div>
 
-    <!-- Panel de estadísticas -->
     <!-- Panel de estadísticas -->
     <div class="tn-stats-panel">
 
@@ -50,8 +40,7 @@
             <div class="tn-stat-icon">
                 <img src="logotipo/org1.png" class="tn-icon-img" alt="Icono">
             </div>
-            <!-- Año escrito directo -->
-            <h3 class="tn-stat-number">2015</h3>
+            <h3 class="tn-stat-number">2012</h3>
             <p class="tn-stat-label">Año de fundación</p>
         </div>
 
@@ -59,8 +48,7 @@
             <div class="tn-stat-icon">
                 <img src="logotipo/org2.png" class="tn-icon-img" alt="Icono">
             </div>
-            <!-- Familias escrito directo -->
-            <h3 class="tn-stat-number">120+</h3>
+            <h3 class="tn-stat-number">85+</h3>
             <p class="tn-stat-label">Familias caficultoras</p>
         </div>
 
@@ -68,50 +56,46 @@
             <div class="tn-stat-icon">
                 <img src="logotipo/org3.png" class="tn-icon-img" alt="Icono">
             </div>
-            <!-- Hectáreas escrito directo -->
-            <h3 class="tn-stat-number">450</h3>
+            <h3 class="tn-stat-number">320</h3>
             <p class="tn-stat-label">Hectáreas cultivadas</p>
         </div>
 
     </div>
+
     <!-- Productores Grid Section -->
-    <div class="fc-section-title-bar">
+    <div class="tn-section-title-bar">
         <h2>Productores que hacen parte de @org?.Nombre</h2>
-        <a href="todos-los-productores" class="fc-view-all">VER TODOS ➔</a>
+        <a href="productores/todos" class="tn-view-all">VER TODOS ➔</a>
     </div>
 
-    <div class="fc-productores-grid">
+    <div class="tn-productores-grid">
 
-        <!-- Tarjetas dinámicas de productores destacados -->
-        @if (destacados != null)
+        @if (destacados != null && destacados.Any())
         {
             @foreach (var p in destacados)
             {
-                <div class="fc-producer-card">
-                    <div class="fc-card-img">
+                <div class="tn-producer-card">
+                    <div class="tn-card-img">
                         <img src="@p.ImagenPrincipal" alt="@p.Nombre" />
                     </div>
-
-                    <div class="fc-card-content">
+                    <div class="tn-card-content">
                         <h3>@p.Nombre</h3>
-
-                        <a href="perfil/@p.Id" class="fc-btn-profile">VER PERFIL ➔</a>
+                        <a href="perfil/@p.Id" class="tn-btn-profile">VER PERFIL ➔</a>
                     </div>
                 </div>
             }
         }
 
-        <!-- Tarjeta "Más productores" -->
-        <div class="fc-producer-card fc-more-card">
-            <div class="fc-more-content">
-                <div class="fc-user-icon">
+        <div class="tn-producer-card tn-more-card">
+            <div class="tn-more-content">
+                <div class="tn-user-icon">
                     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#8B5E3C" stroke-width="1.5">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                         <circle cx="12" cy="7" r="4" />
                     </svg>
                 </div>
                 <p>Más productores</p>
-                <a href="todos-los-productores" class="fc-btn-profile fc-btn-all">VER TODOS ➔</a>
+                <a href="productores/todos" class="tn-btn-profile tn-btn-all">VER TODOS ➔</a>
             </div>
         </div>
 
@@ -120,37 +104,62 @@
 </div>
 
 @code {
-    OrganizationModel org;
-    List<ProductorModel> productores;
-    List<ProductorModel> destacados;
+    OrganizationModel? org;
+    List<ProductorModel> productores = new List<ProductorModel>();
+    List<ProductorModel> destacados = new List<ProductorModel>();
 
     protected override async Task OnInitializedAsync()
     {
-        // 1. Cargar organización Famycafé (ID numérico 1)
-        org = await Api.GetOrganizacionByIdAsync(id: 1);
+        // 1. Cargar las organizaciones reales desde el backend
+        var listaOrganizaciones = await Api.GetOrganizacionesAsync();
 
-        // 2. Cargar todos los productores
+        if (listaOrganizaciones != null && listaOrganizaciones.Count > 0)
+        {
+            // Buscamos la organización por Nombre que contenga "Famy"
+            org = listaOrganizaciones.FirstOrDefault(o => o.Nombre != null && o.Nombre.Contains("Famy", StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Si no existe aún en BD, creamos el modelo institucional de FAMYCAFE para visualización impecable
+        if (org == null)
+        {
+            org = new OrganizationModel
+            {
+                Id = 2,
+                Nombre = "FAMYCAFE",
+                ImagenLogo = "logotipo/fcf.png",
+                HeroImagen = "https://storagewaylan.blob.core.windows.net/imagenes/456de9b3-4bd7-4fc2-8097-249e1fcb251b.png",
+                Descripcion1 = "Asociación de familias caficultoras del Huila y Tolima, dedicadas al cultivo artesanal y sostenible de cafés especiales con perfiles de taza excepcionales.",
+                Descripcion2 = "A través de procesos innovadores de fermentación y un riguroso cuidado en cada etapa de cosecha, llevamos la riqueza de nuestras tierras a cada taza."
+            };
+        }
+
+        // 2. Cargar productores
         var todos = await Api.GetProductoresAsync();
 
-        // 3. Filtrar los productores de esta organización
-        if (todos != null && org != null)
+        if (todos != null)
         {
+            // Filtrar productores de FAMYCAFE (por IdOrganizacion o nombre)
             productores = todos
-                .Where(p => p.IdOrganizacion == org.Id)
+                .Where(p => p.IdOrganizacion == org.Id ||
+                            (!string.IsNullOrEmpty(p.OrganizacionNombre) && p.OrganizacionNombre.Contains("Famy", StringComparison.OrdinalIgnoreCase)))
                 .ToList();
-        }
-        else
-        {
-            productores = new List<ProductorModel>();
-        }
 
-        // 4. Filtrar los 4 destacados
-        destacados = productores
-            .Where(p => p.Destacado)
-            .Take(4)
-            .ToList();
+            // Si aún no hay asignados a Famycafé, tomamos productores de la lista para mostrar la grilla
+            if (!productores.Any())
+            {
+                productores = todos.ToList();
+            }
+
+            // Filtrar los destacados (hasta 4)
+            destacados = productores
+                .Where(p => p.Destacado)
+                .Take(4)
+                .ToList();
+
+            if (!destacados.Any())
+            {
+                destacados = productores.Take(4).ToList();
+            }
+        }
     }
 }
-
-
-

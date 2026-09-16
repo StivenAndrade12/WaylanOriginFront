@@ -1499,6 +1499,10 @@ namespace WaylanOrigin.Client.Services
                             {
                                 prod.Id = syntheticId++;
                             }
+                            else if (prod.Id >= syntheticId)
+                            {
+                                syntheticId = prod.Id + 1;
+                            }
 
                             if (prod.IdOrganizacion <= 0)
                             {
@@ -1507,6 +1511,46 @@ namespace WaylanOrigin.Client.Services
                                     o.Nombre.Contains(prod.OrganizacionNombre, StringComparison.OrdinalIgnoreCase));
 
                                 prod.IdOrganizacion = matchedOrg?.Id ?? orgs.FirstOrDefault()?.Id ?? 1;
+                            }
+
+                            // Resolver ubicación si viene vacía desde el backend
+                            if (string.IsNullOrWhiteSpace(prod.Ubicacion))
+                            {
+                                var matchMock = ProductoresData.Lista.FirstOrDefault(m =>
+                                    string.Equals(m.Nombre, prod.Nombre, StringComparison.OrdinalIgnoreCase));
+                                if (matchMock != null && !string.IsNullOrEmpty(matchMock.Ubicacion))
+                                {
+                                    prod.Ubicacion = matchMock.Ubicacion;
+                                }
+                                else
+                                {
+                                    prod.Ubicacion = prod.IdOrganizacion == 2 ? "Quindío" : "Caldas";
+                                }
+                            }
+                        }
+
+                        // Complementar con los productores oficiales de la maqueta si aún no existen en la lista
+                        foreach (var mockProd in ProductoresData.Lista)
+                        {
+                            if (!result.Any(r => string.Equals(r.Nombre, mockProd.Nombre, StringComparison.OrdinalIgnoreCase)))
+                            {
+                                var copy = new ProductorModel
+                                {
+                                    Id = syntheticId++,
+                                    Nombre = mockProd.Nombre,
+                                    Ubicacion = mockProd.Ubicacion,
+                                    IdOrganizacion = mockProd.IdOrganizacion,
+                                    OrganizacionNombre = mockProd.OrganizacionNombre,
+                                    Destacado = mockProd.Destacado,
+                                    Frase = mockProd.Frase,
+                                    HistoriaTitulo = mockProd.HistoriaTitulo,
+                                    HistoriaTexto = mockProd.HistoriaTexto,
+                                    SostenibilidadDescripcion = mockProd.SostenibilidadDescripcion,
+                                    ImagenPrincipal = mockProd.ImagenPrincipal,
+                                    ImagenUrl = mockProd.ImagenUrl,
+                                    Procedimientos = mockProd.Procedimientos
+                                };
+                                result.Add(copy);
                             }
                         }
 
@@ -1621,6 +1665,7 @@ namespace WaylanOrigin.Client.Services
                 using var content = new MultipartFormDataContent();
                 content.Add(new StringContent(productor.Nombre ?? ""), "Nombre");
                 content.Add(new StringContent(productor.Frase ?? ""), "Frase");
+                content.Add(new StringContent(productor.Ubicacion ?? ""), "Ubicacion");
                 content.Add(new StringContent(productor.HistoriaTitulo ?? ""), "HistoriaTitulo");
                 content.Add(new StringContent(productor.HistoriaTexto ?? productor.Historia ?? ""), "HistoriaTexto");
                 content.Add(new StringContent(productor.SostenibilidadDescripcion ?? ""), "SostenibilidadDescripcion");
@@ -1695,6 +1740,7 @@ namespace WaylanOrigin.Client.Services
                 using var content = new MultipartFormDataContent();
                 content.Add(new StringContent(productor.Nombre ?? ""), "Nombre");
                 content.Add(new StringContent(productor.Frase ?? ""), "Frase");
+                content.Add(new StringContent(productor.Ubicacion ?? ""), "Ubicacion");
                 content.Add(new StringContent(productor.HistoriaTitulo ?? ""), "HistoriaTitulo");
                 content.Add(new StringContent(productor.HistoriaTexto ?? productor.Historia ?? ""), "HistoriaTexto");
                 content.Add(new StringContent(productor.SostenibilidadDescripcion ?? ""), "SostenibilidadDescripcion");

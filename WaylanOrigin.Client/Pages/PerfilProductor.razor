@@ -16,16 +16,23 @@
             background-size: cover;">
 
             <div class="breadcrumb">
-                <a href="productores">← Productores Aliados</a>
+                <a href="productores/todos">← Productores Aliados</a>
                 <span class="separator">></span>
-                <a href="/famycafe">FAMYCAFE</a>
+                @if (productor.IdOrganizacion == 2 || (productor.OrganizacionNombre != null && productor.OrganizacionNombre.Contains("FAMYCAFE", StringComparison.OrdinalIgnoreCase)))
+                {
+                    <a href="organizacion/famycafe">FAMYCAFE</a>
+                }
+                else
+                {
+                    <a href="organizacion/tres-nevados">Tres Nevados</a>
+                }
                 <span class="separator">></span>
                 <span class="active">@productor.Nombre</span>
             </div>
 
             <div class="perfil-hero-info">
                 <h1 class="perfil-nombre">@productor.Nombre</h1>
-                <p class="perfil-ubicacion">📍 Finca La Esperanza — Tolima, Colombia</p>
+                <p class="perfil-ubicacion">📍 @(string.IsNullOrWhiteSpace(productor.Ubicacion) ? "Colombia" : productor.Ubicacion)</p>
                 <p class="perfil-frase">“@productor.Frase”</p>
             </div>
         </div>
@@ -58,9 +65,11 @@
             {
                 <div class="perfil-historia">
                     <h2>@productor.HistoriaTitulo</h2>
-                    <p>@productor.HistoriaTexto</p>
+                    <p class="@(historiaExpandida ? "historia-texto-completo" : "historia-texto-truncado")">@productor.HistoriaTexto</p>
 
-                    <a href="#" class="btn-leer-mas">Leer más →</a>
+                    <button type="button" class="btn-leer-mas" @onclick="ToggleHistoria">
+                        @(historiaExpandida ? "Leer menos ↑" : "Leer más →")
+                    </button>
                 </div>
 
                 <!-- FICHA TÉCNICA SOLO EN HISTORIA -->
@@ -164,7 +173,6 @@
                                 Cuidamos cada detalle de nuestra finca para entregar un café que refleje nuestro compromiso con la calidad y la sostenibilidad.
                             </p>
                         </div>
-                        <a href="#" class="btn-leer-mas">Conocer nuestros procesos →</a>
                     </div>
                 </div>
             }
@@ -224,7 +232,6 @@
                             </div>
                             <p>Procesos certificados enfocados en la conservación ambiental.</p>
                         </div>
-                        <a href="#" class="btn-leer-mas">Ver más detalles →</a>
                     </div>
                 </div>
             }
@@ -236,6 +243,7 @@
     [Parameter] public int id { get; set; }
     private ProductorModel? productor;
     private string tabActiva = "historia";
+    private bool historiaExpandida = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -263,6 +271,11 @@
                 Procedimientos = new List<ProcedimientoModel>()
             };
         }
+    }
+
+    private void ToggleHistoria()
+    {
+        historiaExpandida = !historiaExpandida;
     }
 
     private async Task MoverGaleria(int px)

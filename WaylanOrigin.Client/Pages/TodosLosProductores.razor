@@ -1,0 +1,314 @@
+@page "/productores/todos"
+@page "/todos-los-productores"
+
+@inject ApiService ApiService
+@inject NavigationManager Navigation
+@implements IDisposable
+@using WaylanOrigin.Client.Models
+@using WaylanOrigin.Client.Services
+
+<div class="vtp-page-wrapper">
+    <div class="vtp-container">
+
+        <!-- BREADCRUMB -->
+        <nav class="vtp-breadcrumb" aria-label="Ruta de navegación">
+            <a href="productores" class="vtp-breadcrumb-link">← Organizaciones</a>
+            <span class="vtp-separator">&gt;</span>
+            <span class="vtp-breadcrumb-current">Productores</span>
+        </nav>
+
+        <!-- ENCABEZADO PRINCIPAL (TÍTULO + BANNER VERDE OLIVA) -->
+        <header class="vtp-hero">
+            <div class="vtp-hero-left">
+                <span class="vtp-tag">NUESTROS PRODUCTORES</span>
+                <h1 class="vtp-main-title">
+                    Personas que hacen posible<br />un gran café
+                </h1>
+                <p class="vtp-description">
+                    Conoce a las familias productoras que, con su esfuerzo, tradición y amor por la tierra, cultivan el café de alta calidad que nos inspira.
+                </p>
+            </div>
+
+            <div class="vtp-hero-right">
+                <div class="vtp-banner-card">
+                    <!-- Decoración hojas de café en el fondo -->
+                    <div class="vtp-banner-bg-leaf">
+                        <svg viewBox="0 0 100 100" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.8">
+                            <path d="M10,80 C30,70 60,60 85,20 C70,50 50,75 10,80 Z" />
+                            <path d="M10,80 C40,75 60,50 85,20" />
+                            <path d="M40,63 C48,55 55,45 60,35" />
+                            <path d="M25,72 C32,66 38,58 42,50" />
+                        </svg>
+                    </div>
+
+                    <div class="vtp-banner-icon-wrap">
+                        <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#2C1609" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                        </svg>
+                    </div>
+
+                    <div class="vtp-banner-info">
+                        <h2 class="vtp-banner-title">Conoce a todos nuestros productores</h2>
+                        <p class="vtp-banner-subtitle">Más de 25 familias que hacen parte de Waylan Origin.</p>
+                        <button type="button" class="vtp-banner-btn" @onclick="ResetFiltros">
+                            Ver todos &rarr;
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- BARRA DE BÚSQUEDA Y FILTROS POR DEPARTAMENTO -->
+        <section class="vtp-toolbar">
+            <div class="vtp-search-container">
+                <svg class="vtp-search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#7a6b61" stroke-width="2">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input type="text"
+                       class="vtp-search-input"
+                       placeholder="Buscar productor..."
+                       @bind="searchTerm"
+                       @bind:event="oninput" />
+                @if (!string.IsNullOrEmpty(searchTerm))
+                {
+                    <button type="button" class="vtp-search-clear" @onclick="LimpiarBusqueda" title="Limpiar búsqueda">✕</button>
+                }
+            </div>
+
+            <div class="vtp-pills-list">
+                @foreach (var region in regiones)
+                {
+                    <button type="button"
+                            class="vtp-pill @(selectedRegion == region ? "vtp-pill-active" : "")"
+                            @onclick="() => SeleccionarRegion(region)">
+                        @region
+                    </button>
+                }
+            </div>
+        </section>
+
+        <!-- GRILLA DE PRODUCTORES -->
+        @if (isLoading)
+        {
+            <div class="vtp-loading-state">
+                <div class="vtp-spinner"></div>
+                <p>Cargando caficultores de Waylan Origin...</p>
+            </div>
+        }
+        else if (!ProductoresFiltrados.Any())
+        {
+            <div class="vtp-empty-state">
+                <div class="vtp-empty-icon">☕</div>
+                <h3>No se encontraron productores</h3>
+                <p>No hay resultados que coincidan con "<strong>@(searchTerm)</strong>" en la región <strong>@selectedRegion</strong>.</p>
+                <button type="button" class="vtp-btn-reset" @onclick="ResetFiltros">Restablecer filtros</button>
+            </div>
+        }
+        else
+        {
+            <main class="vtp-grid">
+                @foreach (var p in ProductoresPaginados)
+                {
+                    <article class="vtp-card">
+                        <div class="vtp-card-media">
+                            <img src="@ApiService.GetFullImageUrl(p.ImagenPrincipal)"
+                                 alt="@p.Nombre"
+                                 loading="lazy"
+                                 onerror="this.onerror=null;this.src='imagenes/camp.png';" />
+                        </div>
+
+                        <div class="vtp-card-content">
+                            <div class="vtp-card-header-row">
+                                <div class="vtp-card-header-text">
+                                    <h2 class="vtp-card-name">@p.Nombre</h2>
+                                    <div class="vtp-card-location">
+                                        <span class="vtp-location-pin">📍</span>
+                                        <span>@(string.IsNullOrWhiteSpace(p.Ubicacion) ? "Colombia" : p.Ubicacion)</span>
+                                    </div>
+                                </div>
+
+                                <div class="vtp-card-coffee-icon" title="Café de Origen">
+                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="#c59b6d">
+                                        <path d="M12 2C7.5 2 4 5.5 4 10c0 4.2 2.8 7.8 6.6 9.1V22h2.8v-2.9C17.2 17.8 20 14.2 20 10c0-4.5-3.5-8-8-8zm0 15.5c-3 0-5.5-2.5-5.5-5.5 0-3 2.5-5.5 5.5-5.5s5.5 2.5 5.5 5.5c0 3-2.5 5.5-5.5 5.5z" />
+                                        <path d="M12 6.5c-1.3 1.8-1.7 3.5-1.7 4.5 0 1.2.7 2.2 1.7 2.2s1.7-1 1.7-2.2c0-1-.4-2.7-1.7-4.5z" />
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <blockquote class="vtp-card-quote">
+                                “@(string.IsNullOrWhiteSpace(p.Frase) ? "El café es nuestra forma de vida y nuestra mayor herencia." : p.Frase)”
+                            </blockquote>
+
+                            <footer class="vtp-card-footer">
+                                <a href="perfil/@p.Id" class="vtp-btn-profile">
+                                    Ver perfil &rarr;
+                                </a>
+                                <a href="perfil/@p.Id" class="vtp-btn-arrow" aria-label="Ver perfil de @p.Nombre">
+                                    <span>&#8250;</span>
+                                </a>
+                            </footer>
+                        </div>
+                    </article>
+                }
+            </main>
+
+            <!-- PAGINACIÓN -->
+            @if (TotalPages > 1)
+            {
+                <nav class="vtp-pagination" aria-label="Paginación de productores">
+                    <button type="button"
+                            class="vtp-page-chevron"
+                            disabled="@(currentPage == 1)"
+                            @onclick="() => CambiarPagina(currentPage - 1)"
+                            aria-label="Página anterior">
+                        &lsaquo;
+                    </button>
+
+                    @for (int i = 1; i <= TotalPages; i++)
+                    {
+                        var paginaNum = i;
+                        <button type="button"
+                                class="vtp-page-number @(paginaNum == currentPage ? "vtp-page-number-active" : "")"
+                                @onclick="() => CambiarPagina(paginaNum)">
+                            @paginaNum
+                        </button>
+                    }
+
+                    <button type="button"
+                            class="vtp-page-chevron"
+                            disabled="@(currentPage == TotalPages)"
+                            @onclick="() => CambiarPagina(currentPage + 1)"
+                            aria-label="Página siguiente">
+                        &rsaquo;
+                    </button>
+                </nav>
+            }
+        }
+
+    </div>
+</div>
+
+@code {
+    private List<ProductorModel> productores = new();
+    private bool isLoading = true;
+    private string searchTerm = string.Empty;
+    private string selectedRegion = "Todos";
+    private int currentPage = 1;
+    private const int PageSize = 8;
+
+    private readonly List<string> regiones = new()
+    {
+        "Todos",
+        "Caldas",
+        "Quindío",
+        "Risaralda",
+        "Tolima",
+        "Huila"
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        ApiService.OnDataChanged += HandleDataChanged;
+        await CargarProductores();
+    }
+
+    private async Task CargarProductores()
+    {
+        isLoading = true;
+        try
+        {
+            productores = await ApiService.GetProductoresAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando productores: {ex.Message}");
+            productores = ProductoresData.Lista;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async void HandleDataChanged()
+    {
+        await InvokeAsync(async () =>
+        {
+            productores = await ApiService.GetProductoresAsync(forceRefresh: true);
+            StateHasChanged();
+        });
+    }
+
+    private IEnumerable<ProductorModel> ProductoresFiltrados
+    {
+        get
+        {
+            var query = productores.AsEnumerable();
+
+            // 1. Filtro por Región / Departamento
+            if (!string.IsNullOrWhiteSpace(selectedRegion) && selectedRegion != "Todos")
+            {
+                query = query.Where(p =>
+                    (!string.IsNullOrEmpty(p.Ubicacion) && p.Ubicacion.Contains(selectedRegion, StringComparison.OrdinalIgnoreCase)) ||
+                    (selectedRegion == "Caldas" && (p.IdOrganizacion == 1 || (p.OrganizacionNombre != null && p.OrganizacionNombre.Contains("Tres Nevados", StringComparison.OrdinalIgnoreCase)))) ||
+                    (selectedRegion == "Quindío" && (p.IdOrganizacion == 2 || (p.OrganizacionNombre != null && p.OrganizacionNombre.Contains("FAMYCAFE", StringComparison.OrdinalIgnoreCase))))
+                );
+            }
+
+            // 2. Filtro por búsqueda de texto
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var term = searchTerm.Trim();
+                query = query.Where(p =>
+                    (!string.IsNullOrEmpty(p.Nombre) && p.Nombre.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrEmpty(p.Frase) && p.Frase.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrEmpty(p.Ubicacion) && p.Ubicacion.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrEmpty(p.OrganizacionNombre) && p.OrganizacionNombre.Contains(term, StringComparison.OrdinalIgnoreCase))
+                );
+            }
+
+            return query;
+        }
+    }
+
+    private int TotalPages => Math.Max(1, (int)Math.Ceiling(ProductoresFiltrados.Count() / (double)PageSize));
+
+    private IEnumerable<ProductorModel> ProductoresPaginados =>
+        ProductoresFiltrados.Skip((currentPage - 1) * PageSize).Take(PageSize);
+
+    private void SeleccionarRegion(string region)
+    {
+        selectedRegion = region;
+        currentPage = 1;
+    }
+
+    private void LimpiarBusqueda()
+    {
+        searchTerm = string.Empty;
+        currentPage = 1;
+    }
+
+    private void ResetFiltros()
+    {
+        selectedRegion = "Todos";
+        searchTerm = string.Empty;
+        currentPage = 1;
+    }
+
+    private void CambiarPagina(int pagina)
+    {
+        if (pagina >= 1 && pagina <= TotalPages)
+        {
+            currentPage = pagina;
+        }
+    }
+
+    public void Dispose()
+    {
+        ApiService.OnDataChanged -= HandleDataChanged;
+    }
+}
