@@ -1,19 +1,70 @@
 /* ==========================================================================
-   PÁGINA VER TODOS LOS PRODUCTORES - WAYLAN ORIGIN
+   PÁGINA VER TODOS LOS PRODUCTORES - WAYLAN ORIGIN (DISEÑO FIEL AL BOCETO)
    ========================================================================== */
 
 .vtp-page-wrapper {
-    background-color: #f6efe6;
+    background-color: #EFE9DF;
     min-height: 100vh;
     padding: 24px 0 60px 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #2b1a0d;
+    position: relative;
+    overflow-x: hidden;
 }
 
+/* ==========================================================================
+   DECORACIONES FLUIDAS EN LAS ESQUINAS INFERIORES
+   ========================================================================== */
+.vtp-corner-left {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 170px;
+    height: 170px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.vtp-corner-wave-green {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.vtp-corner-leaf-icon {
+    position: absolute;
+    bottom: 12px;
+    left: 14px;
+    width: 76px;
+    height: 76px;
+    opacity: 0.85;
+}
+
+.vtp-corner-right {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 180px;
+    height: 180px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.vtp-corner-wave-tan {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* ==========================================================================
+   CONTENEDOR PRINCIPAL
+   ========================================================================== */
 .vtp-container {
-    max-width: 1280px;
+    max-width: 1320px;
     margin: 0 auto;
-    padding: 0 40px;
+    padding: 0 44px;
+    position: relative;
+    z-index: 1;
     box-sizing: border-box;
 }
 
@@ -24,52 +75,53 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 0.88rem;
+    font-size: 0.86rem;
     margin-bottom: 24px;
 }
 
 .vtp-breadcrumb-link {
-    color: #6e5849;
+    color: #6B5B52;
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s ease;
 }
 
 .vtp-breadcrumb-link:hover {
-    color: #2b1a0d;
+    color: #2A190E;
 }
 
 .vtp-separator {
-    color: #b09e91;
+    color: #A8988C;
     user-select: none;
+    font-size: 0.8rem;
 }
 
 .vtp-breadcrumb-current {
-    color: #2b1a0d;
+    color: #2A190E;
     font-weight: 700;
 }
 
 /* ==========================================================================
-   HERO / ENCABEZADO
+   HERO / ENCABEZADO PRINCIPAL
    ========================================================================== */
 .vtp-hero {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 32px;
-    margin-bottom: 35px;
+    margin-bottom: 34px;
 }
 
 .vtp-hero-left {
     flex: 1;
-    max-width: 620px;
+    max-width: 600px;
 }
 
 .vtp-tag {
     font-size: 0.78rem;
     font-weight: 700;
     letter-spacing: 1.6px;
-    color: #966946;
+    color: #A3754E;
     text-transform: uppercase;
     display: inline-block;
     margin-bottom: 8px;
@@ -77,18 +129,20 @@
 
 .vtp-main-title {
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: 2.8rem;
+    font-size: 3.1rem;
     font-weight: 700;
     color: #2A190E;
-    line-height: 1.15;
+    line-height: 1.14;
     margin: 0 0 14px 0;
+    letter-spacing: -0.5px;
 }
 
 .vtp-description {
-    color: #66554a;
-    font-size: 1rem;
-    line-height: 1.6;
+    color: #6C5D53;
+    font-size: 0.98rem;
+    line-height: 1.62;
     margin: 0;
+    max-width: 440px;
 }
 
 /* BANNER VERDE OLIVA DE LA DERECHA */
@@ -97,32 +151,38 @@
 }
 
 .vtp-banner-card {
-    background: linear-gradient(135deg, #374731 0%, #293724 100%);
-    border-radius: 999px 28px 28px 999px;
-    padding: 24px 38px 24px 22px;
+    background: linear-gradient(135deg, #3A4E37 0%, #2E3F2B 100%);
+    border-radius: 999px 24px 24px 999px;
+    padding: 24px 38px 24px 20px;
     display: flex;
     align-items: center;
     gap: 20px;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 12px 32px rgba(41, 55, 36, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    max-width: 480px;
+    box-shadow: 0 12px 30px rgba(46, 63, 43, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    width: 480px;
     box-sizing: border-box;
 }
 
-.vtp-banner-bg-leaf {
+.vtp-banner-botanical-wrap {
     position: absolute;
-    right: -15px;
-    top: -15px;
-    width: 140px;
-    height: 140px;
-    opacity: 0.22;
+    right: -10px;
+    top: -10px;
+    width: 170px;
+    height: 130px;
     pointer-events: none;
+    z-index: 1;
+}
+
+.vtp-banner-botanical-wrap svg {
+    width: 100%;
+    height: 100%;
+    display: block;
 }
 
 .vtp-banner-icon-wrap {
-    background-color: #dfba9d;
+    background-color: #DFBA9D;
     width: 56px;
     height: 56px;
     border-radius: 50%;
@@ -131,7 +191,7 @@
     justify-content: center;
     flex-shrink: 0;
     z-index: 2;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14);
 }
 
 .vtp-banner-info {
@@ -139,14 +199,15 @@
 }
 
 .vtp-banner-title {
-    color: #ffffff;
+    color: #FFFFFF;
     font-size: 1.05rem;
     font-weight: 700;
     margin: 0 0 4px 0;
+    line-height: 1.25;
 }
 
 .vtp-banner-subtitle {
-    color: rgba(255, 255, 255, 0.85);
+    color: #E3DBD1;
     font-size: 0.82rem;
     line-height: 1.4;
     margin: 0 0 12px 0;
@@ -155,7 +216,7 @@
 .vtp-banner-btn {
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.45);
-    color: #ffffff;
+    color: #FFFFFF;
     padding: 6px 18px;
     border-radius: 20px;
     font-size: 0.82rem;
@@ -167,7 +228,7 @@
 
 .vtp-banner-btn:hover {
     background: rgba(255, 255, 255, 0.16);
-    border-color: #ffffff;
+    border-color: #FFFFFF;
     transform: translateY(-1px);
 }
 
@@ -186,13 +247,13 @@
 .vtp-search-container {
     display: flex;
     align-items: center;
-    background: #ffffff;
-    border: 1px solid #e5d8cb;
-    border-radius: 24px;
-    padding: 8px 18px;
+    background: #F8F4EE;
+    border: 1px solid #E5D9CC;
+    border-radius: 12px;
+    padding: 9px 18px;
     flex: 1;
     max-width: 440px;
-    box-shadow: 0 2px 8px rgba(44, 22, 9, 0.03);
+    box-shadow: 0 2px 8px rgba(44, 22, 9, 0.02);
     gap: 10px;
     box-sizing: border-box;
 }
@@ -212,21 +273,21 @@
 }
 
 .vtp-search-input::placeholder {
-    color: #a49182;
+    color: #9E8E82;
 }
 
 .vtp-search-clear {
     background: none;
     border: none;
     font-size: 1.1rem;
-    color: #a49182;
+    color: #9E8E82;
     cursor: pointer;
     padding: 0 4px;
     line-height: 1;
 }
 
 .vtp-search-clear:hover {
-    color: #2b1a0d;
+    color: #2A190E;
 }
 
 .vtp-pills-list {
@@ -237,10 +298,10 @@
 }
 
 .vtp-pill {
-    background-color: #ffffff;
-    border: 1px solid #ebdccb;
-    color: #5c4738;
-    padding: 8px 20px;
+    background-color: #F8F4EE;
+    border: 1px solid #E5D9CC;
+    color: #524135;
+    padding: 8px 22px;
     border-radius: 24px;
     font-size: 0.88rem;
     font-weight: 500;
@@ -250,20 +311,20 @@
 }
 
 .vtp-pill:hover {
-    background-color: #f5ebe0;
-    border-color: #d4c2ae;
+    background-color: #ECE0D2;
+    border-color: #D6C4B2;
 }
 
 .vtp-pill-active {
-    background-color: #381f10 !important;
-    color: #ffffff !important;
-    border-color: #381f10 !important;
+    background-color: #351D0E !important;
+    color: #FFFFFF !important;
+    border-color: #351D0E !important;
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba(56, 31, 16, 0.2);
+    box-shadow: 0 4px 12px rgba(53, 29, 14, 0.2);
 }
 
 /* ==========================================================================
-   GRID DE PRODUCTORES (4 COLUMNAS)
+   GRID DE PRODUCTORES (4 COLUMNAS × 2 FILAS)
    ========================================================================== */
 .vtp-grid {
     display: grid;
@@ -273,9 +334,9 @@
 }
 
 .vtp-card {
-    background: #ffffff;
-    border: 1px solid #eee2d5;
-    border-radius: 18px;
+    background: #FBF8F4;
+    border: 1px solid #EAE0D3;
+    border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 4px 18px rgba(44, 22, 9, 0.04);
     display: flex;
@@ -285,9 +346,9 @@
 }
 
 .vtp-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 14px 30px rgba(44, 22, 9, 0.09);
-    border-color: #dfcebd;
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(44, 22, 9, 0.08);
+    border-color: #DCCFBF;
 }
 
 .vtp-card-media {
@@ -295,7 +356,7 @@
     height: 180px;
     overflow: hidden;
     position: relative;
-    background: #e5dacd;
+    background: #E5DACD;
 }
 
 .vtp-card-media img {
@@ -307,11 +368,11 @@
 }
 
 .vtp-card:hover .vtp-card-media img {
-    transform: scale(1.06);
+    transform: scale(1.05);
 }
 
 .vtp-card-content {
-    padding: 18px;
+    padding: 18px 20px 20px 20px;
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -332,11 +393,11 @@
 
 .vtp-card-name {
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: 1.15rem;
+    font-size: 1.18rem;
     font-weight: 700;
     color: #2A190E;
-    margin: 0 0 4px 0;
-    line-height: 1.25;
+    margin: 0 0 3px 0;
+    line-height: 1.22;
 }
 
 .vtp-card-location {
@@ -344,24 +405,24 @@
     align-items: center;
     gap: 4px;
     font-size: 0.82rem;
-    color: #7a6a5e;
+    color: #7A6A5E;
     font-weight: 500;
 }
 
 .vtp-location-pin {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
 }
 
 .vtp-card-coffee-icon {
-    opacity: 0.85;
+    opacity: 0.9;
     flex-shrink: 0;
     margin-top: 2px;
 }
 
 .vtp-card-quote {
     font-style: italic;
-    font-size: 0.85rem;
-    color: #5a4b42;
+    font-size: 0.84rem;
+    color: #5C4D44;
     line-height: 1.5;
     margin: 0;
     min-height: 42px;
@@ -376,13 +437,13 @@
     justify-content: space-between;
     align-items: center;
     padding-top: 12px;
-    border-top: 1px solid #f2e9de;
+    border-top: 1px solid #ECE0D2;
     margin-top: auto;
 }
 
 .vtp-btn-profile {
     background-color: #241103;
-    color: #ffffff;
+    color: #FFFFFF;
     padding: 7px 18px;
     border-radius: 20px;
     font-size: 0.82rem;
@@ -394,13 +455,13 @@
 }
 
 .vtp-btn-profile:hover {
-    background-color: #3e220e;
+    background-color: #3D220E;
     transform: translateY(-1px);
 }
 
 .vtp-btn-arrow {
-    background-color: #c59b6d;
-    color: #ffffff;
+    background-color: #C59B6D;
+    color: #FFFFFF;
     width: 32px;
     height: 32px;
     border-radius: 50%;
@@ -415,7 +476,7 @@
 }
 
 .vtp-btn-arrow:hover {
-    background-color: #af8353;
+    background-color: #AF8353;
     transform: scale(1.08);
 }
 
@@ -426,7 +487,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     margin: 30px 0 20px 0;
 }
 
@@ -436,10 +497,10 @@
     border: none;
     font-size: 0.95rem;
     font-weight: 600;
-    color: #554438;
+    color: #4D3D32;
     cursor: pointer;
-    min-width: 36px;
-    height: 36px;
+    min-width: 32px;
+    height: 32px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -455,13 +516,13 @@
 
 .vtp-page-chevron:not(:disabled):hover,
 .vtp-page-number:hover:not(.vtp-page-number-active) {
-    background-color: #ebdccb;
-    color: #2b1a0d;
+    background-color: #E8DDD0;
+    color: #2A190E;
 }
 
 .vtp-page-number-active {
     background-color: #2A190E !important;
-    color: #ffffff !important;
+    color: #FFFFFF !important;
     box-shadow: 0 4px 10px rgba(42, 25, 14, 0.25);
 }
 
@@ -471,13 +532,13 @@
 .vtp-loading-state {
     text-align: center;
     padding: 60px 20px;
-    color: #66554a;
+    color: #66554A;
 }
 
 .vtp-spinner {
     width: 42px;
     height: 42px;
-    border: 3px solid #ebdccb;
+    border: 3px solid #E5D9CC;
     border-top: 3px solid #2A190E;
     border-radius: 50%;
     margin: 0 auto 16px auto;
@@ -492,9 +553,9 @@
 .vtp-empty-state {
     text-align: center;
     padding: 50px 20px;
-    background: #ffffff;
-    border-radius: 18px;
-    border: 1px solid #ebdccb;
+    background: #FBF8F4;
+    border-radius: 16px;
+    border: 1px solid #E5D9CC;
     max-width: 500px;
     margin: 20px auto 50px auto;
 }
@@ -512,14 +573,14 @@
 }
 
 .vtp-empty-state p {
-    color: #66554a;
+    color: #6C5D53;
     font-size: 0.92rem;
     margin: 0 0 18px 0;
 }
 
 .vtp-btn-reset {
     background-color: #241103;
-    color: #ffffff;
+    color: #FFFFFF;
     padding: 8px 22px;
     border-radius: 20px;
     border: none;
@@ -530,7 +591,7 @@
 }
 
 .vtp-btn-reset:hover {
-    background-color: #3e220e;
+    background-color: #3E220E;
 }
 
 /* ==========================================================================
@@ -549,9 +610,9 @@
     }
 
     .vtp-banner-card {
-        border-radius: 28px;
-        max-width: 100%;
+        border-radius: 24px;
         width: 100%;
+        max-width: 100%;
     }
 
     .vtp-grid {

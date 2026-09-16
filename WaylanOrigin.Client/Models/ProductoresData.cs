@@ -107,8 +107,8 @@ public static class ProductoresData
             HistoriaTitulo = "Fuerza y Arraigo Campesino",
             HistoriaTexto = "Trabajamos día a día en Chinchiná promoviendo el relevo generacional para que los jóvenes encuentren en el café un proyecto de vida digno y próspero.",
             SostenibilidadDescripcion = "Energía solar en beneficiaderos y reducción de huella hídrica.",
-            ImagenPrincipal = "imagenes/costales.png",
-            ImagenUrl = "imagenes/costales.png",
+            ImagenPrincipal = "productores/bannerj.png",
+            ImagenUrl = "productores/bannerj.png",
             Procedimientos = new List<ProcedimientoModel>()
         },
         new ProductorModel

@@ -3,11 +3,31 @@
 
 @inject ApiService ApiService
 @inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
 @implements IDisposable
 @using WaylanOrigin.Client.Models
 @using WaylanOrigin.Client.Services
 
 <div class="vtp-page-wrapper">
+    <!-- DECORACIONES FLUIDAS EN LAS ESQUINAS INFERIORES SEGÚN EL BOCETO -->
+    <div class="vtp-corner-left" aria-hidden="true">
+        <svg viewBox="0 0 180 180" class="vtp-corner-wave-green" fill="none">
+            <path d="M0,180 L0,60 C45,60 85,90 120,125 C155,160 165,180 180,180 Z" fill="#3B4D36" />
+        </svg>
+        <svg viewBox="0 0 100 100" class="vtp-corner-leaf-icon" fill="none" stroke="#9A835C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 88 C34 72 56 62 78 52 C62 74 46 84 18 88 Z" />
+            <path d="M18 88 C44 72 60 62 78 52" />
+            <path d="M34 81 C44 76 54 68 64 60" />
+            <path d="M26 85 C34 80 42 73 50 65" />
+        </svg>
+    </div>
+
+    <div class="vtp-corner-right" aria-hidden="true">
+        <svg viewBox="0 0 180 180" class="vtp-corner-wave-tan" fill="none">
+            <path d="M180,180 L60,180 C95,155 130,120 180,85 Z" fill="#E6DACD" />
+        </svg>
+    </div>
+
     <div class="vtp-container">
 
         <!-- BREADCRUMB -->
@@ -31,18 +51,23 @@
 
             <div class="vtp-hero-right">
                 <div class="vtp-banner-card">
-                    <!-- Decoración hojas de café en el fondo -->
-                    <div class="vtp-banner-bg-leaf">
-                        <svg viewBox="0 0 100 100" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.8">
-                            <path d="M10,80 C30,70 60,60 85,20 C70,50 50,75 10,80 Z" />
-                            <path d="M10,80 C40,75 60,50 85,20" />
-                            <path d="M40,63 C48,55 55,45 60,35" />
-                            <path d="M25,72 C32,66 38,58 42,50" />
+                    <!-- Ilustración botánica en líneas doradas en el fondo derecho -->
+                    <div class="vtp-banner-botanical-wrap">
+                        <svg viewBox="0 0 180 130" fill="none" stroke="rgba(224, 196, 160, 0.32)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M175 15 C130 35 75 75 35 125" stroke-width="2" />
+                            <path d="M130 35 C110 18 80 22 62 40 C80 50 110 45 130 35 Z" />
+                            <path d="M130 35 C108 30 85 36 62 40" />
+                            <path d="M150 25 C165 8 190 12 195 30 C180 40 160 35 150 25 Z" />
+                            <path d="M95 65 C68 55 48 68 38 88 C60 93 80 84 95 65 Z" />
+                            <path d="M95 65 C72 70 54 78 38 88" />
+                            <circle cx="102" cy="60" r="4.5" fill="rgba(224, 196, 160, 0.22)" />
+                            <circle cx="109" cy="54" r="4.5" fill="rgba(224, 196, 160, 0.22)" />
+                            <circle cx="124" cy="42" r="4.5" fill="rgba(224, 196, 160, 0.22)" />
                         </svg>
                     </div>
 
                     <div class="vtp-banner-icon-wrap">
-                        <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#2C1609" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#2C1609" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                             <circle cx="9" cy="7" r="4" />
                             <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -53,7 +78,7 @@
                     <div class="vtp-banner-info">
                         <h2 class="vtp-banner-title">Conoce a todos nuestros productores</h2>
                         <p class="vtp-banner-subtitle">Más de 25 familias que hacen parte de Waylan Origin.</p>
-                        <button type="button" class="vtp-banner-btn" @onclick="ResetFiltros">
+                        <button type="button" class="vtp-banner-btn" @onclick="VerTodosClick">
                             Ver todos &rarr;
                         </button>
                     </div>
@@ -64,7 +89,7 @@
         <!-- BARRA DE BÚSQUEDA Y FILTROS POR DEPARTAMENTO -->
         <section class="vtp-toolbar">
             <div class="vtp-search-container">
-                <svg class="vtp-search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#7a6b61" stroke-width="2">
+                <svg class="vtp-search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#8C796E" stroke-width="2">
                     <circle cx="11" cy="11" r="8" />
                     <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
@@ -132,7 +157,7 @@
                                 </div>
 
                                 <div class="vtp-card-coffee-icon" title="Café de Origen">
-                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="#c59b6d">
+                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="#C59B6D">
                                         <path d="M12 2C7.5 2 4 5.5 4 10c0 4.2 2.8 7.8 6.6 9.1V22h2.8v-2.9C17.2 17.8 20 14.2 20 10c0-4.5-3.5-8-8-8zm0 15.5c-3 0-5.5-2.5-5.5-5.5 0-3 2.5-5.5 5.5-5.5s5.5 2.5 5.5 5.5c0 3-2.5 5.5-5.5 5.5z" />
                                         <path d="M12 6.5c-1.3 1.8-1.7 3.5-1.7 4.5 0 1.2.7 2.2 1.7 2.2s1.7-1 1.7-2.2c0-1-.4-2.7-1.7-4.5z" />
                                     </svg>
@@ -297,6 +322,16 @@
         selectedRegion = "Todos";
         searchTerm = string.Empty;
         currentPage = 1;
+    }
+
+    private async Task VerTodosClick()
+    {
+        ResetFiltros();
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("eval", "document.querySelector('.vtp-toolbar')?.scrollIntoView({ behavior: 'smooth' })");
+        }
+        catch { }
     }
 
     private void CambiarPagina(int pagina)
