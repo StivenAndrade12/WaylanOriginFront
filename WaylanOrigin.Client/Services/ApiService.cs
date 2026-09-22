@@ -1487,92 +1487,88 @@ namespace WaylanOrigin.Client.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonString = await response.Content.ReadAsStringAsync();
-                    var result = System.Text.Json.JsonSerializer.Deserialize<List<ProductorModel>>(jsonString, _jsonOptions);
-                    if (result != null)
+                    var rawResult = System.Text.Json.JsonSerializer.Deserialize<List<ProductorModel>>(jsonString, _jsonOptions);
+                    if (rawResult != null)
                     {
                         var orgs = await GetOrganizacionesAsync();
 
-                        int syntheticId = 1;
-                        foreach (var prod in result)
+                        // 1. Filtrar registros de prueba residuales ("Test", "Prueba", etc.)
+                        var validBackendProds = rawResult.Where(p =>
+                            !string.IsNullOrWhiteSpace(p.Nombre) &&
+                            !p.Nombre.Contains("test", StringComparison.OrdinalIgnoreCase) &&
+                            !p.Nombre.Contains("prueba", StringComparison.OrdinalIgnoreCase)
+                        ).ToList();
+
+                        // 2. Construir lista final priorizando estrictamente a los caficultores oficiales del boceto
+                        var listaFinal = new List<ProductorModel>();
+                        int idCounter = 1;
+
+                        foreach (var official in ProductoresData.Lista)
                         {
-                            if (prod.Id <= 0)
+                            var copy = new ProductorModel
                             {
-                                prod.Id = syntheticId++;
-                            }
-                            else if (prod.Id >= syntheticId)
-                            {
-                                syntheticId = prod.Id + 1;
-                            }
+                                Id = idCounter++,
+                                Nombre = official.Nombre,
+                                Ubicacion = official.Ubicacion,
+                                IdOrganizacion = official.IdOrganizacion,
+                                OrganizacionNombre = official.OrganizacionNombre,
+                                Destacado = official.Destacado,
+                                Frase = official.Frase,
+                                HistoriaTitulo = official.HistoriaTitulo,
+                                HistoriaTexto = official.HistoriaTexto,
+                                SostenibilidadDescripcion = official.SostenibilidadDescripcion,
+                                ImagenPrincipal = official.ImagenPrincipal,
+                                ImagenUrl = official.ImagenUrl,
+                                Procedimientos = official.Procedimientos
+                            };
 
-                            if (prod.IdOrganizacion <= 0)
+                            // Si existe en backend con datos reales, sincronizar
+                            var backendMatch = validBackendProds.FirstOrDefault(b =>
+                                string.Equals(b.Nombre, official.Nombre, StringComparison.OrdinalIgnoreCase));
+                            if (backendMatch != null)
                             {
-                                var matchedOrg = orgs.FirstOrDefault(o =>
-                                    !string.IsNullOrEmpty(prod.OrganizacionNombre) &&
-                                    o.Nombre.Contains(prod.OrganizacionNombre, StringComparison.OrdinalIgnoreCase));
+                                if (!string.IsNullOrWhiteSpace(backendMatch.Frase)) copy.Frase = backendMatch.Frase;
+                                if (!string.IsNullOrWhiteSpace(backendMatch.Ubicacion)) copy.Ubicacion = backendMatch.Ubicacion;
+                                if (backendMatch.IdOrganizacion > 0) copy.IdOrganizacion = backendMatch.IdOrganizacion;
+                                if (!string.IsNullOrWhiteSpace(backendMatch.OrganizacionNombre)) copy.OrganizacionNombre = backendMatch.OrganizacionNombre;
+                                if (!string.IsNullOrWhiteSpace(backendMatch.HistoriaTitulo)) copy.HistoriaTitulo = backendMatch.HistoriaTitulo;
+                                if (!string.IsNullOrWhiteSpace(backendMatch.HistoriaTexto)) copy.HistoriaTexto = backendMatch.HistoriaTexto;
+                                if (!string.IsNullOrWhiteSpace(backendMatch.SostenibilidadDescripcion)) copy.SostenibilidadDescripcion = backendMatch.SostenibilidadDescripcion;
+                                if (backendMatch.Procedimientos != null && backendMatch.Procedimientos.Any()) copy.Procedimientos = backendMatch.Procedimientos;
 
-                                prod.IdOrganizacion = matchedOrg?.Id ?? orgs.FirstOrDefault()?.Id ?? 1;
-                            }
-
-                            // Resolver ubicación, imágenes y frases si vienen vacías o con rutas viejas desde el backend
-                            var matchMock = ProductoresData.Lista.FirstOrDefault(m =>
-                                string.Equals(m.Nombre, prod.Nombre, StringComparison.OrdinalIgnoreCase));
-                            if (matchMock != null)
-                            {
-                                if (string.IsNullOrWhiteSpace(prod.Ubicacion))
+                                // Solo reemplazar imagen si el backend tiene una imagen real no-blob-corrupta
+                                if (!string.IsNullOrWhiteSpace(backendMatch.ImagenPrincipal) &&
+                                    !backendMatch.ImagenPrincipal.Contains("storagewaylan.blob") &&
+                                    !backendMatch.ImagenPrincipal.Contains("camp.png"))
                                 {
-                                    prod.Ubicacion = matchMock.Ubicacion;
-                                }
-                                if (string.IsNullOrWhiteSpace(prod.ImagenPrincipal) ||
-                                    prod.ImagenPrincipal.Contains("camp.png") ||
-                                    prod.ImagenPrincipal.Contains("seorayseor") ||
-                                    prod.ImagenPrincipal.Contains("espalda") ||
-                                    prod.ImagenPrincipal.Contains("Gemini_Generated") ||
-                                    prod.ImagenPrincipal.Contains("bar.png") ||
-                                    prod.ImagenPrincipal.Contains("bannerj") ||
-                                    prod.ImagenPrincipal.Contains("cafetarros") ||
-                                    prod.ImagenPrincipal.Contains("manoscafe") ||
-                                    prod.ImagenPrincipal.Contains("coffee_bag"))
-                                {
-                                    prod.ImagenPrincipal = matchMock.ImagenPrincipal;
-                                    prod.ImagenUrl = matchMock.ImagenUrl;
-                                }
-                                if (string.IsNullOrWhiteSpace(prod.Frase))
-                                {
-                                    prod.Frase = matchMock.Frase;
+                                    copy.ImagenPrincipal = backendMatch.ImagenPrincipal;
+                                    copy.ImagenUrl = backendMatch.ImagenPrincipal;
                                 }
                             }
-                            else if (string.IsNullOrWhiteSpace(prod.Ubicacion))
+
+                            listaFinal.Add(copy);
+                        }
+
+                        // 3. Añadir cualquier otro productor creado en el backend que no esté en la lista oficial
+                        foreach (var backendProd in validBackendProds)
+                        {
+                            if (!listaFinal.Any(f => string.Equals(f.Nombre, backendProd.Nombre, StringComparison.OrdinalIgnoreCase)))
                             {
-                                prod.Ubicacion = prod.IdOrganizacion == 2 ? "Quindío" : "Caldas";
+                                if (backendProd.Id <= 0) backendProd.Id = idCounter++;
+                                if (string.IsNullOrWhiteSpace(backendProd.ImagenPrincipal) || backendProd.ImagenPrincipal.Contains("storagewaylan.blob"))
+                                {
+                                    backendProd.ImagenPrincipal = "imagenes/productores/juan_carlos_restrepo.jpg";
+                                    backendProd.ImagenUrl = backendProd.ImagenPrincipal;
+                                }
+                                if (string.IsNullOrWhiteSpace(backendProd.Ubicacion))
+                                {
+                                    backendProd.Ubicacion = backendProd.IdOrganizacion == 2 ? "Quindío" : "Caldas";
+                                }
+                                listaFinal.Add(backendProd);
                             }
                         }
 
-                        // Complementar con los productores oficiales de la maqueta si aún no existen en la lista
-                        foreach (var mockProd in ProductoresData.Lista)
-                        {
-                            if (!result.Any(r => string.Equals(r.Nombre, mockProd.Nombre, StringComparison.OrdinalIgnoreCase)))
-                            {
-                                var copy = new ProductorModel
-                                {
-                                    Id = syntheticId++,
-                                    Nombre = mockProd.Nombre,
-                                    Ubicacion = mockProd.Ubicacion,
-                                    IdOrganizacion = mockProd.IdOrganizacion,
-                                    OrganizacionNombre = mockProd.OrganizacionNombre,
-                                    Destacado = mockProd.Destacado,
-                                    Frase = mockProd.Frase,
-                                    HistoriaTitulo = mockProd.HistoriaTitulo,
-                                    HistoriaTexto = mockProd.HistoriaTexto,
-                                    SostenibilidadDescripcion = mockProd.SostenibilidadDescripcion,
-                                    ImagenPrincipal = mockProd.ImagenPrincipal,
-                                    ImagenUrl = mockProd.ImagenUrl,
-                                    Procedimientos = mockProd.Procedimientos
-                                };
-                                result.Add(copy);
-                            }
-                        }
-
-                        _cachedProductores = result;
+                        _cachedProductores = listaFinal;
                         return _cachedProductores;
                     }
                 }

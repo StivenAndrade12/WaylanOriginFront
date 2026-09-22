@@ -128,21 +128,21 @@
 }
 
 .vtp-main-title {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 3.1rem;
-    font-weight: 700;
-    color: #2A190E;
-    line-height: 1.14;
-    margin: 0 0 14px 0;
-    letter-spacing: -0.5px;
+    font-family: 'Playfair Display', Georgia, serif !important;
+    font-size: 2.8rem !important;
+    font-weight: 700 !important;
+    color: #2A190E !important;
+    line-height: 1.14 !important;
+    margin: 0 0 14px 0 !important;
+    letter-spacing: -0.5px !important;
 }
 
 .vtp-description {
-    color: #6C5D53;
-    font-size: 0.98rem;
-    line-height: 1.62;
-    margin: 0;
-    max-width: 450px;
+    color: #6C5D53 !important;
+    font-size: 0.98rem !important;
+    line-height: 1.62 !important;
+    margin: 0 !important;
+    max-width: 460px !important;
 }
 
 /* BANNER VERDE OLIVA DE LA DERECHA (FIEL AL BOCETO) */
@@ -154,18 +154,19 @@
 
 .vtp-banner-card {
     background: linear-gradient(135deg, #374A34 0%, #293926 100%);
-    border-radius: 999px 0 0 999px;
-    padding: 24px 42px 24px 24px;
+    border-radius: 999px 24px 24px 999px;
+    padding: 16px 36px 16px 18px;
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
     position: relative;
     overflow: hidden;
     box-shadow: 0 14px 34px rgba(41, 57, 38, 0.24);
     border: 1px solid rgba(255, 255, 255, 0.08);
     width: 100%;
-    max-width: 540px;
+    max-width: 530px;
     box-sizing: border-box;
+    min-height: 94px;
 }
 
 .vtp-banner-botanical-wrap {
@@ -187,8 +188,10 @@
 
 .vtp-banner-icon-wrap {
     background-color: #DFBA9D;
-    width: 58px;
-    height: 58px;
+    width: 54px;
+    height: 54px;
+    min-width: 54px;
+    min-height: 54px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -203,27 +206,30 @@
 }
 
 .vtp-banner-title {
-    color: #FFFFFF;
-    font-size: 1.08rem;
-    font-weight: 700;
-    margin: 0 0 4px 0;
-    line-height: 1.25;
+    color: #FFFFFF !important;
+    font-family: 'Playfair Display', Georgia, serif !important;
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
+    margin: 0 0 3px 0 !important;
+    line-height: 1.25 !important;
+    white-space: nowrap !important;
 }
 
 .vtp-banner-subtitle {
-    color: #E3DBD1;
-    font-size: 0.83rem;
-    line-height: 1.4;
-    margin: 0 0 12px 0;
+    color: #E3DBD1 !important;
+    font-size: 0.82rem !important;
+    line-height: 1.35 !important;
+    margin: 0 0 10px 0 !important;
+    white-space: nowrap !important;
 }
 
 .vtp-banner-btn {
     background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.45);
-    color: #FFFFFF;
-    padding: 6px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    color: #FFFFFF !important;
+    padding: 5px 16px;
     border-radius: 20px;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -246,6 +252,7 @@
     align-items: center;
     gap: 20px;
     margin-bottom: 30px;
+    padding: 0 !important;
 }
 
 .vtp-search-container {
@@ -408,31 +415,39 @@
 }
 
 .vtp-card-name {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 1.18rem;
-    font-weight: 700;
-    color: #2A190E;
-    margin: 0 0 3px 0;
-    line-height: 1.22;
+    font-family: 'Playfair Display', Georgia, serif !important;
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    color: #2A190E !important;
+    margin: 0 0 3px 0 !important;
+    line-height: 1.22 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 }
 
 .vtp-card-name a {
-    color: inherit;
-    text-decoration: none;
+    color: inherit !important;
+    text-decoration: none !important;
+    font-size: inherit !important;
+    font-family: inherit !important;
+    font-weight: inherit !important;
+    line-height: inherit !important;
     transition: color 0.2s ease;
 }
 
 .vtp-card-name a:hover {
-    color: #8C5B32;
+    color: #8C5B32 !important;
 }
 
 .vtp-card-location {
     display: flex;
     align-items: center;
     gap: 4px;
-    font-size: 0.82rem;
-    color: #7A6A5E;
-    font-weight: 500;
+    font-size: 0.82rem !important;
+    color: #7A6A5E !important;
+    font-weight: 500 !important;
+    line-height: 1.3 !important;
 }
 
 .vtp-location-pin {
@@ -449,12 +464,12 @@
 }
 
 .vtp-card-quote {
-    font-style: italic;
-    font-size: 0.84rem;
-    color: #5C4D44;
-    line-height: 1.5;
-    margin: 0;
-    min-height: 42px;
+    font-style: italic !important;
+    font-size: 0.84rem !important;
+    color: #5C4D44 !important;
+    line-height: 1.48 !important;
+    margin: 0 !important;
+    min-height: 40px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -690,7 +705,15 @@
     .vtp-banner-card {
         border-radius: 24px;
         max-width: 100%;
-        padding: 22px 28px;
+        padding: 20px 26px;
+    }
+
+    .vtp-banner-title {
+        white-space: normal !important;
+    }
+
+    .vtp-banner-subtitle {
+        white-space: normal !important;
     }
 }
 
