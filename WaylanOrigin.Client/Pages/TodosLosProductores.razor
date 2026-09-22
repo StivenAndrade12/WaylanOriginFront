@@ -139,17 +139,21 @@
                 @foreach (var p in ProductoresPaginados)
                 {
                     <article class="vtp-card">
-                        <div class="vtp-card-media">
-                            <img src="@ApiService.GetFullImageUrl(p.ImagenPrincipal)"
-                                 alt="@p.Nombre"
-                                 loading="lazy"
-                                 onerror="this.onerror=null;this.src='imagenes/camp.png';" />
-                        </div>
+                        <a href="perfil/@p.Id" class="vtp-card-media-link" aria-label="Ver perfil de @p.Nombre">
+                            <div class="vtp-card-media">
+                                <img src="@ApiService.GetFullImageUrl(p.ImagenPrincipal)"
+                                     alt="@p.Nombre"
+                                     loading="lazy"
+                                     onerror="this.onerror=null;this.src='imagenes/productores/juan_carlos_restrepo.jpg';" />
+                            </div>
+                        </a>
 
                         <div class="vtp-card-content">
                             <div class="vtp-card-header-row">
                                 <div class="vtp-card-header-text">
-                                    <h2 class="vtp-card-name">@p.Nombre</h2>
+                                    <h2 class="vtp-card-name">
+                                        <a href="perfil/@p.Id">@p.Nombre</a>
+                                    </h2>
                                     <div class="vtp-card-location">
                                         <span class="vtp-location-pin">📍</span>
                                         <span>@(string.IsNullOrWhiteSpace(p.Ubicacion) ? "Colombia" : p.Ubicacion)</span>
@@ -157,9 +161,9 @@
                                 </div>
 
                                 <div class="vtp-card-coffee-icon" title="Café de Origen">
-                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="#C59B6D">
-                                        <path d="M12 2C7.5 2 4 5.5 4 10c0 4.2 2.8 7.8 6.6 9.1V22h2.8v-2.9C17.2 17.8 20 14.2 20 10c0-4.5-3.5-8-8-8zm0 15.5c-3 0-5.5-2.5-5.5-5.5 0-3 2.5-5.5 5.5-5.5s5.5 2.5 5.5 5.5c0 3-2.5 5.5-5.5 5.5z" />
-                                        <path d="M12 6.5c-1.3 1.8-1.7 3.5-1.7 4.5 0 1.2.7 2.2 1.7 2.2s1.7-1 1.7-2.2c0-1-.4-2.7-1.7-4.5z" />
+                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+                                        <path d="M19 5.5C15.5 2 9.8 2.3 6.2 6.2C2.6 10.1 2.9 15.8 6.8 19.4C10.7 23 16.5 22.7 20.1 18.8C23.7 14.9 23.1 9.1 19 5.5Z" fill="#C59B6D" opacity="0.9"/>
+                                        <path d="M7.5 16.5C9.5 14 10.5 11.5 10 9C9.5 6.5 11.5 4.5 13.5 4C15.5 3.5 17 4.5 17.5 6.5" stroke="#FBF8F4" stroke-width="1.8" stroke-linecap="round"/>
                                     </svg>
                                 </div>
                             </div>
@@ -181,23 +185,25 @@
                 }
             </main>
 
-            <!-- PAGINACIÓN -->
-            @if (TotalPages > 1)
-            {
+            <!-- PAGINACIÓN CON LÍNEA HORIZONTAL IDÉNTICA AL BOCETO -->
+            <div class="vtp-pagination-wrapper">
                 <nav class="vtp-pagination" aria-label="Paginación de productores">
                     <button type="button"
                             class="vtp-page-chevron"
-                            disabled="@(currentPage == 1)"
+                            disabled="@(currentPage <= 1)"
                             @onclick="() => CambiarPagina(currentPage - 1)"
                             aria-label="Página anterior">
                         &lsaquo;
                     </button>
 
-                    @for (int i = 1; i <= TotalPages; i++)
+                    @for (int i = 1; i <= MaxDisplayPages; i++)
                     {
                         var paginaNum = i;
+                        var isActual = (paginaNum == currentPage);
+                        var isValida = paginaNum <= TotalPages;
                         <button type="button"
-                                class="vtp-page-number @(paginaNum == currentPage ? "vtp-page-number-active" : "")"
+                                class="vtp-page-number @(isActual ? "vtp-page-number-active" : "") @(!isValida ? "vtp-page-number-disabled" : "")"
+                                disabled="@(!isValida)"
                                 @onclick="() => CambiarPagina(paginaNum)">
                             @paginaNum
                         </button>
@@ -205,13 +211,13 @@
 
                     <button type="button"
                             class="vtp-page-chevron"
-                            disabled="@(currentPage == TotalPages)"
+                            disabled="@(currentPage >= TotalPages)"
                             @onclick="() => CambiarPagina(currentPage + 1)"
                             aria-label="Página siguiente">
                         &rsaquo;
                     </button>
                 </nav>
-            }
+            </div>
         }
 
     </div>
@@ -302,6 +308,8 @@
 
     private int TotalPages => Math.Max(1, (int)Math.Ceiling(ProductoresFiltrados.Count() / (double)PageSize));
 
+    private int MaxDisplayPages => Math.Max(5, TotalPages);
+
     private IEnumerable<ProductorModel> ProductoresPaginados =>
         ProductoresFiltrados.Skip((currentPage - 1) * PageSize).Take(PageSize);
 
@@ -334,11 +342,16 @@
         catch { }
     }
 
-    private void CambiarPagina(int pagina)
+    private async Task CambiarPagina(int pagina)
     {
         if (pagina >= 1 && pagina <= TotalPages)
         {
             currentPage = pagina;
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("eval", "document.querySelector('.vtp-toolbar')?.scrollIntoView({ behavior: 'smooth' })");
+            }
+            catch { }
         }
     }
 

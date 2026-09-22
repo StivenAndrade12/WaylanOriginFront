@@ -78,11 +78,11 @@
             @foreach (var p in destacados)
             {
                 <div class="tn-producer-card">
-                    <div class="tn-card-img">
-                        <img src="@p.ImagenPrincipal" alt="@p.Nombre" />
-                    </div>
+                    <a href="perfil/@p.Id" class="tn-card-img" aria-label="Ver perfil de @p.Nombre">
+                        <img src="@Api.GetFullImageUrl(p.ImagenPrincipal)" alt="@p.Nombre" onerror="this.onerror=null;this.src='imagenes/productores/juan_carlos_restrepo.jpg';" />
+                    </a>
                     <div class="tn-card-content">
-                        <h3>@p.Nombre</h3>
+                        <h3><a href="perfil/@p.Id" style="color: inherit; text-decoration: none;">@p.Nombre</a></h3>
 
                         <a href="perfil/@p.Id" class="tn-btn-profile">VER PERFIL ➔</a>
                     </div>

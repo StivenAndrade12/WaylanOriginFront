@@ -1513,19 +1513,37 @@ namespace WaylanOrigin.Client.Services
                                 prod.IdOrganizacion = matchedOrg?.Id ?? orgs.FirstOrDefault()?.Id ?? 1;
                             }
 
-                            // Resolver ubicación si viene vacía desde el backend
-                            if (string.IsNullOrWhiteSpace(prod.Ubicacion))
+                            // Resolver ubicación, imágenes y frases si vienen vacías o con rutas viejas desde el backend
+                            var matchMock = ProductoresData.Lista.FirstOrDefault(m =>
+                                string.Equals(m.Nombre, prod.Nombre, StringComparison.OrdinalIgnoreCase));
+                            if (matchMock != null)
                             {
-                                var matchMock = ProductoresData.Lista.FirstOrDefault(m =>
-                                    string.Equals(m.Nombre, prod.Nombre, StringComparison.OrdinalIgnoreCase));
-                                if (matchMock != null && !string.IsNullOrEmpty(matchMock.Ubicacion))
+                                if (string.IsNullOrWhiteSpace(prod.Ubicacion))
                                 {
                                     prod.Ubicacion = matchMock.Ubicacion;
                                 }
-                                else
+                                if (string.IsNullOrWhiteSpace(prod.ImagenPrincipal) ||
+                                    prod.ImagenPrincipal.Contains("camp.png") ||
+                                    prod.ImagenPrincipal.Contains("seorayseor") ||
+                                    prod.ImagenPrincipal.Contains("espalda") ||
+                                    prod.ImagenPrincipal.Contains("Gemini_Generated") ||
+                                    prod.ImagenPrincipal.Contains("bar.png") ||
+                                    prod.ImagenPrincipal.Contains("bannerj") ||
+                                    prod.ImagenPrincipal.Contains("cafetarros") ||
+                                    prod.ImagenPrincipal.Contains("manoscafe") ||
+                                    prod.ImagenPrincipal.Contains("coffee_bag"))
                                 {
-                                    prod.Ubicacion = prod.IdOrganizacion == 2 ? "Quindío" : "Caldas";
+                                    prod.ImagenPrincipal = matchMock.ImagenPrincipal;
+                                    prod.ImagenUrl = matchMock.ImagenUrl;
                                 }
+                                if (string.IsNullOrWhiteSpace(prod.Frase))
+                                {
+                                    prod.Frase = matchMock.Frase;
+                                }
+                            }
+                            else if (string.IsNullOrWhiteSpace(prod.Ubicacion))
+                            {
+                                prod.Ubicacion = prod.IdOrganizacion == 2 ? "Quindío" : "Caldas";
                             }
                         }
 
