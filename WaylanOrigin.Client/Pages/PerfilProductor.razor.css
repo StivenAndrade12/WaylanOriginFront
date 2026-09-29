@@ -10,6 +10,7 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #2b1a0d; /* Marrón oscuro casi negro */
     background-color: #e8dfd3; /* Crema muy claro */
+    overflow-x: hidden;
 }
 
 /* ==========================================================================
@@ -1089,11 +1090,18 @@
 
     .perfil-hero {
         min-height: 380px;
-        padding: 25px 20px;
+        padding: 25px 18px;
     }
 
     .perfil-hero::before {
         background: linear-gradient(180deg, rgba(20, 12, 6, 0.55) 0%, rgba(20, 12, 6, 0.3) 30%, rgba(20, 12, 6, 0.92) 100%);
+    }
+
+    .breadcrumb {
+        position: static !important;
+        margin-bottom: 20px !important;
+        flex-wrap: wrap !important;
+        font-size: 0.82rem !important;
     }
 
     .perfil-hero-info {
@@ -1101,29 +1109,141 @@
     }
 
     .perfil-nombre {
-        font-size: 2.2rem;
+        font-size: 2.1rem !important;
+        line-height: 1.18 !important;
+    }
+
+    .perfil-ubicacion {
+        font-size: 1.05rem !important;
+        margin-bottom: 10px !important;
     }
 
     .perfil-frase {
         border-left: none;
         border-top: 2px solid #d4a373;
         padding-left: 0;
-        padding-top: 15px;
-        font-size: 1.1rem;
+        padding-top: 12px;
+        font-size: 1.05rem !important;
     }
 
     /* Adaptación de la Ficha Técnica en móviles */
     .ficha-grid {
-        grid-template-columns: 1fr; /* Apila los elementos verticalmente */
+        grid-template-columns: 1fr;
     }
 
     .border-r {
-        border-right: none; /* Remueve divisor lateral en móviles */
+        border-right: none;
     }
 
-    /* Genera líneas divisorias horizontales entre celdas colapsadas */
     .ficha-item:not(:last-child) {
         border-bottom: 1px solid rgba(44, 22, 9, 0.15);
+    }
+
+    /* Finca en móviles */
+    .perfil-finca {
+        padding: 24px 16px !important;
+        border-radius: 16px !important;
+        gap: 24px !important;
+    }
+
+    .finca-top-grid {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+    }
+
+    .finca-texto h2 {
+        font-size: 1.85rem !important;
+        margin-bottom: 10px !important;
+    }
+
+    .finca-datos {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 14px !important;
+        padding-top: 18px !important;
+    }
+
+    .finca-imagen, .finca-imagen img {
+        min-height: 220px !important;
+        height: 220px !important;
+        border-radius: 14px !important;
+    }
+
+    .finca-bottom-banner {
+        padding: 16px !important;
+        border-radius: 14px !important;
+    }
+
+    .banner-izq {
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 10px !important;
+    }
+
+    /* Procesos en móviles */
+    .perfil-procesos {
+        padding: 20px 16px !important;
+        border-radius: 16px !important;
+        gap: 20px !important;
+    }
+
+    .procesos-top-grid {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+    }
+
+    .procesos-intro h2 {
+        font-size: 1.85rem !important;
+    }
+
+    .procesos-flujo {
+        flex-direction: column !important;
+        gap: 14px !important;
+    }
+
+    .proceso-card {
+        width: 100% !important;
+        height: auto !important;
+        min-height: auto !important;
+        flex: none !important;
+    }
+
+    .proceso-card-body h3 {
+        height: auto !important;
+        margin-bottom: 6px !important;
+        -webkit-line-clamp: none !important;
+    }
+
+    .proceso-card-body p {
+        -webkit-line-clamp: none !important;
+    }
+
+    .proceso-flecha {
+        transform: rotate(90deg) !important;
+        margin: 4px auto !important;
+        font-size: 1.4rem !important;
+    }
+
+    .procesos-footer-banner {
+        padding: 16px !important;
+        border-radius: 14px !important;
+    }
+
+    /* Carrusel de fotos en móviles */
+    .galeria-carrusel-wrapper {
+        gap: 8px !important;
+        margin-top: 15px !important;
+    }
+
+    .btn-carrusel {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 20px !important;
+    }
+
+    .perfil-galeria-item {
+        flex: 0 0 170px !important;
+        height: 140px !important;
     }
 }
 

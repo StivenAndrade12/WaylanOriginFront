@@ -751,11 +751,17 @@
 /* Teléfonos móviles */
 @media (max-width: 650px) {
     .vtp-container {
-        padding: 0 18px;
+        padding: 0 16px;
     }
 
     .vtp-main-title {
-        font-size: 2.2rem;
+        font-size: 1.85rem !important;
+        line-height: 1.22 !important;
+    }
+
+    .vtp-description {
+        font-size: 0.92rem !important;
+        line-height: 1.5 !important;
     }
 
     .vtp-grid {
@@ -763,10 +769,14 @@
         gap: 20px;
     }
 
+    .vtp-card-media {
+        height: 210px !important;
+    }
+
     .vtp-pills-list {
-        margin: 0 -18px;
-        padding-left: 18px;
-        padding-right: 18px;
+        margin: 0 -16px;
+        padding-left: 16px;
+        padding-right: 16px;
     }
 
     .vtp-banner-card {
@@ -775,6 +785,14 @@
         padding: 22px 18px;
         border-radius: 20px;
         gap: 14px;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .vtp-banner-botanical-wrap {
+        opacity: 0.3 !important;
+        transform: scale(0.85);
+        transform-origin: top right;
     }
 
     .vtp-banner-icon-wrap {
@@ -783,9 +801,7 @@
 
     .vtp-corner-left,
     .vtp-corner-right {
-        opacity: 0.35;
-        width: 90px;
-        height: 90px;
+        display: none !important;
     }
 
     .vtp-pagination {

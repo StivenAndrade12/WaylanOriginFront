@@ -4,6 +4,7 @@
 @inject ApiService ApiService
 @inject CartState CartState
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JS
 @implements IDisposable
 
 <div class="productos-page">
@@ -25,9 +26,12 @@
                 Cada grano refleja origen, cuidado y excelencia.
             </p>
             <div class="hero-buttons">
-                <a href="#catalogo" class="btn-buy-now">COMPRAR AHORA <span class="arrow-gold">›</span>
-                </a>
-                <a href="#categorias" class="btn-collections-outline">VER COLECCIONES</a>
+                <button type="button" class="btn-buy-now" @onclick="ScrollToCatalogo">
+                    COMPRAR AHORA <span class="arrow-gold">›</span>
+                </button>
+                <button type="button" class="btn-collections-outline" @onclick="ScrollToCategorias">
+                    VER COLECCIONES
+                </button>
             </div>
         </div>
     </section>
@@ -762,6 +766,24 @@
     {
         return ApiService.GetFullImageUrl(p.ImagenUrl);
     }
+
+    private async Task ScrollToCatalogo()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("eval", "document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' })");
+        }
+        catch { }
+    }
+
+    private async Task ScrollToCategorias()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("eval", "document.getElementById('categorias')?.scrollIntoView({ behavior: 'smooth' })");
+        }
+        catch { }
+    }
 }
 
 <!-- STYLES -->
@@ -878,7 +900,9 @@
     }
 
     .btn-buy-now {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         background-color: var(--luxury-gold);
         color: var(--dark-coffee) !important;
         text-decoration: none;
@@ -889,6 +913,9 @@
         border-radius: 4px;
         transition: all 0.3s ease;
         box-shadow: 0 4px 12px rgba(184, 154, 94, 0.3);
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
     }
 
     .btn-buy-now:hover {
@@ -897,7 +924,9 @@
     }
 
     .btn-collections-outline {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         background-color: transparent;
         color: var(--white-pure) !important;
         border: 1.5px solid var(--white-pure);
@@ -908,6 +937,8 @@
         letter-spacing: 2px;
         border-radius: 4px;
         transition: all 0.3s ease;
+        cursor: pointer;
+        font-family: inherit;
     }
 
     .btn-collections-outline:hover {

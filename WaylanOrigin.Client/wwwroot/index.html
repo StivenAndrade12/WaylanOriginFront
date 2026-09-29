@@ -162,8 +162,25 @@
             return Math.floor((Date.now() - (window.lastWaylanActivityTime || Date.now())) / 1000);
         };
 
+        // === WOMPI CONFIGURACIÓN ===
+        // Cambiar a true SOLO si en el Dashboard de Wompi la "Firma de Integridad" está ACTIVADA
+        // Si está DESACTIVADA (o no existe esa opción), dejar en false
+        window.wompiUsarFirma = false;
+        // ==============================
+
         window.abrirWidgetWompi = function (publicKey, reference, amountInCents, redirectUrl, integrity) {
             try {
+                // === WAYLAN WOMPI DEBUG ===
+                console.group('%c[Wompi Widget] Parámetros recibidos', 'color: #B89A5E; font-weight: bold;');
+                console.log('publicKey:     ', publicKey ? publicKey.substring(0, 20) + '...' : 'VACÍO ❌');
+                console.log('reference:     ', reference || 'VACÍO ❌');
+                console.log('amountInCents: ', amountInCents, '→ COP $' + (amountInCents / 100).toLocaleString('es-CO'));
+                console.log('redirectUrl:   ', redirectUrl || 'VACÍO ❌');
+                console.log('integrity:     ', integrity ? (integrity.substring(0, 16) + '...[' + integrity.length + ' chars]') : 'VACÍO ⚠️ (se omitirá signature)');
+                console.log('wompiUsarFirma:', window.wompiUsarFirma);
+                console.groupEnd();
+                // === FIN DEBUG ===
+
                 var config = {
                     currency: 'COP',
                     amountInCents: amountInCents,
@@ -171,9 +188,26 @@
                     publicKey: publicKey,
                     redirectUrl: redirectUrl
                 };
-                if (integrity && typeof integrity === 'string' && integrity.trim().length > 0) {
+
+                // Solo enviar signature si wompiUsarFirma=true Y hay un hash válido
+                if (window.wompiUsarFirma && integrity && typeof integrity === 'string' && integrity.trim().length === 64) {
                     config.signature = { integrity: integrity.trim() };
+                    console.log('%c[Wompi Widget] signature.integrity configurado ✅ (firma activada)', 'color: green;');
+                } else if (window.wompiUsarFirma) {
+                    console.warn('[Wompi Widget] ⚠️ wompiUsarFirma=true pero integrity inválido, enviando sin firma');
+                } else {
+                    console.log('%c[Wompi Widget] Sin signature (wompiUsarFirma=false — firma desactivada en Dashboard)', 'color: #B89A5E;');
                 }
+
+                console.log('[Wompi Widget] Config final enviada a WidgetCheckout:', JSON.stringify({
+                    currency: config.currency,
+                    amountInCents: config.amountInCents,
+                    reference: config.reference,
+                    publicKey: config.publicKey ? config.publicKey.substring(0, 20) + '...' : null,
+                    redirectUrl: config.redirectUrl,
+                    hasSignature: !!config.signature
+                }));
+
                 var checkout = new WidgetCheckout(config);
                 checkout.open(function (result) {
                     var transaction = result ? result.transaction : {};

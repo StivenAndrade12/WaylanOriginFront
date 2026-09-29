@@ -456,6 +456,20 @@
                                    (!string.IsNullOrEmpty(response.Signature) ? response.Signature :
                                    ApiService.GenerateWompiIntegrityHash(reference, amountInCents));
 
+            // === DIAGNÓSTICO WOMPI ===
+            string integritySource = !string.IsNullOrEmpty(response.Integrity) ? "API.Integrity" :
+                                     (!string.IsNullOrEmpty(response.Signature) ? "API.Signature" :
+                                     "CLIENTE (fallback — secreto hardcodeado)");
+            await JS.InvokeVoidAsync("console.group", "[Waylan C#] IniciarCheckout — Datos Wompi");
+            await JS.InvokeVoidAsync("console.log", $"Referencia:      {reference}");
+            await JS.InvokeVoidAsync("console.log", $"Total API:       {response.Total} COP");
+            await JS.InvokeVoidAsync("console.log", $"amountInCents:   {amountInCents}");
+            await JS.InvokeVoidAsync("console.log", $"API.Integrity:   {(string.IsNullOrEmpty(response.Integrity) ? "null/vacío ⚠️" : response.Integrity.Substring(0, Math.Min(16, response.Integrity.Length)) + "...")}");
+            await JS.InvokeVoidAsync("console.log", $"API.Signature:   {(string.IsNullOrEmpty(response.Signature) ? "null/vacío ⚠️" : response.Signature.Substring(0, Math.Min(16, response.Signature.Length)) + "...")}");
+            await JS.InvokeVoidAsync("console.log", $"Hash usado (src: {integritySource}): {integrityHash.Substring(0, Math.Min(16, integrityHash.Length))}...");
+            await JS.InvokeVoidAsync("console.groupEnd");
+            // === FIN DIAGNÓSTICO ===
+
             await JS.InvokeVoidAsync("abrirWidgetWompi", publicKey, reference, amountInCents, redirectUrl, integrityHash);
         }
         else

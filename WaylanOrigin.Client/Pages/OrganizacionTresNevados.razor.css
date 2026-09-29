@@ -49,6 +49,7 @@ body {
     padding-right: 150px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #F5EFE6;
+    overflow-x: hidden;
 }
 
 /* Breadcrumb */
@@ -402,25 +403,61 @@ body {
 
 @media (max-width: 768px) {
     .tresnevados-container {
-        padding-left: 20px;
-        padding-right: 20px;
+        padding-left: 16px;
+        padding-right: 16px;
     }
 
     .tn-hero {
         flex-direction: column;
+        gap: 24px;
+        margin-bottom: 25px;
+    }
+
+    .tn-hero::after {
+        display: none !important;
+    }
+
+    .tn-main-title {
+        font-size: 2.2rem !important;
+        line-height: 1.2 !important;
+    }
+
+    .tn-lead {
+        font-size: 1.1rem !important;
+        line-height: 1.4 !important;
+        margin-bottom: 14px;
+    }
+
+    .tn-hero-image {
+        margin-right: 0 !important;
+        width: 100% !important;
+        height: 250px !important;
+        max-height: 280px !important;
     }
 
     .tn-stats-panel {
         flex-direction: column;
         gap: 20px;
+        padding: 24px 16px;
     }
 
     .tn-stat-item:not(:last-child)::after {
         display: none;
     }
 
+    .tn-section-title-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .tn-section-title-bar h2 {
+        font-size: 1.4rem !important;
+    }
+
     .tn-productores-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
     }
 }
 
