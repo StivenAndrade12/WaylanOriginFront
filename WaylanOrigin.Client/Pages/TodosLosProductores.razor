@@ -196,14 +196,11 @@
                         &lsaquo;
                     </button>
 
-                    @for (int i = 1; i <= MaxDisplayPages; i++)
+                    @foreach (var paginaNum in PaginasVisibles)
                     {
-                        var paginaNum = i;
                         var isActual = (paginaNum == currentPage);
-                        var isValida = paginaNum <= TotalPages;
                         <button type="button"
-                                class="vtp-page-number @(isActual ? "vtp-page-number-active" : "") @(!isValida ? "vtp-page-number-disabled" : "")"
-                                disabled="@(!isValida)"
+                                class="vtp-page-number @(isActual ? "vtp-page-number-active" : "")"
                                 @onclick="() => CambiarPagina(paginaNum)">
                             @paginaNum
                         </button>
@@ -308,7 +305,28 @@
 
     private int TotalPages => Math.Max(1, (int)Math.Ceiling(ProductoresFiltrados.Count() / (double)PageSize));
 
-    private int MaxDisplayPages => Math.Max(5, TotalPages);
+    // Ventana deslizante: muestra hasta 7 páginas centradas en la actual
+    private IEnumerable<int> PaginasVisibles
+    {
+        get
+        {
+            const int MaxVisible = 7;
+            int total = TotalPages;
+            if (total <= MaxVisible)
+                return Enumerable.Range(1, total);
+
+            int half = MaxVisible / 2;
+            int start = Math.Max(1, currentPage - half);
+            int end = start + MaxVisible - 1;
+
+            if (end > total)
+            {
+                end = total;
+                start = Math.Max(1, end - MaxVisible + 1);
+            }
+            return Enumerable.Range(start, end - start + 1);
+        }
+    }
 
     private IEnumerable<ProductorModel> ProductoresPaginados =>
         ProductoresFiltrados.Skip((currentPage - 1) * PageSize).Take(PageSize);
