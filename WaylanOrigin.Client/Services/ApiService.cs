@@ -1362,7 +1362,10 @@ namespace WaylanOrigin.Client.Services
                 else if (!string.IsNullOrWhiteSpace(org.ImagenLogo) && org.ImagenLogo.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
                 {
                     var logoBinary = await ResolveImageBinaryAsync(null, org.ImagenLogo, "logo.jpg");
-                    content.Add(logoBinary, "Logo", "logo.jpg");
+                    if (logoBinary != null)
+                    {
+                        content.Add(logoBinary, "Logo", "logo.jpg");
+                    }
                 }
 
                 if (heroFile != null)
@@ -1377,7 +1380,10 @@ namespace WaylanOrigin.Client.Services
                 else if (!string.IsNullOrWhiteSpace(org.HeroImagen) && org.HeroImagen.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
                 {
                     var heroBinary = await ResolveImageBinaryAsync(null, org.HeroImagen, "hero.jpg");
-                    content.Add(heroBinary, "HeroImagen", "hero.jpg");
+                    if (heroBinary != null)
+                    {
+                        content.Add(heroBinary, "HeroImagen", "hero.jpg");
+                    }
                 }
 
                 var response = await _http.PutAsync($"{ApiBaseUrl}api/Organizacion/{org.Id}", content);
