@@ -61,8 +61,6 @@
                         <td>@(p.Destacado ? "★ Sí" : "No")</td>
                         <td>
                             <button type="button" class="btn-action-edit" @onclick="() => EditarProductor(p)">Editar</button>
-                            <button type="button" class="btn-action-delete"
-                                    @onclick="() => EliminarProductor(p.Id)">Eliminar</button>
                         </td>
                     </tr>
                 }
@@ -436,38 +434,6 @@
         finally
         {
             isSaving = false;
-            StateHasChanged();
-        }
-    }
-
-    private async Task EliminarProductor(int id)
-    {
-        try
-        {
-            var p = productores.FirstOrDefault(x => x.Id == id);
-            var nombre = p?.Nombre ?? $"#{id}";
-
-            // Confirmar antes de eliminar
-            var ok = await ApiService.EliminarProductorAsync(id);
-            if (ok)
-            {
-                productores.RemoveAll(x => x.Id == id);
-                mensajeAlerta = $"✅ Productor '{nombre}' eliminado correctamente.";
-                esErrorAlerta = false;
-            }
-            else
-            {
-                mensajeAlerta = $"❌ No se pudo eliminar '{nombre}'. Revisa la consola del navegador (F12) para ver el error HTTP exacto. Puede que el productor no exista en el servidor o que el endpoint DELETE no esté habilitado en la API.";
-                esErrorAlerta = true;
-            }
-        }
-        catch (Exception ex)
-        {
-            mensajeAlerta = $"Error al eliminar productor: {ex.Message}";
-            esErrorAlerta = true;
-        }
-        finally
-        {
             StateHasChanged();
         }
     }
