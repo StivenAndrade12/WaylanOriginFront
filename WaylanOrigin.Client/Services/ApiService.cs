@@ -1527,6 +1527,9 @@ namespace WaylanOrigin.Client.Services
                                 string.Equals(b.Nombre, official.Nombre, StringComparison.OrdinalIgnoreCase));
                             if (backendMatch != null)
                             {
+                                // CRÍTICO: Usar el ID real del backend para que las operaciones PUT/DELETE funcionen
+                                if (backendMatch.Id > 0) copy.Id = backendMatch.Id;
+
                                 if (!string.IsNullOrWhiteSpace(backendMatch.Frase)) copy.Frase = backendMatch.Frase;
                                 if (!string.IsNullOrWhiteSpace(backendMatch.Ubicacion)) copy.Ubicacion = backendMatch.Ubicacion;
                                 if (backendMatch.IdOrganizacion > 0) copy.IdOrganizacion = backendMatch.IdOrganizacion;
@@ -1535,10 +1538,12 @@ namespace WaylanOrigin.Client.Services
                                 if (!string.IsNullOrWhiteSpace(backendMatch.HistoriaTexto)) copy.HistoriaTexto = backendMatch.HistoriaTexto;
                                 if (!string.IsNullOrWhiteSpace(backendMatch.SostenibilidadDescripcion)) copy.SostenibilidadDescripcion = backendMatch.SostenibilidadDescripcion;
                                 if (backendMatch.Procedimientos != null && backendMatch.Procedimientos.Any()) copy.Procedimientos = backendMatch.Procedimientos;
+                                // Sincronizar Destacado desde el backend (puede haber cambiado desde el admin)
+                                copy.Destacado = backendMatch.Destacado;
 
-                                // Solo reemplazar imagen si el backend tiene una imagen real no-blob-corrupta
+                                // Solo reemplazar imagen si el backend tiene una imagen real (URL http/https válida)
                                 if (!string.IsNullOrWhiteSpace(backendMatch.ImagenPrincipal) &&
-                                    !backendMatch.ImagenPrincipal.Contains("storagewaylan.blob") &&
+                                    (backendMatch.ImagenPrincipal.StartsWith("http", StringComparison.OrdinalIgnoreCase)) &&
                                     !backendMatch.ImagenPrincipal.Contains("camp.png"))
                                 {
                                     copy.ImagenPrincipal = backendMatch.ImagenPrincipal;
@@ -1603,8 +1608,14 @@ namespace WaylanOrigin.Client.Services
             0x00, 0x48, 0x00, 0x00, 0xFF, 0xDB, 0x00, 0x43, 0x00, 0xFF, 0xD9
         };
 
-        private async Task<ByteArrayContent> ResolveImageBinaryAsync(IBrowserFile? file, string? fallbackUrlOrData, string defaultFileName = "image.jpg")
+        /// <summary>
+        /// Resuelve el contenido binario de la imagen para enviar al servidor.
+        /// Retorna null cuando la URL es una ruta local relativa (imagenes/...) para evitar
+        /// sobreescribir la imagen existente en el servidor con datos vacíos.
+        /// </summary>
+        private async Task<ByteArrayContent?> ResolveImageBinaryAsync(IBrowserFile? file, string? fallbackUrlOrData, string defaultFileName = "image.jpg")
         {
+            // CASO 1: El usuario eligió un archivo nuevo desde su dispositivo → enviarlo
             if (file != null)
             {
                 using var ms = new MemoryStream();
@@ -1618,6 +1629,7 @@ namespace WaylanOrigin.Client.Services
 
             if (!string.IsNullOrWhiteSpace(fallbackUrlOrData))
             {
+                // CASO 2: Ya es una Data URL Base64 (preview local) → decodificarla y enviarla
                 if (fallbackUrlOrData.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
                 {
                     try
@@ -1642,6 +1654,7 @@ namespace WaylanOrigin.Client.Services
                         Console.WriteLine($"Error parseando Base64: {ex.Message}");
                     }
                 }
+                // CASO 3: Es una URL HTTP del blob de Azure → descargarla y reenviarla
                 else if (fallbackUrlOrData.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
                          fallbackUrlOrData.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
                 {
@@ -1662,12 +1675,17 @@ namespace WaylanOrigin.Client.Services
                         Console.WriteLine($"Error descargando imagen fallback: {ex.Message}");
                     }
                 }
+                // CASO 4: Es una ruta local relativa (imagenes/productores/...) → NO enviar nada
+                // El servidor ya tiene la imagen guardada; enviar bytes vacíos la sobreescribiría.
+                else
+                {
+                    Console.WriteLine($"[ResolveImage] Ruta local detectada ('{fallbackUrlOrData}'), omitiendo imagen para preservar la existente en el servidor.");
+                    return null;
+                }
             }
 
-            // Retornar JPEG mínimo válido para que la validación [Required] IFormFile de ASP.NET Core pase
-            var fallbackContent = new ByteArrayContent(FallbackJpegBytes);
-            fallbackContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/jpeg");
-            return fallbackContent;
+            // Sin imagen y sin fallback útil → retornar null para omitir el campo
+            return null;
         }
 
         public async Task<bool> CrearProductorAsync(ProductorModel productor, IBrowserFile? imageFile = null)
@@ -1688,8 +1706,12 @@ namespace WaylanOrigin.Client.Services
                 int orgId = productor.IdOrganizacion > 0 ? productor.IdOrganizacion : 1;
                 content.Add(new StringContent(orgId.ToString()), "IdOrganizacion");
 
+                // Solo adjuntar imagen si hay contenido real (evita sobreescribir con bytes vacíos)
                 var fileContent = await ResolveImageBinaryAsync(imageFile, productor.ImagenPrincipal ?? productor.ImagenUrl, imageFile?.Name ?? "productor.jpg");
-                content.Add(fileContent, "ImagenPrincipal", imageFile?.Name ?? "productor.jpg");
+                if (fileContent != null)
+                {
+                    content.Add(fileContent, "ImagenPrincipal", imageFile?.Name ?? "productor.jpg");
+                }
 
                 var response = await _http.PostAsync($"{ApiBaseUrl}api/Productor", content);
 
@@ -1763,8 +1785,12 @@ namespace WaylanOrigin.Client.Services
                 int orgId = productor.IdOrganizacion > 0 ? productor.IdOrganizacion : 1;
                 content.Add(new StringContent(orgId.ToString()), "IdOrganizacion");
 
+                // Solo adjuntar imagen si hay contenido real (evita sobreescribir imagen existente con bytes vacíos)
                 var fileContent = await ResolveImageBinaryAsync(imageFile, productor.ImagenPrincipal ?? productor.ImagenUrl, imageFile?.Name ?? "productor.jpg");
-                content.Add(fileContent, "ImagenPrincipal", imageFile?.Name ?? "productor.jpg");
+                if (fileContent != null)
+                {
+                    content.Add(fileContent, "ImagenPrincipal", imageFile?.Name ?? "productor.jpg");
+                }
 
                 var response = await _http.PutAsync($"{ApiBaseUrl}api/Productor/{productor.Id}", content);
 
@@ -1827,12 +1853,18 @@ namespace WaylanOrigin.Client.Services
                 SetAuthHeader();
                 var response = await _http.DeleteAsync($"{ApiBaseUrl}api/Productor/{id}");
 
-                if (response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.MethodNotAllowed)
+                Console.WriteLine($"[Delete] Productor {id} → HTTP {(int)response.StatusCode} {response.StatusCode}");
+
+                // 405 MethodNotAllowed significa que el endpoint DELETE no existe → NO es éxito
+                if (response.IsSuccessStatusCode)
                 {
                     _cachedProductores?.RemoveAll(p => p.Id == id);
                     OnDataChanged?.Invoke();
                     return true;
                 }
+
+                var errorBody = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"[Delete] Error HTTP {(int)response.StatusCode}: {errorBody}");
             }
             catch (Exception ex)
             {
