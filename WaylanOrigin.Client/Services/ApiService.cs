@@ -1648,46 +1648,49 @@ namespace WaylanOrigin.Client.Services
                 int orgId = productor.IdOrganizacion > 0 ? productor.IdOrganizacion : 1;
                 content.Add(new StringContent(orgId.ToString()), "IdOrganizacion");
 
-                // Solo adjuntar imagen si hay contenido real (evita sobreescribir con bytes vacíos)
-                var fileContent = await ResolveImageBinaryAsync(imageFile, productor.ImagenPrincipal ?? productor.ImagenUrl, imageFile?.Name ?? "productor.jpg");
-                if (fileContent != null)
+                // Adjuntar imagen: priorizar el archivo seleccionado, luego data URL base64
+                if (imageFile != null)
                 {
-                    content.Add(fileContent, "ImagenPrincipal", imageFile?.Name ?? "productor.jpg");
+                    using var ms = new MemoryStream();
+                    await imageFile.OpenReadStream(maxAllowedSize: 15 * 1024 * 1024).CopyToAsync(ms);
+                    var imgBytes = ms.ToArray();
+                    var imgContent = new ByteArrayContent(imgBytes);
+                    string cType = !string.IsNullOrEmpty(imageFile.ContentType) ? imageFile.ContentType : "image/jpeg";
+                    imgContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(cType);
+                    content.Add(imgContent, "ImagenPrincipal", imageFile.Name ?? "productor.jpg");
+                }
+                else if (!string.IsNullOrWhiteSpace(productor.ImagenPrincipal) && productor.ImagenPrincipal.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+                {
+                    var fileContent = await ResolveImageBinaryAsync(null, productor.ImagenPrincipal, "productor.jpg");
+                    if (fileContent != null)
+                    {
+                        content.Add(fileContent, "ImagenPrincipal", "productor.jpg");
+                    }
                 }
 
                 var response = await _http.PostAsync($"{ApiBaseUrl}api/Productor", content);
 
                 if (response.IsSuccessStatusCode)
                 {
+                    // Leer respuesta para obtener el ID real y la URL de imagen del servidor
                     var jsonString = await response.Content.ReadAsStringAsync();
                     try
                     {
                         using var doc = System.Text.Json.JsonDocument.Parse(jsonString);
+                        if (doc.RootElement.TryGetProperty("id", out var idProp))
+                        {
+                            productor.Id = idProp.GetInt32();
+                        }
                         if (doc.RootElement.TryGetProperty("imagenPrincipal", out var imgProp) && !string.IsNullOrEmpty(imgProp.GetString()))
                         {
-                            string blobUrl = imgProp.GetString()!;
-                            productor.ImagenPrincipal = blobUrl;
-                            productor.ImagenUrl = blobUrl;
+                            productor.ImagenPrincipal = imgProp.GetString()!;
+                            productor.ImagenUrl = productor.ImagenPrincipal;
                         }
                     }
                     catch { }
 
-                    _cachedProductores ??= new List<ProductorModel>();
-
-                    if (productor.Id <= 0)
-                    {
-                        productor.Id = _cachedProductores.Any() ? _cachedProductores.Max(p => p.Id) + 1 : 1;
-                    }
-
-                    var orgs = await GetOrganizacionesAsync();
-                    var org = orgs.FirstOrDefault(o => o.Id == productor.IdOrganizacion);
-                    if (org != null)
-                    {
-                        productor.OrganizacionNombre = org.Nombre;
-                        productor.Organizacion = org;
-                    }
-
-                    _cachedProductores.Add(productor);
+                    // Invalidar caché para que la próxima llamada traiga datos frescos del servidor
+                    _cachedProductores = null;
                     OnDataChanged?.Invoke();
                     return true;
                 }
@@ -1711,8 +1714,8 @@ namespace WaylanOrigin.Client.Services
 
                 if (productor.Id <= 0)
                 {
-                    Console.WriteLine("Advertencia: El ID del productor es 0, asignando ID 1 por defecto.");
-                    productor.Id = 1;
+                    Console.WriteLine("Advertencia: El ID del productor es 0, no se puede actualizar.");
+                    return false;
                 }
 
                 using var content = new MultipartFormDataContent();
@@ -1727,12 +1730,27 @@ namespace WaylanOrigin.Client.Services
                 int orgId = productor.IdOrganizacion > 0 ? productor.IdOrganizacion : 1;
                 content.Add(new StringContent(orgId.ToString()), "IdOrganizacion");
 
-                // Solo adjuntar imagen si hay contenido real (evita sobreescribir imagen existente con bytes vacíos)
-                var fileContent = await ResolveImageBinaryAsync(imageFile, productor.ImagenPrincipal ?? productor.ImagenUrl, imageFile?.Name ?? "productor.jpg");
-                if (fileContent != null)
+                // Adjuntar imagen: priorizar archivo nuevo, luego data URL base64, ignorar URLs existentes del servidor
+                if (imageFile != null)
                 {
-                    content.Add(fileContent, "ImagenPrincipal", imageFile?.Name ?? "productor.jpg");
+                    using var ms = new MemoryStream();
+                    await imageFile.OpenReadStream(maxAllowedSize: 15 * 1024 * 1024).CopyToAsync(ms);
+                    var imgBytes = ms.ToArray();
+                    var imgContent = new ByteArrayContent(imgBytes);
+                    string cType = !string.IsNullOrEmpty(imageFile.ContentType) ? imageFile.ContentType : "image/jpeg";
+                    imgContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(cType);
+                    content.Add(imgContent, "ImagenPrincipal", imageFile.Name ?? "productor.jpg");
                 }
+                else if (!string.IsNullOrWhiteSpace(productor.ImagenPrincipal) && productor.ImagenPrincipal.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Solo enviar imagen si es data URL base64 (preview local nuevo)
+                    var fileContent = await ResolveImageBinaryAsync(null, productor.ImagenPrincipal, "productor.jpg");
+                    if (fileContent != null)
+                    {
+                        content.Add(fileContent, "ImagenPrincipal", "productor.jpg");
+                    }
+                }
+                // Si la imagen es http/https o ruta local, NO enviarla — el servidor ya la tiene
 
                 var response = await _http.PutAsync($"{ApiBaseUrl}api/Productor/{productor.Id}", content);
 
@@ -1744,35 +1762,14 @@ namespace WaylanOrigin.Client.Services
                         using var doc = System.Text.Json.JsonDocument.Parse(jsonString);
                         if (doc.RootElement.TryGetProperty("imagenPrincipal", out var imgProp) && !string.IsNullOrEmpty(imgProp.GetString()))
                         {
-                            string blobUrl = imgProp.GetString()!;
-                            productor.ImagenPrincipal = blobUrl;
-                            productor.ImagenUrl = blobUrl;
+                            productor.ImagenPrincipal = imgProp.GetString()!;
+                            productor.ImagenUrl = productor.ImagenPrincipal;
                         }
                     }
                     catch { }
 
-                    // Actualización optimista inmediata en memoria para evitar race condition
-                    if (_cachedProductores != null)
-                    {
-                        var idx = _cachedProductores.FindIndex(p => p.Id == productor.Id);
-                        if (idx >= 0)
-                        {
-                            _cachedProductores[idx] = productor;
-                        }
-                        else
-                        {
-                            _cachedProductores.Add(productor);
-                        }
-                    }
-
-                    var orgs = await GetOrganizacionesAsync();
-                    var org = orgs.FirstOrDefault(o => o.Id == productor.IdOrganizacion);
-                    if (org != null)
-                    {
-                        productor.OrganizacionNombre = org.Nombre;
-                        productor.Organizacion = org;
-                    }
-
+                    // Invalidar caché para que la próxima llamada traiga datos frescos del servidor
+                    _cachedProductores = null;
                     OnDataChanged?.Invoke();
                     return true;
                 }

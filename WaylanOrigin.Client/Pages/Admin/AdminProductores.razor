@@ -314,13 +314,15 @@
             try
             {
                 selectedImageFile = e.File;
-                var url = await ApiService.UploadImageAsync(e.File);
-                if (!string.IsNullOrEmpty(url))
-                {
-                    productorEdit.ImagenPrincipal = url;
-                    productorEdit.ImagenUrl = url;
-                    StateHasChanged();
-                }
+                // Generar preview usando RequestImageFileAsync (NO consume el stream original)
+                var previewFile = await e.File.RequestImageFileAsync("image/jpeg", 300, 300);
+                using var ms = new MemoryStream();
+                await previewFile.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024).CopyToAsync(ms);
+                var previewBytes = ms.ToArray();
+                var previewDataUrl = $"data:image/jpeg;base64,{Convert.ToBase64String(previewBytes)}";
+                productorEdit.ImagenPrincipal = previewDataUrl;
+                productorEdit.ImagenUrl = previewDataUrl;
+                StateHasChanged();
             }
             catch (Exception ex)
             {
@@ -380,50 +382,32 @@
             isSaving = true;
             esErrorAlerta = false;
 
+            bool ok;
             if (productorEdit.Id == 0)
             {
-                var ok = await ApiService.CrearProductorAsync(productorEdit, selectedImageFile);
-                if (ok)
-                {
-                    // Actualización optimista: agregamos directamente a la lista sin re-consultar a Azure
-                    productores.Add(productorEdit);
-                    mensajeAlerta = $"¡Productor '{productorEdit.Nombre}' creado exitosamente!";
-                    esErrorAlerta = false;
-                    editando = false;
-                    selectedImageFile = null;
-                }
-                else
-                {
-                    mensajeAlerta = "Error al crear el productor en el servidor. Verifica que los campos requeridos estén completos.";
-                    esErrorAlerta = true;
-                }
+                ok = await ApiService.CrearProductorAsync(productorEdit, selectedImageFile);
             }
             else
             {
-                var ok = await ApiService.ActualizarProductorAsync(productorEdit, selectedImageFile);
-                if (ok)
-                {
-                    // Actualización optimista: modificamos directamente el registro en memoria
-                    var idx = productores.FindIndex(p => p.Id == productorEdit.Id);
-                    if (idx >= 0)
-                    {
-                        productores[idx] = productorEdit;
-                    }
-                    else
-                    {
-                        productores.Add(productorEdit);
-                    }
+                ok = await ApiService.ActualizarProductorAsync(productorEdit, selectedImageFile);
+            }
 
-                    mensajeAlerta = $"¡Productor '{productorEdit.Nombre}' actualizado exitosamente!";
-                    esErrorAlerta = false;
-                    editando = false;
-                    selectedImageFile = null;
-                }
-                else
-                {
-                    mensajeAlerta = "Error al actualizar el productor en el servidor. Verifica que los campos requeridos estén completos.";
-                    esErrorAlerta = true;
-                }
+            if (ok)
+            {
+                mensajeAlerta = productorEdit.Id == 0
+                    ? $"¡Productor '{productorEdit.Nombre}' creado exitosamente!"
+                    : $"¡Productor '{productorEdit.Nombre}' actualizado exitosamente!";
+                esErrorAlerta = false;
+                editando = false;
+                selectedImageFile = null;
+
+                // Recargar datos reales desde el servidor para evitar duplicados
+                productores = await ApiService.GetProductoresAsync(forceRefresh: true) ?? new List<ProductorModel>();
+            }
+            else
+            {
+                mensajeAlerta = "Error al guardar el productor en el servidor. Verifica que los campos requeridos estén completos.";
+                esErrorAlerta = true;
             }
         }
         catch (Exception ex)
