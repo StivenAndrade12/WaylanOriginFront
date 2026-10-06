@@ -1498,88 +1498,24 @@ namespace WaylanOrigin.Client.Services
                     {
                         var orgs = await GetOrganizacionesAsync();
 
-                        // 1. Filtrar registros de prueba residuales ("Test", "Prueba", etc.)
-                        var validBackendProds = rawResult.Where(p =>
-                            !string.IsNullOrWhiteSpace(p.Nombre) &&
-                            !p.Nombre.Contains("test", StringComparison.OrdinalIgnoreCase) &&
-                            !p.Nombre.Contains("prueba", StringComparison.OrdinalIgnoreCase)
-                        ).ToList();
-
-                        // 2. Construir lista final priorizando estrictamente a los caficultores oficiales del boceto
-                        var listaFinal = new List<ProductorModel>();
-                        int idCounter = 1;
-
-                        foreach (var official in ProductoresData.Lista)
+                        // Asignar el nombre de la organización a cada productor y normalizar campos para evitar errores UI
+                        foreach (var prod in rawResult)
                         {
-                            var copy = new ProductorModel
+                            var orgMatch = orgs.FirstOrDefault(o => o.Id == prod.IdOrganizacion);
+                            if (orgMatch != null)
                             {
-                                Id = idCounter++,
-                                Nombre = official.Nombre,
-                                Ubicacion = official.Ubicacion,
-                                IdOrganizacion = official.IdOrganizacion,
-                                OrganizacionNombre = official.OrganizacionNombre,
-                                Destacado = official.Destacado,
-                                Frase = official.Frase,
-                                HistoriaTitulo = official.HistoriaTitulo,
-                                HistoriaTexto = official.HistoriaTexto,
-                                SostenibilidadDescripcion = official.SostenibilidadDescripcion,
-                                ImagenPrincipal = official.ImagenPrincipal,
-                                ImagenUrl = official.ImagenUrl,
-                                Procedimientos = official.Procedimientos
-                            };
-
-                            // Si existe en backend con datos reales, sincronizar
-                            var backendMatch = validBackendProds.FirstOrDefault(b =>
-                                string.Equals(b.Nombre, official.Nombre, StringComparison.OrdinalIgnoreCase));
-                            if (backendMatch != null)
-                            {
-                                // CRÍTICO: Usar el ID real del backend para que las operaciones PUT/DELETE funcionen
-                                if (backendMatch.Id > 0) copy.Id = backendMatch.Id;
-
-                                if (!string.IsNullOrWhiteSpace(backendMatch.Frase)) copy.Frase = backendMatch.Frase;
-                                if (!string.IsNullOrWhiteSpace(backendMatch.Ubicacion)) copy.Ubicacion = backendMatch.Ubicacion;
-                                if (backendMatch.IdOrganizacion > 0) copy.IdOrganizacion = backendMatch.IdOrganizacion;
-                                if (!string.IsNullOrWhiteSpace(backendMatch.OrganizacionNombre)) copy.OrganizacionNombre = backendMatch.OrganizacionNombre;
-                                if (!string.IsNullOrWhiteSpace(backendMatch.HistoriaTitulo)) copy.HistoriaTitulo = backendMatch.HistoriaTitulo;
-                                if (!string.IsNullOrWhiteSpace(backendMatch.HistoriaTexto)) copy.HistoriaTexto = backendMatch.HistoriaTexto;
-                                if (!string.IsNullOrWhiteSpace(backendMatch.SostenibilidadDescripcion)) copy.SostenibilidadDescripcion = backendMatch.SostenibilidadDescripcion;
-                                if (backendMatch.Procedimientos != null && backendMatch.Procedimientos.Any()) copy.Procedimientos = backendMatch.Procedimientos;
-                                // Sincronizar Destacado desde el backend (puede haber cambiado desde el admin)
-                                copy.Destacado = backendMatch.Destacado;
-
-                                // Solo reemplazar imagen si el backend tiene una imagen real (URL http/https válida)
-                                if (!string.IsNullOrWhiteSpace(backendMatch.ImagenPrincipal) &&
-                                    (backendMatch.ImagenPrincipal.StartsWith("http", StringComparison.OrdinalIgnoreCase)) &&
-                                    !backendMatch.ImagenPrincipal.Contains("camp.png"))
-                                {
-                                    copy.ImagenPrincipal = backendMatch.ImagenPrincipal;
-                                    copy.ImagenUrl = backendMatch.ImagenPrincipal;
-                                }
+                                prod.OrganizacionNombre = orgMatch.Nombre;
                             }
-
-                            listaFinal.Add(copy);
-                        }
-
-                        // 3. Añadir cualquier otro productor creado en el backend que no esté en la lista oficial
-                        foreach (var backendProd in validBackendProds)
-                        {
-                            if (!listaFinal.Any(f => string.Equals(f.Nombre, backendProd.Nombre, StringComparison.OrdinalIgnoreCase)))
+                            
+                            // Proveer imagen por defecto si viene vacía
+                            if (string.IsNullOrWhiteSpace(prod.ImagenPrincipal) || prod.ImagenPrincipal.Contains("storagewaylan.blob"))
                             {
-                                if (backendProd.Id <= 0) backendProd.Id = idCounter++;
-                                if (string.IsNullOrWhiteSpace(backendProd.ImagenPrincipal) || backendProd.ImagenPrincipal.Contains("storagewaylan.blob"))
-                                {
-                                    backendProd.ImagenPrincipal = "imagenes/productores/juan_carlos_restrepo.jpg";
-                                    backendProd.ImagenUrl = backendProd.ImagenPrincipal;
-                                }
-                                if (string.IsNullOrWhiteSpace(backendProd.Ubicacion))
-                                {
-                                    backendProd.Ubicacion = backendProd.IdOrganizacion == 2 ? "Quindío" : "Caldas";
-                                }
-                                listaFinal.Add(backendProd);
+                                prod.ImagenPrincipal = "imagenes/productores/juan_carlos_restrepo.jpg";
+                                prod.ImagenUrl = prod.ImagenPrincipal;
                             }
                         }
 
-                        _cachedProductores = listaFinal;
+                        _cachedProductores = rawResult;
                         return _cachedProductores;
                     }
                 }
@@ -1589,7 +1525,7 @@ namespace WaylanOrigin.Client.Services
                 Console.WriteLine($"Error GetProductoresAsync: {ex.Message}");
             }
 
-            _cachedProductores ??= ProductoresData.Lista;
+            _cachedProductores ??= new List<ProductorModel>();
             return _cachedProductores;
         }
 
@@ -1605,7 +1541,7 @@ namespace WaylanOrigin.Client.Services
                 Console.WriteLine($"Error GetProductorByIdAsync: {ex.Message}");
             }
 
-            return ProductoresData.Lista.FirstOrDefault(p => p.Id == id);
+            return null;
         }
 
         private static readonly byte[] FallbackJpegBytes = new byte[]

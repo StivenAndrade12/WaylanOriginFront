@@ -257,7 +257,7 @@
         catch (Exception ex)
         {
             Console.WriteLine($"Error cargando productores: {ex.Message}");
-            productores = ProductoresData.Lista;
+            productores = new List<ProductorModel>();
         }
         finally
         {

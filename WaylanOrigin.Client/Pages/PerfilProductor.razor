@@ -248,13 +248,7 @@
     protected override async Task OnInitializedAsync()
     {
         // 1. Obtener del backend usando el ID entero
-       productor = await ApiService.GetProductorByIdAsync(id);
-
-        // 2. Fallback si el backend no responde
-        if (productor == null)
-        {
-            productor = ProductoresData.Lista.FirstOrDefault(p => p.Id == id);
-        }
+        productor = await ApiService.GetProductorByIdAsync(id);
 
         // 3. Objeto por defecto si no existe
         if (productor == null)
