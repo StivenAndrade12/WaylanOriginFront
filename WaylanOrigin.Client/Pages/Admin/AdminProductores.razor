@@ -72,7 +72,7 @@
     {
         <div class="panel-section" style="margin-top: 30px; border-top: 2px solid #eee; padding-top: 25px;">
 
-            <h2 class="section-title">@(productorEdit.Id == 0 ? "Nuevo Productor" : $"Editar Productor #{productorEdit.Id}:          {productorEdit.Nombre}")</h2>
+            <h2 class="section-title">@(!esModoEdicion ? "Nuevo Productor" : $"Editar Productor #{productorEdit.Id}:       {productorEdit.Nombre}")</h2>
 
             <EditForm Model="productorEdit">
                 <DataAnnotationsValidator />
@@ -217,6 +217,7 @@
     private IBrowserFile? selectedImageFile;
     private string previewImageSrc = string.Empty;
     private bool editando = false;
+    private bool esModoEdicion = false;
     private bool isLoading = true;
     private bool isSaving = false;
     private string mensajeAlerta = string.Empty;
@@ -258,13 +259,14 @@
 
     private void NuevoProductor()
     {
+        esModoEdicion = false;
         selectedImageFile = null;
         previewImageSrc = string.Empty;
         productorEdit = new ProductorModel
         {
             Id = 0,
             IdOrganizacion = organizaciones.FirstOrDefault()?.Id ?? 1,
-            HistoriaTexto = "", // Aseguramos que no vaya nulo
+            HistoriaTexto = "",
             Historia = "",
             Procedimientos = new List<ProcedimientoModel>()
         };
@@ -275,6 +277,7 @@
 
     private void EditarProductor(ProductorModel p)
     {
+        esModoEdicion = true;
         selectedImageFile = null;
         previewImageSrc = string.Empty;
 
@@ -311,7 +314,13 @@ List<ProcedimientoModel>()
                 var previewFile = await e.File.RequestImageFileAsync("image/jpeg", 300, 300);
                 using var ms = new MemoryStream();
                 await previewFile.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024).CopyToAsync(ms);
-                previewImageSrc = $"data:image/jpeg;base64,{Convert.ToBase64String(ms.ToArray())}";
+            
+                string base64Data = $"data:image/jpeg;base64,{Convert.ToBase64String(ms.ToArray())}";
+            
+                // Asignamos tanto a la vista previa como al modelo
+                previewImageSrc = base64Data;
+                productorEdit.ImagenPrincipal = base64Data;
+            
                 StateHasChanged();
             }
             catch (Exception ex)
@@ -362,7 +371,6 @@ List<ProcedimientoModel>()
             return;
         }
 
-        // SALVAGUARDA CLAVE: Garantizar que HistoriaTexto NUNCA vaya nulo a Azure
         if (string.IsNullOrWhiteSpace(productorEdit.HistoriaTexto))
         {
             productorEdit.HistoriaTexto = "Historia en proceso de redacción.";
@@ -380,7 +388,7 @@ List<ProcedimientoModel>()
             esErrorAlerta = false;
 
             bool ok;
-            bool esNuevo = productorEdit.Id == 0;
+            bool esNuevo = !esModoEdicion;
 
             if (esNuevo)
             {

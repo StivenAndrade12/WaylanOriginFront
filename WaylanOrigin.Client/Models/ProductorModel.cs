@@ -11,7 +11,7 @@ public class ProductorModel
     private string? _historiaTexto;
 
     // Nombres exactos de la entidad C# del backend (PascalCase)
-    [JsonPropertyName("Id")]
+   
     public int Id { get; set; }
 
     [JsonPropertyName("IdOrganizacion")]

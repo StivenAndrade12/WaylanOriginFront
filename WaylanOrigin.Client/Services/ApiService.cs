@@ -1726,31 +1726,31 @@ namespace WaylanOrigin.Client.Services
             {
                 SetAuthHeader();
 
-                if (productor.Id <= 0)
-                {
-                    Console.WriteLine("Advertencia: El ID del productor es 0, no se puede actualizar.");
-                    return false;
-                }
+                if (productor.Id <= 0) return false;
+
+                // 1. Obtener la versión guardada previamente en memoria o servidor para asegurar la persistencia
+                var existente = await GetProductorByIdAsync(productor.Id);
 
                 using var content = new MultipartFormDataContent();
-                content.Add(new StringContent(productor.Nombre ?? ""), "Nombre");
-                content.Add(new StringContent(productor.Frase ?? ""), "Frase");
-                content.Add(new StringContent(productor.HistoriaTitulo ?? ""), "HistoriaTitulo");
 
-                // CORREGIDO: Clave exacta requerida por la entidad en Azure ('HistoriaTexto')
-                string textoHistoria = !string.IsNullOrWhiteSpace(productor.HistoriaTexto)
-                    ? productor.HistoriaTexto
-                    : (!string.IsNullOrWhiteSpace(productor.Historia) ? productor.Historia : "Historia en proceso.");
-                content.Add(new StringContent(textoHistoria), "HistoriaTexto");
+                // 2. Conservar datos de texto: Si el campo está vacío en el formulario, se mantiene el valor original
+                string nombre = !string.IsNullOrWhiteSpace(productor.Nombre) ? productor.Nombre : (existente?.Nombre ?? "");
+                string frase = !string.IsNullOrWhiteSpace(productor.Frase) ? productor.Frase : (existente?.Frase ?? "");
+                string historiaTitulo = !string.IsNullOrWhiteSpace(productor.HistoriaTitulo) ? productor.HistoriaTitulo : (existente?.HistoriaTitulo ?? "");
+                string historiaTexto = !string.IsNullOrWhiteSpace(productor.HistoriaTexto) ? productor.HistoriaTexto : (existente?.HistoriaTexto ?? "Historia en proceso.");
+                string sostenibilidad = !string.IsNullOrWhiteSpace(productor.SostenibilidadDescripcion) ? productor.SostenibilidadDescripcion : (existente?.SostenibilidadDescripcion ?? "");
+                int orgId = productor.IdOrganizacion > 0 ? productor.IdOrganizacion : (existente?.IdOrganizacion ?? 1);
 
-                content.Add(new StringContent(productor.SostenibilidadDescripcion ?? ""), "SostenibilidadDescripcion");
+                content.Add(new StringContent(nombre), "Nombre");
+                content.Add(new StringContent(frase), "Frase");
+                content.Add(new StringContent(historiaTitulo), "HistoriaTitulo");
+                content.Add(new StringContent(historiaTexto), "HistoriaTexto");
+                content.Add(new StringContent(sostenibilidad), "SostenibilidadDescripcion");
                 content.Add(new StringContent(productor.Destacado.ToString().ToLowerInvariant()), "Destacado");
-
-                int orgId = productor.IdOrganizacion > 0 ? productor.IdOrganizacion : 1;
                 content.Add(new StringContent(orgId.ToString()), "IdOrganizacion");
 
-                // Adjuntar archivo único si el usuario seleccionó uno nuevo
-                // Adjuntar archivo único si el usuario seleccionó uno nuevo
+                // 3. Persistencia de Imagen:
+                // Si el usuario seleccionó un archivo nuevo, se procesa el Stream.
                 if (imageFile != null)
                 {
                     var stream = imageFile.OpenReadStream(maxAllowedSize: 15 * 1024 * 1024);
@@ -1759,29 +1759,21 @@ namespace WaylanOrigin.Client.Services
                     imgContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(cType);
                     content.Add(imgContent, "ImagenPrincipal", imageFile.Name ?? "productor.jpg");
                 }
-                else if (!string.IsNullOrWhiteSpace(productor.ImagenPrincipal))
+                else
                 {
-                    // FIX: Si no seleccionó un archivo nuevo, le pasamos la URL/Ruta existente como texto para que Azure no la pida obligatoria
-                    content.Add(new StringContent(productor.ImagenPrincipal), "ImagenPrincipal");
+                    // Si no subió foto nueva, se resuelve el binario existente (vía Base64 o Fallback) para que la API no quede vacía
+                    string? urlOriginal = !string.IsNullOrEmpty(productor.ImagenPrincipal) ? productor.ImagenPrincipal : existente?.ImagenPrincipal;
+                    var imageBinary = await ResolveImageBinaryAsync(null, urlOriginal, "productor.jpg");
+                    if (imageBinary != null)
+                    {
+                        content.Add(imageBinary, "ImagenPrincipal", "productor.jpg");
+                    }
                 }
 
                 var response = await _http.PutAsync($"{ApiBaseUrl}api/Productor/{productor.Id}", content);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var jsonString = await response.Content.ReadAsStringAsync();
-                    try
-                    {
-                        using var doc = System.Text.Json.JsonDocument.Parse(jsonString);
-                        if ((doc.RootElement.TryGetProperty("imagenPrincipal", out var imgProp) || doc.RootElement.TryGetProperty("ImagenPrincipal", out imgProp))
-                            && !string.IsNullOrEmpty(imgProp.GetString()))
-                        {
-                            productor.ImagenPrincipal = imgProp.GetString()!;
-                            productor.ImagenUrl = productor.ImagenPrincipal;
-                        }
-                    }
-                    catch { }
-
                     _cachedProductores = null;
                     OnDataChanged?.Invoke();
                     return true;
