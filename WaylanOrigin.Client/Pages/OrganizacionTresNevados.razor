@@ -79,7 +79,8 @@
             {
                 <div class="tn-producer-card">
                     <a href="perfil/@p.Id" class="tn-card-img" aria-label="Ver perfil de @p.Nombre">
-                        <img src="@Api.GetFullImageUrl(p.ImagenPrincipal)" alt="@p.Nombre" onerror="this.onerror=null;this.src='imagenes/productores/juan_carlos_restrepo.jpg';" />
+                        <img src="@Api.GetFullImageUrl(p.ImagenPrincipal)" alt="@p.Nombre"
+                             onerror="this.onerror=null;this.src='imagenes/productores/juan_carlos_restrepo.jpg';" />
                     </a>
                     <div class="tn-card-content">
                         <h3><a href="perfil/@p.Id" style="color: inherit; text-decoration: none;">@p.Nombre</a></h3>
@@ -119,33 +120,55 @@
 
         if (listaOrganizaciones != null && listaOrganizaciones.Count > 0)
         {
-            // Buscamos la organización por Nombre que contenga "Nevados" o tomamos la primera
-            org = listaOrganizaciones.FirstOrDefault(o => o.Nombre != null && o.Nombre.Contains("Nevados",
+            // Buscamos la organización por Nombre que contenga "Nevados" o por Id = 1
+            org = listaOrganizaciones.FirstOrDefault(o => o.Id == 1)
+                  ?? listaOrganizaciones.FirstOrDefault(o => o.Nombre != null && o.Nombre.Contains("Nevados",
 StringComparison.OrdinalIgnoreCase))
                   ?? listaOrganizaciones.FirstOrDefault();
         }
 
-        // 2. Cargar productores si se encontró la organización
-        if (org != null)
+        if (org == null)
         {
-            var todos = await Api.GetProductoresAsync();
-
-            if (todos != null)
+            org = new OrganizationModel
             {
-                // Filtrar los productores de esta organización
-                productores = todos
-                    .Where(p => p.IdOrganizacion == org.Id)
-                    .ToList();
+                Id = 1,
+                Nombre = "Tres Nevados",
+                ImagenLogo = "logotipo/org1.png",
+                HeroImagen = "imagenes/camp.png",
+                Descripcion1 = "Organización caficultora de las laderas de los Nevados.",
+                Descripcion2 = "Dedicados a la producción de cafés de alta especialidad."
+            };
+        }
 
-                // Filtrar los destacados
-                destacados = productores
-                    .Where(p => p.Destacado)
-                    .Take(4)
-                    .ToList();
+        // 2. Cargar productores con forceRefresh para evitar problemas de caché
+        var todos = await Api.GetProductoresAsync(forceRefresh: true);
+
+        if (todos != null)
+        {
+            // Filtrar productores de Tres Nevados (por IdOrganizacion == 1 o por Nombre)
+            productores = todos
+                .Where(p => p.IdOrganizacion == org.Id ||
+                           (!string.IsNullOrEmpty(p.OrganizacionNombre) && p.OrganizacionNombre.Contains("Nevados",
+StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+
+            // Si por alguna razón no encuentra por Id, toma los que estén en la lista
+            if (!productores.Any())
+            {
+                productores = todos.Where(p => p.IdOrganizacion == 1 || p.IdOrganizacion == 0).ToList();
+            }
+
+            // Filtrar los destacados (hasta 4)
+            destacados = productores
+                .Where(p => p.Destacado)
+                .Take(4)
+                .ToList();
+
+            // RESPALDO CLAVE: Si no hay ninguno con el check de destacado, toma los primeros 4 productores
+            if (!destacados.Any())
+            {
+                destacados = productores.Take(4).ToList();
             }
         }
     }
 }
-
-
-

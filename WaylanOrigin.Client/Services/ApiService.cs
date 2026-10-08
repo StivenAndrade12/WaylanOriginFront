@@ -1493,26 +1493,42 @@ namespace WaylanOrigin.Client.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonString = await response.Content.ReadAsStringAsync();
-                    var rawResult = System.Text.Json.JsonSerializer.Deserialize<List<ProductorModel>>(jsonString, _jsonOptions);
+                    var options = new System.Text.Json.JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+
+                    var rawResult = System.Text.Json.JsonSerializer.Deserialize<List<ProductorModel>>(jsonString, options);
+
                     if (rawResult != null)
                     {
                         var orgs = await GetOrganizacionesAsync();
 
-                        // Asignar el nombre de la organización a cada productor y normalizar campos para evitar errores UI
                         foreach (var prod in rawResult)
                         {
+                            // Asignación de HistoriaTexto de respaldo en caso de que venga en el campo Historia
+                            if (string.IsNullOrWhiteSpace(prod.HistoriaTexto) && !string.IsNullOrWhiteSpace(prod.Historia))
+                            {
+                                prod.HistoriaTexto = prod.Historia;
+                            }
+                            else if (string.IsNullOrWhiteSpace(prod.Historia) && !string.IsNullOrWhiteSpace(prod.HistoriaTexto))
+                            {
+                                prod.Historia = prod.HistoriaTexto;
+                            }
+
+                            // Mapeo del Nombre de la Organización según su IdOrganizacion
                             var orgMatch = orgs.FirstOrDefault(o => o.Id == prod.IdOrganizacion);
                             if (orgMatch != null)
                             {
                                 prod.OrganizacionNombre = orgMatch.Nombre;
                             }
-                            
-                            // Proveer imagen por defecto si viene vacía
-                            if (string.IsNullOrWhiteSpace(prod.ImagenPrincipal) || prod.ImagenPrincipal.Contains("storagewaylan.blob"))
+
+                            // Respetar la URL real de Azure Blob Storage o poner fallback
+                            if (string.IsNullOrWhiteSpace(prod.ImagenPrincipal))
                             {
-                                prod.ImagenPrincipal = "imagenes/productores/juan_carlos_restrepo.jpg";
-                                prod.ImagenUrl = prod.ImagenPrincipal;
+                                prod.ImagenPrincipal = "imagenes/productores/default.jpg";
                             }
+                            prod.ImagenUrl = prod.ImagenPrincipal;
                         }
 
                         _cachedProductores = rawResult;
@@ -1639,57 +1655,56 @@ namespace WaylanOrigin.Client.Services
                 using var content = new MultipartFormDataContent();
                 content.Add(new StringContent(productor.Nombre ?? ""), "Nombre");
                 content.Add(new StringContent(productor.Frase ?? ""), "Frase");
-                content.Add(new StringContent(productor.Ubicacion ?? ""), "Ubicacion");
                 content.Add(new StringContent(productor.HistoriaTitulo ?? ""), "HistoriaTitulo");
-                content.Add(new StringContent(productor.HistoriaTexto ?? productor.Historia ?? ""), "HistoriaTexto");
+
+                // CORRECCIÓN CLAVE: El nombre del campo exacto en Azure es 'HistoriaTexto'
+                string textoHistoria = !string.IsNullOrWhiteSpace(productor.HistoriaTexto)
+                    ? productor.HistoriaTexto
+                    : (!string.IsNullOrWhiteSpace(productor.Historia) ? productor.Historia : "Historia en proceso.");
+                content.Add(new StringContent(textoHistoria), "HistoriaTexto");
+
                 content.Add(new StringContent(productor.SostenibilidadDescripcion ?? ""), "SostenibilidadDescripcion");
                 content.Add(new StringContent(productor.Destacado.ToString().ToLowerInvariant()), "Destacado");
 
                 int orgId = productor.IdOrganizacion > 0 ? productor.IdOrganizacion : 1;
                 content.Add(new StringContent(orgId.ToString()), "IdOrganizacion");
 
-                // Adjuntar imagen: priorizar el archivo seleccionado, luego data URL base64
+                // Stream directo para la imagen
                 if (imageFile != null)
                 {
-                    using var ms = new MemoryStream();
-                    await imageFile.OpenReadStream(maxAllowedSize: 15 * 1024 * 1024).CopyToAsync(ms);
-                    var imgBytes = ms.ToArray();
-                    var imgContent = new ByteArrayContent(imgBytes);
+                    var stream = imageFile.OpenReadStream(maxAllowedSize: 15 * 1024 * 1024);
+                    var imgContent = new StreamContent(stream);
                     string cType = !string.IsNullOrEmpty(imageFile.ContentType) ? imageFile.ContentType : "image/jpeg";
                     imgContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(cType);
                     content.Add(imgContent, "ImagenPrincipal", imageFile.Name ?? "productor.jpg");
-                }
-                else if (!string.IsNullOrWhiteSpace(productor.ImagenPrincipal) && productor.ImagenPrincipal.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
-                {
-                    var fileContent = await ResolveImageBinaryAsync(null, productor.ImagenPrincipal, "productor.jpg");
-                    if (fileContent != null)
-                    {
-                        content.Add(fileContent, "ImagenPrincipal", "productor.jpg");
-                    }
                 }
 
                 var response = await _http.PostAsync($"{ApiBaseUrl}api/Productor", content);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    // Leer respuesta para obtener el ID real y la URL de imagen del servidor
                     var jsonString = await response.Content.ReadAsStringAsync();
                     try
                     {
                         using var doc = System.Text.Json.JsonDocument.Parse(jsonString);
-                        if (doc.RootElement.TryGetProperty("id", out var idProp))
+
+                        if (doc.RootElement.TryGetProperty("id", out var idProp) || doc.RootElement.TryGetProperty("Id", out idProp))
                         {
                             productor.Id = idProp.GetInt32();
                         }
-                        if (doc.RootElement.TryGetProperty("imagenPrincipal", out var imgProp) && !string.IsNullOrEmpty(imgProp.GetString()))
+
+                        if ((doc.RootElement.TryGetProperty("imagenPrincipal", out var imgProp) || doc.RootElement.TryGetProperty("ImagenPrincipal", out imgProp))
+                            && !string.IsNullOrEmpty(imgProp.GetString()))
                         {
                             productor.ImagenPrincipal = imgProp.GetString()!;
                             productor.ImagenUrl = productor.ImagenPrincipal;
                         }
                     }
-                    catch { }
+                    catch (Exception exJson)
+                    {
+                        Console.WriteLine($"Advertencia al leer respuesta JSON del POST: {exJson.Message}");
+                    }
 
-                    // Invalidar caché para que la próxima llamada traiga datos frescos del servidor
                     _cachedProductores = null;
                     OnDataChanged?.Invoke();
                     return true;
@@ -1705,7 +1720,6 @@ namespace WaylanOrigin.Client.Services
 
             return false;
         }
-
         public async Task<bool> ActualizarProductorAsync(ProductorModel productor, IBrowserFile? imageFile = null)
         {
             try
@@ -1721,36 +1735,35 @@ namespace WaylanOrigin.Client.Services
                 using var content = new MultipartFormDataContent();
                 content.Add(new StringContent(productor.Nombre ?? ""), "Nombre");
                 content.Add(new StringContent(productor.Frase ?? ""), "Frase");
-                content.Add(new StringContent(productor.Ubicacion ?? ""), "Ubicacion");
                 content.Add(new StringContent(productor.HistoriaTitulo ?? ""), "HistoriaTitulo");
-                content.Add(new StringContent(productor.HistoriaTexto ?? productor.Historia ?? ""), "HistoriaTexto");
+
+                // CORREGIDO: Clave exacta requerida por la entidad en Azure ('HistoriaTexto')
+                string textoHistoria = !string.IsNullOrWhiteSpace(productor.HistoriaTexto)
+                    ? productor.HistoriaTexto
+                    : (!string.IsNullOrWhiteSpace(productor.Historia) ? productor.Historia : "Historia en proceso.");
+                content.Add(new StringContent(textoHistoria), "HistoriaTexto");
+
                 content.Add(new StringContent(productor.SostenibilidadDescripcion ?? ""), "SostenibilidadDescripcion");
                 content.Add(new StringContent(productor.Destacado.ToString().ToLowerInvariant()), "Destacado");
 
                 int orgId = productor.IdOrganizacion > 0 ? productor.IdOrganizacion : 1;
                 content.Add(new StringContent(orgId.ToString()), "IdOrganizacion");
 
-                // Adjuntar imagen: priorizar archivo nuevo, luego data URL base64, ignorar URLs existentes del servidor
+                // Adjuntar archivo único si el usuario seleccionó uno nuevo
+                // Adjuntar archivo único si el usuario seleccionó uno nuevo
                 if (imageFile != null)
                 {
-                    using var ms = new MemoryStream();
-                    await imageFile.OpenReadStream(maxAllowedSize: 15 * 1024 * 1024).CopyToAsync(ms);
-                    var imgBytes = ms.ToArray();
-                    var imgContent = new ByteArrayContent(imgBytes);
+                    var stream = imageFile.OpenReadStream(maxAllowedSize: 15 * 1024 * 1024);
+                    var imgContent = new StreamContent(stream);
                     string cType = !string.IsNullOrEmpty(imageFile.ContentType) ? imageFile.ContentType : "image/jpeg";
                     imgContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(cType);
                     content.Add(imgContent, "ImagenPrincipal", imageFile.Name ?? "productor.jpg");
                 }
-                else if (!string.IsNullOrWhiteSpace(productor.ImagenPrincipal) && productor.ImagenPrincipal.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+                else if (!string.IsNullOrWhiteSpace(productor.ImagenPrincipal))
                 {
-                    // Solo enviar imagen si es data URL base64 (preview local nuevo)
-                    var fileContent = await ResolveImageBinaryAsync(null, productor.ImagenPrincipal, "productor.jpg");
-                    if (fileContent != null)
-                    {
-                        content.Add(fileContent, "ImagenPrincipal", "productor.jpg");
-                    }
+                    // FIX: Si no seleccionó un archivo nuevo, le pasamos la URL/Ruta existente como texto para que Azure no la pida obligatoria
+                    content.Add(new StringContent(productor.ImagenPrincipal), "ImagenPrincipal");
                 }
-                // Si la imagen es http/https o ruta local, NO enviarla — el servidor ya la tiene
 
                 var response = await _http.PutAsync($"{ApiBaseUrl}api/Productor/{productor.Id}", content);
 
@@ -1760,7 +1773,8 @@ namespace WaylanOrigin.Client.Services
                     try
                     {
                         using var doc = System.Text.Json.JsonDocument.Parse(jsonString);
-                        if (doc.RootElement.TryGetProperty("imagenPrincipal", out var imgProp) && !string.IsNullOrEmpty(imgProp.GetString()))
+                        if ((doc.RootElement.TryGetProperty("imagenPrincipal", out var imgProp) || doc.RootElement.TryGetProperty("ImagenPrincipal", out imgProp))
+                            && !string.IsNullOrEmpty(imgProp.GetString()))
                         {
                             productor.ImagenPrincipal = imgProp.GetString()!;
                             productor.ImagenUrl = productor.ImagenPrincipal;
@@ -1768,7 +1782,6 @@ namespace WaylanOrigin.Client.Services
                     }
                     catch { }
 
-                    // Invalidar caché para que la próxima llamada traiga datos frescos del servidor
                     _cachedProductores = null;
                     OnDataChanged?.Invoke();
                     return true;
@@ -1780,34 +1793,6 @@ namespace WaylanOrigin.Client.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Error ActualizarProductorAsync: {ex.Message}");
-            }
-
-            return false;
-        }
-
-        public async Task<bool> EliminarProductorAsync(int id)
-        {
-            try
-            {
-                SetAuthHeader();
-                var response = await _http.DeleteAsync($"{ApiBaseUrl}api/Productor/{id}");
-
-                Console.WriteLine($"[Delete] Productor {id} → HTTP {(int)response.StatusCode} {response.StatusCode}");
-
-                // 405 MethodNotAllowed significa que el endpoint DELETE no existe → NO es éxito
-                if (response.IsSuccessStatusCode)
-                {
-                    _cachedProductores?.RemoveAll(p => p.Id == id);
-                    OnDataChanged?.Invoke();
-                    return true;
-                }
-
-                var errorBody = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"[Delete] Error HTTP {(int)response.StatusCode}: {errorBody}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error EliminarProductorAsync: {ex.Message}");
             }
 
             return false;

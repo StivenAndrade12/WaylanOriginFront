@@ -15,7 +15,8 @@
 
     @if (!string.IsNullOrEmpty(mensajeAlerta))
     {
-        <div class="admin-message-banner" style="margin: 15px 0; padding: 12px; border-radius: 6px; background-color: @(esErrorAlerta ? "#ffebee" : "#e8f5e9"); color: @(esErrorAlerta ? "#c62828" : "#2e7d32"); border: 1px solid @(esErrorAlerta ? "#ffcdd2" : "#c8e6c9");">
+        <div class="admin-message-banner"
+             style="margin: 15px 0; padding: 12px; border-radius: 6px; background-color: @(esErrorAlerta ? "#ffebee" : "#e8f5e9"); color: @(esErrorAlerta ? "#c62828" : "#2e7d32"); border: 1px solid @(esErrorAlerta ? "#ffcdd2" : "#c8e6c9");">
             <strong>@mensajeAlerta</strong>
         </div>
     }
@@ -37,7 +38,6 @@
                     <th>Imagen</th>
                     <th>Nombre</th>
                     <th>Organización</th>
-                    <th>Ubicación</th>
                     <th>Destacado</th>
                     <th>Acciones</th>
                 </tr>
@@ -53,11 +53,11 @@
                         </td>
                         <td><strong>@p.Nombre</strong></td>
                         <td>
-                            <span class="badge-org" style="background: #eef2ff; color: #3730a3; padding: 4px 8px; border-radius: 4px; font-weight: 500;">
+                            <span class="badge-org"
+                                  style="background: #eef2ff; color: #3730a3; padding: 4px 8px; border-radius: 4px; font-weight: 500;">
                                 @(ObtenerNombreOrganizacion(p.IdOrganizacion, p.OrganizacionNombre))
                             </span>
                         </td>
-                        <td>@(string.IsNullOrEmpty(p.Ubicacion) ? "—" : p.Ubicacion)</td>
                         <td>@(p.Destacado ? "★ Sí" : "No")</td>
                         <td>
                             <button type="button" class="btn-action-edit" @onclick="() => EditarProductor(p)">Editar</button>
@@ -72,7 +72,7 @@
     {
         <div class="panel-section" style="margin-top: 30px; border-top: 2px solid #eee; padding-top: 25px;">
 
-            <h2 class="section-title">@(productorEdit.Id == 0 ? "Nuevo Productor" : $"Editar Productor #{productorEdit.Id}: {productorEdit.Nombre}")</h2>
+            <h2 class="section-title">@(productorEdit.Id == 0 ? "Nuevo Productor" : $"Editar Productor #{productorEdit.Id}:          {productorEdit.Nombre}")</h2>
 
             <EditForm Model="productorEdit">
                 <DataAnnotationsValidator />
@@ -98,12 +98,6 @@
                 </div>
 
                 <div class="form-group mb-3">
-                    <label>Ubicación / Región</label>
-                    <InputText class="form-control-admin" @bind-Value="productorEdit.Ubicacion"
-                               placeholder="Ej: Planadas, Tolima — Colombia" />
-                </div>
-
-                <div class="form-group mb-3">
                     <label>Frase Representativa</label>
                     <InputText class="form-control-admin" @bind-Value="productorEdit.Frase"
                                placeholder="Frase célebre o cita" />
@@ -125,8 +119,8 @@
                 </div>
 
                 <div class="form-group mb-3">
-                    <label>Texto de la Historia / Trayectoria</label>
-                    <InputTextArea class="form-control-admin" @bind-Value="productorEdit.Historia" rows="4"
+                    <label>Texto de la Historia / Trayectoria *</label>
+                    <InputTextArea class="form-control-admin" @bind-Value="productorEdit.HistoriaTexto" rows="4"
                                    placeholder="Relato detallado de la historia del productor..." />
                 </div>
 
@@ -140,14 +134,14 @@
                 <h3 class="section-title">Imagen Principal</h3>
 
                 <div class="form-group mb-3">
-                    <InputText class="form-control-admin" @bind-Value="productorEdit.ImagenPrincipal"
-                               placeholder="URL de la imagen principal" />
+                    <label>Seleccionar foto del productor desde tu dispositivo</label>
                     <InputFile OnChange="SubirImagenPrincipal" accept="image/*" class="form-control-admin mt-2" />
 
-                    @if (!string.IsNullOrEmpty(productorEdit.ImagenPrincipal))
+                    @if (!string.IsNullOrEmpty(previewImageSrc) || !string.IsNullOrEmpty(productorEdit.ImagenPrincipal))
                     {
                         <div style="margin-top: 8px;">
-                            <img src="@ApiService.GetFullImageUrl(productorEdit.ImagenPrincipal)" alt="Vista previa principal"
+                            <img src="@(string.IsNullOrEmpty(previewImageSrc) ? ApiService.GetFullImageUrl(productorEdit.ImagenPrincipal) : previewImageSrc)"
+                                 alt="Vista previa principal"
                                  style="max-height: 120px; border-radius: 4px; border: 1px solid #ccc;" />
                         </div>
                     }
@@ -165,13 +159,14 @@
 
                         <div class="form-group mb-2">
                             <label>Nombre del Procedimiento</label>
-                            <InputText class="form-control-admin" @bind-Value="proc.Nombre" placeholder="Ej: Recolección selectiva" />
+                            <InputText class="form-control-admin" @bind-Value="proc.Nombre"
+                                       placeholder="Ej: Recolección selectiva" />
                         </div>
 
                         <div class="form-group mb-2">
                             <label>Título</label>
                             <InputText class="form-control-admin" @bind-Value="proc.Titulo"
-                                       placeholder="Ej: Selección manual de grano en punto óptimo" />
+                                       placeholder="Ej: Selección manual de grano" />
                         </div>
 
                         <div class="form-group mb-2">
@@ -180,8 +175,7 @@
                         </div>
 
                         <div class="form-group mb-2">
-                            <label>Imagen (URL o subir archivo)</label>
-                            <InputText class="form-control-admin" @bind-Value="proc.Imagen" placeholder="URL de la imagen" />
+                            <label>Imagen del procedimiento</label>
                             <InputFile OnChange="@(e => SubirImagenProcedimiento(e, index))" accept="image/*"
                                        class="form-control-admin mt-1" />
 
@@ -201,7 +195,7 @@
                     + Agregar Procedimiento
                 </button>
 
-                <!-- BOTONES DE ACCIÓN (type="button" para evitar recarga de página) -->
+                <!-- BOTONES DE ACCIÓN -->
                 <div style="margin-top: 25px;">
                     <button class="btn-save" type="button" @onclick="Guardar" disabled="@isSaving">
                         @(isSaving ? "Guardando..." : "Guardar Productor")
@@ -221,6 +215,7 @@
     private List<OrganizationModel> organizaciones = new();
     private ProductorModel productorEdit = new();
     private IBrowserFile? selectedImageFile;
+    private string previewImageSrc = string.Empty;
     private bool editando = false;
     private bool isLoading = true;
     private bool isSaving = false;
@@ -264,9 +259,13 @@
     private void NuevoProductor()
     {
         selectedImageFile = null;
+        previewImageSrc = string.Empty;
         productorEdit = new ProductorModel
         {
+            Id = 0,
             IdOrganizacion = organizaciones.FirstOrDefault()?.Id ?? 1,
+            HistoriaTexto = "", // Aseguramos que no vaya nulo
+            Historia = "",
             Procedimientos = new List<ProcedimientoModel>()
         };
 
@@ -277,30 +276,25 @@
     private void EditarProductor(ProductorModel p)
     {
         selectedImageFile = null;
+        previewImageSrc = string.Empty;
+
+        string textoHist = !string.IsNullOrWhiteSpace(p.HistoriaTexto) ? p.HistoriaTexto : (p.Historia ?? "");
+
         productorEdit = new ProductorModel
         {
             Id = p.Id,
             IdOrganizacion = p.IdOrganizacion > 0 ? p.IdOrganizacion : (organizaciones.FirstOrDefault()?.Id ?? 1),
             Destacado = p.Destacado,
             Nombre = p.Nombre,
-            Ubicacion = p.Ubicacion,
-            Historia = p.Historia,
-            ImagenUrl = p.ImagenUrl,
             Frase = p.Frase,
             HistoriaTitulo = p.HistoriaTitulo,
-            HistoriaTexto = p.HistoriaTexto,
+            HistoriaTexto = textoHist,
+            Historia = textoHist,
             SostenibilidadDescripcion = p.SostenibilidadDescripcion,
             ImagenPrincipal = p.ImagenPrincipal,
             OrganizacionNombre = p.OrganizacionNombre,
-            Procedimientos = p.Procedimientos?.Select(x => new ProcedimientoModel
-            {
-                Id = x.Id,
-                Nombre = x.Nombre,
-                Titulo = x.Titulo,
-                Descripcion = x.Descripcion,
-                Imagen = x.Imagen,
-                IdProductor = x.IdProductor
-            }).ToList() ?? new List<ProcedimientoModel>()
+            Procedimientos = p.Procedimientos != null ? new List<ProcedimientoModel>(p.Procedimientos) : new
+List<ProcedimientoModel>()
         };
 
         mensajeAlerta = string.Empty;
@@ -314,14 +308,10 @@
             try
             {
                 selectedImageFile = e.File;
-                // Generar preview usando RequestImageFileAsync (NO consume el stream original)
                 var previewFile = await e.File.RequestImageFileAsync("image/jpeg", 300, 300);
                 using var ms = new MemoryStream();
                 await previewFile.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024).CopyToAsync(ms);
-                var previewBytes = ms.ToArray();
-                var previewDataUrl = $"data:image/jpeg;base64,{Convert.ToBase64String(previewBytes)}";
-                productorEdit.ImagenPrincipal = previewDataUrl;
-                productorEdit.ImagenUrl = previewDataUrl;
+                previewImageSrc = $"data:image/jpeg;base64,{Convert.ToBase64String(ms.ToArray())}";
                 StateHasChanged();
             }
             catch (Exception ex)
@@ -372,6 +362,13 @@
             return;
         }
 
+        // SALVAGUARDA CLAVE: Garantizar que HistoriaTexto NUNCA vaya nulo a Azure
+        if (string.IsNullOrWhiteSpace(productorEdit.HistoriaTexto))
+        {
+            productorEdit.HistoriaTexto = "Historia en proceso de redacción.";
+        }
+        productorEdit.Historia = productorEdit.HistoriaTexto;
+
         if (productorEdit.IdOrganizacion <= 0 && organizaciones.Any())
         {
             productorEdit.IdOrganizacion = organizaciones.First().Id;
@@ -383,7 +380,9 @@
             esErrorAlerta = false;
 
             bool ok;
-            if (productorEdit.Id == 0)
+            bool esNuevo = productorEdit.Id == 0;
+
+            if (esNuevo)
             {
                 ok = await ApiService.CrearProductorAsync(productorEdit, selectedImageFile);
             }
@@ -394,19 +393,21 @@
 
             if (ok)
             {
-                mensajeAlerta = productorEdit.Id == 0
+                mensajeAlerta = esNuevo
                     ? $"¡Productor '{productorEdit.Nombre}' creado exitosamente!"
                     : $"¡Productor '{productorEdit.Nombre}' actualizado exitosamente!";
+
                 esErrorAlerta = false;
                 editando = false;
                 selectedImageFile = null;
+                previewImageSrc = string.Empty;
 
-                // Recargar datos reales desde el servidor para evitar duplicados
+                productorEdit = new ProductorModel();
                 productores = await ApiService.GetProductoresAsync(forceRefresh: true) ?? new List<ProductorModel>();
             }
             else
             {
-                mensajeAlerta = "Error al guardar el productor en el servidor. Verifica que los campos requeridos estén completos.";
+                mensajeAlerta = "Error al guardar el productor en el servidor. Revisa que los campos requeridos estén completos.";
                 esErrorAlerta = true;
             }
         }
@@ -426,6 +427,8 @@
     {
         editando = false;
         selectedImageFile = null;
+        previewImageSrc = string.Empty;
         mensajeAlerta = string.Empty;
+        productorEdit = new ProductorModel();
     }
-}
+}

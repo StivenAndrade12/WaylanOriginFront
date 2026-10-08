@@ -10,67 +10,66 @@ public class ProductorModel
     private string? _historia;
     private string? _historiaTexto;
 
-    [JsonPropertyName("id")]
+    // Nombres exactos de la entidad C# del backend (PascalCase)
+    [JsonPropertyName("Id")]
     public int Id { get; set; }
 
-    [JsonPropertyName("idOrganizacion")]
+    [JsonPropertyName("IdOrganizacion")]
     public int IdOrganizacion { get; set; }
 
-    [JsonPropertyName("nombre")]
+    [JsonPropertyName("Nombre")]
     public string Nombre { get; set; } = string.Empty;
 
-    [JsonPropertyName("ubicacion")]
-    public string? Ubicacion { get; set; }
-
-    [JsonPropertyName("historia")]
-    public string? Historia
-    {
-        get => !string.IsNullOrEmpty(_historia) ? _historia : _historiaTexto;
-        set => _historia = value;
-    }
-
-    [JsonPropertyName("imagenUrl")]
-    public string? ImagenUrl
-    {
-        get => !string.IsNullOrEmpty(_imagenUrl) ? _imagenUrl : _imagenPrincipal;
-        set => _imagenUrl = value;
-    }
-
-    // Campos de compatibilidad con Swagger/Azure DTOs y vistas existentes
-    [JsonPropertyName("destacado")]
+    [JsonPropertyName("Destacado")]
     public bool Destacado { get; set; }
 
-    [JsonPropertyName("frase")]
+    [JsonPropertyName("Frase")]
     public string? Frase { get; set; }
 
-    [JsonPropertyName("historiaTitulo")]
+    [JsonPropertyName("HistoriaTitulo")]
     public string? HistoriaTitulo { get; set; }
 
-    [JsonPropertyName("historiaTexto")]
+    [JsonPropertyName("HistoriaTexto")]
     public string? HistoriaTexto
     {
         get => !string.IsNullOrEmpty(_historiaTexto) ? _historiaTexto : _historia;
         set => _historiaTexto = value;
     }
 
-    [JsonPropertyName("sostenibilidadDescripcion")]
+    [JsonPropertyName("Historia")]
+    public string? Historia
+    {
+        get => !string.IsNullOrEmpty(_historia) ? _historia : _historiaTexto;
+        set => _historia = value;
+    }
+
+    [JsonPropertyName("SostenibilidadDescripcion")]
     public string? SostenibilidadDescripcion { get; set; }
 
-    [JsonPropertyName("imagenPrincipal")]
+    [JsonPropertyName("ImagenPrincipal")]
     public string? ImagenPrincipal
     {
         get => !string.IsNullOrEmpty(_imagenPrincipal) ? _imagenPrincipal : _imagenUrl;
         set => _imagenPrincipal = value;
     }
 
-    [JsonPropertyName("organizacionNombre")]
+    [JsonPropertyName("ImagenUrl")]
+    public string? ImagenUrl
+    {
+        get => !string.IsNullOrEmpty(_imagenUrl) ? _imagenUrl : _imagenPrincipal;
+        set => _imagenUrl = value;
+    }
+
+    [JsonPropertyName("OrganizacionNombre")]
     public string? OrganizacionNombre { get; set; }
 
+    [JsonPropertyName("Ubicacion")]
+    public string? Ubicacion { get; set; }
+
     // Relaciones
+    [JsonPropertyName("Organizacion")]
     public OrganizationModel? Organizacion { get; set; }
 
-    [JsonPropertyName("procedimientos")]
+    [JsonPropertyName("Procedimientos")]
     public List<ProcedimientoModel> Procedimientos { get; set; } = new();
 }
-
-

@@ -51,7 +51,8 @@
 
                 <div class="admin-field">
                     <label>Imagen Logo (URL o Subir archivo)</label>
-                    <InputText @bind-Value="org.ImagenLogo" class="admin-input" placeholder="ej: https://... o logotipo/5.png" />
+                    <InputText @bind-Value="org.ImagenLogo" class="admin-input"
+                               placeholder="ej: https://... o logotipo/5.png" />
                     <InputFile OnChange="SubirLogo" accept="image/*" class="admin-input" style="margin-top: 5px;" />
 
                     @if (!string.IsNullOrEmpty(org.ImagenLogo))
@@ -65,7 +66,8 @@
 
                 <div class="admin-field">
                     <label>Imagen del Hero (URL o Subir archivo)</label>
-                    <InputText @bind-Value="org.HeroImagen" class="admin-input" placeholder="ej: https://... o imagenes/camp.png" />
+                    <InputText @bind-Value="org.HeroImagen" class="admin-input"
+                               placeholder="ej: https://... o imagenes/camp.png" />
                     <InputFile OnChange="SubirHeroImagen" accept="image/*" class="admin-input" style="margin-top: 5px;" />
 
                     @if (!string.IsNullOrEmpty(org.HeroImagen))
@@ -106,7 +108,8 @@
 
             @if (!string.IsNullOrEmpty(mensaje))
             {
-                <p class="admin-message" style="margin-top: 15px; font-weight: bold; color: @(esError ? "#d9534f" : "#2e7d32");">
+                <p class="admin-message"
+                   style="margin-top: 15px; font-weight: bold; color: @(esError ? "#d9534f" : "#2e7d32");">
                     @mensaje
                 </p>
             }
@@ -182,6 +185,7 @@
     {
         if (int.TryParse(e.Value?.ToString(), out int selectedId))
         {
+            Id = selectedId; // Mantenemos sincronizado el Id
             org = organizaciones.FirstOrDefault(o => o.Id == selectedId);
             selectedLogoFile = null;
             selectedHeroFile = null;
@@ -192,7 +196,9 @@
     private async Task CargarProductoresDeOrganizacion()
     {
         if (org == null) return;
-        var todosProductores = await Api.GetProductoresAsync();
+
+        // Pedimos la lista fresca directamente a Azure sin usar la memoria caché
+        var todosProductores = await Api.GetProductoresAsync(forceRefresh: true);
         if (todosProductores != null)
         {
             productoresOrganizacion = todosProductores
@@ -290,4 +296,4 @@
             StateHasChanged();
         }
     }
-}
+}
