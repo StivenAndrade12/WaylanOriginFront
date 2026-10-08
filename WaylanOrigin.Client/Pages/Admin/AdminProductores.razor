@@ -72,7 +72,7 @@
     {
         <div class="panel-section" style="margin-top: 30px; border-top: 2px solid #eee; padding-top: 25px;">
 
-            <h2 class="section-title">@(!esModoEdicion ? "Nuevo Productor" : $"Editar Productor #{productorEdit.Id}:       {productorEdit.Nombre}")</h2>
+            <h2 class="section-title">@(!esModoEdicion ? "Nuevo Productor" : $"Editar Productor #{productorEdit.Id}:           {productorEdit.Nombre}")</h2>
 
             <EditForm Model="productorEdit">
                 <DataAnnotationsValidator />
@@ -280,13 +280,16 @@
         esModoEdicion = true;
         selectedImageFile = null;
         previewImageSrc = string.Empty;
+        mensajeAlerta = string.Empty;
 
-        string textoHist = !string.IsNullOrWhiteSpace(p.HistoriaTexto) ? p.HistoriaTexto : (p.Historia ?? "");
+        string textoHist = !string.IsNullOrWhiteSpace(p.HistoriaTexto)
+            ? p.HistoriaTexto
+            : (!string.IsNullOrWhiteSpace(p.Historia) ? p.Historia : "");
 
         productorEdit = new ProductorModel
         {
             Id = p.Id,
-            IdOrganizacion = p.IdOrganizacion > 0 ? p.IdOrganizacion : (organizaciones.FirstOrDefault()?.Id ?? 1),
+            IdOrganizacion = p.IdOrganizacion > 0 ? p.IdOrganizacion : 1,
             Destacado = p.Destacado,
             Nombre = p.Nombre,
             Frase = p.Frase,
@@ -294,16 +297,19 @@
             HistoriaTexto = textoHist,
             Historia = textoHist,
             SostenibilidadDescripcion = p.SostenibilidadDescripcion,
+        
+            // Conservamos la URL existente
             ImagenPrincipal = p.ImagenPrincipal,
+        
             OrganizacionNombre = p.OrganizacionNombre,
-            Procedimientos = p.Procedimientos != null ? new List<ProcedimientoModel>(p.Procedimientos) : new
-List<ProcedimientoModel>()
+            Procedimientos = p.Procedimientos != null
+                ? new List<ProcedimientoModel>(p.Procedimientos)
+                : new List<ProcedimientoModel>()
         };
 
-        mensajeAlerta = string.Empty;
         editando = true;
+        StateHasChanged();
     }
-
     private async Task SubirImagenPrincipal(InputFileChangeEventArgs e)
     {
         if (e.File != null)

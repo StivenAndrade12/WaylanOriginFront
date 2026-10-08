@@ -1549,23 +1549,36 @@ namespace WaylanOrigin.Client.Services
         {
             try
             {
-                var lista = await GetProductoresAsync();
-                return lista.FirstOrDefault(p => p.Id == id);
+                // 1. Llamamos a la API para traer los datos frescos y completos del productor
+                var response = await _http.GetAsync($"{ApiBaseUrl}api/Productor/{id}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var jsonString = await response.Content.ReadAsStringAsync();
+                    var options = new System.Text.Json.JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+                    var prod = System.Text.Json.JsonSerializer.Deserialize<ProductorModel>(jsonString, options);
+                    if (prod != null)
+                    {
+                        // Sostener la historia y la URL predeterminada de la imagen
+                        if (string.IsNullOrWhiteSpace(prod.HistoriaTexto) && !string.IsNullOrWhiteSpace(prod.Historia))
+                        {
+                            prod.HistoriaTexto = prod.Historia;
+                        }
+                        return prod;
+                    }
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error GetProductorByIdAsync: {ex.Message}");
             }
 
-            return null;
+            // Backup desde la lista local si falla la llamada directa
+            var lista = await GetProductoresAsync();
+            return lista.FirstOrDefault(p => p.Id == id);
         }
-
-        private static readonly byte[] FallbackJpegBytes = new byte[]
-        {
-            0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01, 0x01, 0x01, 0x00, 0x48,
-            0x00, 0x48, 0x00, 0x00, 0xFF, 0xDB, 0x00, 0x43, 0x00, 0xFF, 0xD9
-        };
-
         /// <summary>
         /// Resuelve el contenido binario de la imagen para enviar al servidor.
         /// Retorna null cuando la URL es una ruta local relativa (imagenes/...) para evitar
@@ -1728,29 +1741,23 @@ namespace WaylanOrigin.Client.Services
 
                 if (productor.Id <= 0) return false;
 
-                // 1. Obtener la versión guardada previamente en memoria o servidor para asegurar la persistencia
-                var existente = await GetProductorByIdAsync(productor.Id);
-
                 using var content = new MultipartFormDataContent();
+                content.Add(new StringContent(productor.Nombre ?? ""), "Nombre");
+                content.Add(new StringContent(productor.Frase ?? ""), "Frase");
+                content.Add(new StringContent(productor.HistoriaTitulo ?? ""), "HistoriaTitulo");
 
-                // 2. Conservar datos de texto: Si el campo está vacío en el formulario, se mantiene el valor original
-                string nombre = !string.IsNullOrWhiteSpace(productor.Nombre) ? productor.Nombre : (existente?.Nombre ?? "");
-                string frase = !string.IsNullOrWhiteSpace(productor.Frase) ? productor.Frase : (existente?.Frase ?? "");
-                string historiaTitulo = !string.IsNullOrWhiteSpace(productor.HistoriaTitulo) ? productor.HistoriaTitulo : (existente?.HistoriaTitulo ?? "");
-                string historiaTexto = !string.IsNullOrWhiteSpace(productor.HistoriaTexto) ? productor.HistoriaTexto : (existente?.HistoriaTexto ?? "Historia en proceso.");
-                string sostenibilidad = !string.IsNullOrWhiteSpace(productor.SostenibilidadDescripcion) ? productor.SostenibilidadDescripcion : (existente?.SostenibilidadDescripcion ?? "");
-                int orgId = productor.IdOrganizacion > 0 ? productor.IdOrganizacion : (existente?.IdOrganizacion ?? 1);
+                string textoHistoria = !string.IsNullOrWhiteSpace(productor.HistoriaTexto)
+                    ? productor.HistoriaTexto
+                    : (!string.IsNullOrWhiteSpace(productor.Historia) ? productor.Historia : "Historia en proceso.");
+                content.Add(new StringContent(textoHistoria), "HistoriaTexto");
 
-                content.Add(new StringContent(nombre), "Nombre");
-                content.Add(new StringContent(frase), "Frase");
-                content.Add(new StringContent(historiaTitulo), "HistoriaTitulo");
-                content.Add(new StringContent(historiaTexto), "HistoriaTexto");
-                content.Add(new StringContent(sostenibilidad), "SostenibilidadDescripcion");
+                content.Add(new StringContent(productor.SostenibilidadDescripcion ?? ""), "SostenibilidadDescripcion");
                 content.Add(new StringContent(productor.Destacado.ToString().ToLowerInvariant()), "Destacado");
+
+                int orgId = productor.IdOrganizacion > 0 ? productor.IdOrganizacion : 1;
                 content.Add(new StringContent(orgId.ToString()), "IdOrganizacion");
 
-                // 3. Persistencia de Imagen:
-                // Si el usuario seleccionó un archivo nuevo, se procesa el Stream.
+                // SOLO SE ADJUNTA SI EL USUARIO SELECCIONÓ UNA FOTO NUEVA (Igual que en Organización)
                 if (imageFile != null)
                 {
                     var stream = imageFile.OpenReadStream(maxAllowedSize: 15 * 1024 * 1024);
@@ -1758,16 +1765,6 @@ namespace WaylanOrigin.Client.Services
                     string cType = !string.IsNullOrEmpty(imageFile.ContentType) ? imageFile.ContentType : "image/jpeg";
                     imgContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(cType);
                     content.Add(imgContent, "ImagenPrincipal", imageFile.Name ?? "productor.jpg");
-                }
-                else
-                {
-                    // Si no subió foto nueva, se resuelve el binario existente (vía Base64 o Fallback) para que la API no quede vacía
-                    string? urlOriginal = !string.IsNullOrEmpty(productor.ImagenPrincipal) ? productor.ImagenPrincipal : existente?.ImagenPrincipal;
-                    var imageBinary = await ResolveImageBinaryAsync(null, urlOriginal, "productor.jpg");
-                    if (imageBinary != null)
-                    {
-                        content.Add(imageBinary, "ImagenPrincipal", "productor.jpg");
-                    }
                 }
 
                 var response = await _http.PutAsync($"{ApiBaseUrl}api/Productor/{productor.Id}", content);
