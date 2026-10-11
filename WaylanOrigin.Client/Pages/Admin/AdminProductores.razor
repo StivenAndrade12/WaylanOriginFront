@@ -72,7 +72,7 @@
     {
         <div class="panel-section" style="margin-top: 30px; border-top: 2px solid #eee; padding-top: 25px;">
 
-            <h2 class="section-title">@(!esModoEdicion ? "Nuevo Productor" : $"Editar Productor #{productorEdit.Id}:           {productorEdit.Nombre}")</h2>
+            <h2 class="section-title">@(!esModoEdicion ? "Nuevo Productor" : $"Editar Productor #{productorEdit.Id}:            {productorEdit.Nombre}")</h2>
 
             <EditForm Model="productorEdit">
                 <DataAnnotationsValidator />
@@ -286,10 +286,18 @@
             ? p.HistoriaTexto
             : (!string.IsNullOrWhiteSpace(p.Historia) ? p.Historia : "");
 
+        // ✅ PERSISTENCIA EN EL FORMULARIO: Rescata el ID desde el nombre si venía en 0 desde el GET
+        int idOrgCargar = p.IdOrganizacion;
+        if (idOrgCargar <= 0 && !string.IsNullOrWhiteSpace(p.OrganizacionNombre))
+        {
+            if (p.OrganizacionNombre.Contains("Famy", StringComparison.OrdinalIgnoreCase)) idOrgCargar = 2;
+            else if (p.OrganizacionNombre.Contains("Nevados", StringComparison.OrdinalIgnoreCase)) idOrgCargar = 1;
+        }
+
         productorEdit = new ProductorModel
         {
             Id = p.Id,
-            IdOrganizacion = p.IdOrganizacion > 0 ? p.IdOrganizacion : 1,
+            IdOrganizacion = idOrgCargar, // Carga el ID 1 o 2 persistido
             Destacado = p.Destacado,
             Nombre = p.Nombre,
             Frase = p.Frase,
@@ -377,16 +385,19 @@
             return;
         }
 
+        // ✅ CORRECCIÓN: Validar que la organización sea válida en lugar de sobreescribirla silenciosamente con Tres Nevados
+        if (productorEdit.IdOrganizacion <= 0)
+        {
+            mensajeAlerta = "Debe seleccionar una organización válida para el productor.";
+            esErrorAlerta = true;
+            return;
+        }
+
         if (string.IsNullOrWhiteSpace(productorEdit.HistoriaTexto))
         {
             productorEdit.HistoriaTexto = "Historia en proceso de redacción.";
         }
         productorEdit.Historia = productorEdit.HistoriaTexto;
-
-        if (productorEdit.IdOrganizacion <= 0 && organizaciones.Any())
-        {
-            productorEdit.IdOrganizacion = organizaciones.First().Id;
-        }
 
         try
         {

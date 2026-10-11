@@ -1754,10 +1754,29 @@ namespace WaylanOrigin.Client.Services
                 content.Add(new StringContent(productor.SostenibilidadDescripcion ?? ""), "SostenibilidadDescripcion");
                 content.Add(new StringContent(productor.Destacado.ToString().ToLowerInvariant()), "Destacado");
 
-                int orgId = productor.IdOrganizacion > 0 ? productor.IdOrganizacion : 1;
+                // ✅ PERSISTENCIA INTELIGENTE DEL ID DE ORGANIZACIÓN:
+                int orgId = productor.IdOrganizacion;
+
+                // Si el usuario no la cambió manualmente en el select y venía en 0/invalida,
+                // recuperamos el ID real según la respuesta anterior (OrganizacionNombre)
+                if (orgId <= 0 && !string.IsNullOrWhiteSpace(productor.OrganizacionNombre))
+                {
+                    if (productor.OrganizacionNombre.Contains("Famy", StringComparison.OrdinalIgnoreCase))
+                    {
+                        orgId = 2; // Preserva ID de Famycafé
+                    }
+                    else if (productor.OrganizacionNombre.Contains("Nevados", StringComparison.OrdinalIgnoreCase))
+                    {
+                        orgId = 1; // Preserva ID de Tres Nevados
+                    }
+                }
+
+                // Si sigue en 0 como último recurso, mantiene 1
+                if (orgId <= 0) orgId = 1;
+
                 content.Add(new StringContent(orgId.ToString()), "IdOrganizacion");
 
-                // SOLO SE ADJUNTA SI EL USUARIO SELECCIONÓ UNA FOTO NUEVA (Igual que en Organización)
+                // SOLO SE ADJUNTA SI EL USUARIO SELECCIONÓ UNA FOTO NUEVA
                 if (imageFile != null)
                 {
                     var stream = imageFile.OpenReadStream(maxAllowedSize: 15 * 1024 * 1024);

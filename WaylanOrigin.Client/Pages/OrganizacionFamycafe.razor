@@ -18,7 +18,8 @@
             <h1 class="tn-main-title">@org?.Nombre</h1>
 
             <div class="separador-contenedor">
-                <img src="@(string.IsNullOrEmpty(org?.ImagenLogo) ? "logotipo/fcf.png" : org.ImagenLogo)" alt="Logo @org?.Nombre" class="icono-hoja">
+                <img src="@(string.IsNullOrEmpty(org?.ImagenLogo) ? "logotipo/fcf.png" : org.ImagenLogo)"
+                     alt="Logo @org?.Nombre" class="icono-hoja">
                 <div class="linea-dorada"></div>
             </div>
 
@@ -29,7 +30,8 @@
         </div>
 
         <div class="tn-hero-image">
-            <img src="@(string.IsNullOrEmpty(org?.HeroImagen) ? "https://storagewaylan.blob.core.windows.net/imagenes/456de9b3-4bd7-4fc2-8097-249e1fcb251b.png" : org.HeroImagen)" alt="@org?.Nombre" />
+            <img src="@(string.IsNullOrEmpty(org?.HeroImagen) ? "https://storagewaylan.blob.core.windows.net/imagenes/456de9b3-4bd7-4fc2-8097-249e1fcb251b.png" : org.HeroImagen)"
+                 alt="@org?.Nombre" />
         </div>
     </div>
 
@@ -76,7 +78,8 @@
             {
                 <div class="tn-producer-card">
                     <a href="perfil/@p.Id" class="tn-card-img" aria-label="Ver perfil de @p.Nombre">
-                        <img src="@Api.GetFullImageUrl(p.ImagenPrincipal)" alt="@p.Nombre" onerror="this.onerror=null;this.src='imagenes/productores/maria_elena_gomez.jpg';" />
+                        <img src="@Api.GetFullImageUrl(p.ImagenPrincipal)" alt="@p.Nombre"
+                             onerror="this.onerror=null;this.src='imagenes/productores/maria_elena_gomez.jpg';" />
                     </a>
                     <div class="tn-card-content">
                         <h3><a href="perfil/@p.Id" style="color: inherit; text-decoration: none;">@p.Nombre</a></h3>
@@ -102,7 +105,6 @@
     </div>
 
 </div>
-
 @code {
     OrganizationModel? org;
     List<ProductorModel> productores = new List<ProductorModel>();
@@ -115,11 +117,14 @@
 
         if (listaOrganizaciones != null && listaOrganizaciones.Count > 0)
         {
-            // Buscamos la organización por Nombre que contenga "Famy"
-            org = listaOrganizaciones.FirstOrDefault(o => o.Nombre != null && o.Nombre.Contains("Famy", StringComparison.OrdinalIgnoreCase));
+            // Buscamos la organización por ID = 2 o por Nombre que contenga "Famy"
+            org = listaOrganizaciones.FirstOrDefault(o => o.Id == 2)
+                  ?? listaOrganizaciones.FirstOrDefault(o => o.Nombre != null && o.Nombre.Contains("Famy",
+StringComparison.OrdinalIgnoreCase))
+                  ?? listaOrganizaciones.FirstOrDefault();
         }
 
-        // Si no existe aún en BD, creamos el modelo institucional de FAMYCAFE para visualización impecable
+        // Modelo institucional por defecto si no se encuentra en la base de datos
         if (org == null)
         {
             org = new OrganizationModel
@@ -133,33 +138,23 @@
             };
         }
 
-        // 2. Cargar productores
-        var todos = await Api.GetProductoresAsync();
+        // 2. Cargar productores con forceRefresh para garantizar datos actualizados
+        var todos = await Api.GetProductoresAsync(forceRefresh: true);
 
         if (todos != null)
         {
-            // Filtrar productores de FAMYCAFE (por IdOrganizacion o nombre)
+            // FILTRO ESTRICTO: Únicamente productores asignados al ID de Famycafé o con el nombre explícito
             productores = todos
                 .Where(p => p.IdOrganizacion == org.Id ||
-                            (!string.IsNullOrEmpty(p.OrganizacionNombre) && p.OrganizacionNombre.Contains("Famy", StringComparison.OrdinalIgnoreCase)))
+                            (!string.IsNullOrEmpty(p.OrganizacionNombre) && p.OrganizacionNombre.Contains("Famy",
+StringComparison.OrdinalIgnoreCase)))
                 .ToList();
 
-            // Si aún no hay asignados a Famycafé, tomamos productores de la lista para mostrar la grilla
-            if (!productores.Any())
-            {
-                productores = todos.ToList();
-            }
-
-            // Filtrar los destacados (hasta 4)
+            // FILTRO ESTRICTO: Únicamente los productores con el check de Destacado habilitado
             destacados = productores
                 .Where(p => p.Destacado)
                 .Take(4)
                 .ToList();
-
-            if (!destacados.Any())
-            {
-                destacados = productores.Take(4).ToList();
-            }
         }
     }
 }

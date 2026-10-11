@@ -120,7 +120,7 @@
 
         if (listaOrganizaciones != null && listaOrganizaciones.Count > 0)
         {
-            // Buscamos la organización por Nombre que contenga "Nevados" o por Id = 1
+            // Buscamos Tres Nevados en la base de datos por su ID o Nombre
             org = listaOrganizaciones.FirstOrDefault(o => o.Id == 1)
                   ?? listaOrganizaciones.FirstOrDefault(o => o.Nombre != null && o.Nombre.Contains("Nevados",
 StringComparison.OrdinalIgnoreCase))
@@ -140,35 +140,23 @@ StringComparison.OrdinalIgnoreCase))
             };
         }
 
-        // 2. Cargar productores con forceRefresh para evitar problemas de caché
+        // 2. Cargar productores desde la API con forceRefresh
         var todos = await Api.GetProductoresAsync(forceRefresh: true);
 
         if (todos != null)
         {
-            // Filtrar productores de Tres Nevados (por IdOrganizacion == 1 o por Nombre)
+            // IGUAL QUE EN FAMYCAFÉ: Compara por IdOrganizacion O por OrganizacionNombre si el ID viene en 0
             productores = todos
                 .Where(p => p.IdOrganizacion == org.Id ||
-                           (!string.IsNullOrEmpty(p.OrganizacionNombre) && p.OrganizacionNombre.Contains("Nevados",
+                            (!string.IsNullOrEmpty(p.OrganizacionNombre) && p.OrganizacionNombre.Contains("Nevados",
 StringComparison.OrdinalIgnoreCase)))
                 .ToList();
 
-            // Si por alguna razón no encuentra por Id, toma los que estén en la lista
-            if (!productores.Any())
-            {
-                productores = todos.Where(p => p.IdOrganizacion == 1 || p.IdOrganizacion == 0).ToList();
-            }
-
-            // Filtrar los destacados (hasta 4)
+            // Únicamente los productores destacados
             destacados = productores
                 .Where(p => p.Destacado)
                 .Take(4)
                 .ToList();
-
-            // RESPALDO CLAVE: Si no hay ninguno con el check de destacado, toma los primeros 4 productores
-            if (!destacados.Any())
-            {
-                destacados = productores.Take(4).ToList();
-            }
         }
     }
 }

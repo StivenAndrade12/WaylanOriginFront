@@ -154,18 +154,22 @@
         {
             isLoading = true;
 
-            organizaciones = await Api.GetOrganizacionesAsync();
+            organizaciones = await Api.GetOrganizacionesAsync() ?? new List<OrganizationModel>();
 
-            if (organizaciones != null && organizaciones.Any())
+            if (organizaciones.Any())
             {
                 if (Id > 0)
                 {
-                    org = organizaciones.FirstOrDefault(o => o.Id == Id) ?? organizaciones.FirstOrDefault();
+                    // Buscar la organización por Id exacto de la base de datos
+                    org = organizaciones.FirstOrDefault(o => o.Id == Id) ?? organizaciones.First();
                 }
                 else
                 {
-                    org = organizaciones.FirstOrDefault();
+                    org = organizaciones.First();
                 }
+
+                // Sincronizar la variable de ruta con el ID real seleccionado
+                Id = org.Id;
             }
 
             await CargarProductoresDeOrganizacion();
@@ -180,7 +184,6 @@
             isLoading = false;
         }
     }
-
     private async Task CambiarOrganizacionSeleccionada(ChangeEventArgs e)
     {
         if (int.TryParse(e.Value?.ToString(), out int selectedId))
