@@ -1805,7 +1805,94 @@ namespace WaylanOrigin.Client.Services
 
             return false;
         }
+        public async Task<bool> CrearProcedimientoAsync(ProcedimientoModel procedimiento, IBrowserFile? imageFile = null)
+        {
+            try
+            {
+                SetAuthHeader();
 
+                using var content = new MultipartFormDataContent();
+
+                // 1. Campos de texto básicos
+                content.Add(new StringContent(procedimiento.Id.ToString()), "Id");
+                content.Add(new StringContent(string.IsNullOrWhiteSpace(procedimiento.Nombre) ? "Procedimiento" : procedimiento.Nombre), "Nombre");
+                content.Add(new StringContent(string.IsNullOrWhiteSpace(procedimiento.Titulo) ? "Detalle" : procedimiento.Titulo), "Titulo");
+                content.Add(new StringContent(string.IsNullOrWhiteSpace(procedimiento.Descripcion) ? "Sin descripción" : procedimiento.Descripcion), "Descripcion");
+                content.Add(new StringContent(procedimiento.IdProductor.ToString()), "IdProductor");
+
+                // 2. Procesamiento de Imagen usando exactamente la misma lógica del Productor
+                var imgBinary = await ResolveImageBinaryAsync(imageFile, procedimiento.Imagen, "procedimiento.jpg");
+                if (imgBinary != null)
+                {
+                    content.Add(imgBinary, "Imagen", imageFile?.Name ?? "procedimiento.jpg");
+                }
+
+                // 3. Petición POST a /api/Procedimiento
+                var response = await _http.PostAsync($"{ApiBaseUrl}api/Procedimiento", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    _cachedProductores = null;
+                    OnDataChanged?.Invoke();
+                    return true;
+                }
+
+                var error = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error CrearProcedimiento ({response.StatusCode}): {error}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error CrearProcedimientoAsync: {ex.Message}");
+            }
+
+            return false;
+        }
+
+        public async Task<bool> ActualizarProcedimientoAsync(ProcedimientoModel procedimiento, IBrowserFile? imageFile = null)
+        {
+            try
+            {
+                SetAuthHeader();
+
+                if (procedimiento.Id <= 0) return false;
+
+                using var content = new MultipartFormDataContent();
+
+                // Campos requeridos
+                content.Add(new StringContent(procedimiento.Id.ToString()), "Id");
+                content.Add(new StringContent(string.IsNullOrWhiteSpace(procedimiento.Nombre) ? "Procedimiento" : procedimiento.Nombre), "Nombre");
+                content.Add(new StringContent(string.IsNullOrWhiteSpace(procedimiento.Titulo) ? "Detalle" : procedimiento.Titulo), "Titulo");
+                content.Add(new StringContent(string.IsNullOrWhiteSpace(procedimiento.Descripcion) ? "Sin descripción" : procedimiento.Descripcion), "Descripcion");
+                content.Add(new StringContent(procedimiento.IdProductor.ToString()), "IdProductor");
+
+                // Procesar la imagen si fue seleccionada una nueva
+                var imgBinary = await ResolveImageBinaryAsync(imageFile, procedimiento.Imagen, "procedimiento.jpg");
+                if (imgBinary != null)
+                {
+                    content.Add(imgBinary, "Imagen", imageFile?.Name ?? "procedimiento.jpg");
+                }
+
+                // Llamada PUT exacta al endpoint mostrado en Swagger: /api/Procedimiento/{id}
+                string url = $"{ApiBaseUrl.TrimEnd('/')}/api/Procedimiento/{procedimiento.Id}";
+                var response = await _http.PutAsync(url, content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    _cachedProductores = null;
+                    OnDataChanged?.Invoke();
+                    return true;
+                }
+
+                var error = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error ActualizarProcedimiento ({response.StatusCode}): {error}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error ActualizarProcedimientoAsync: {ex.Message}");
+            }
+
+            return false;
+        }
         public async Task<string?> UploadImageAsync(IBrowserFile file)
         {
             if (file == null) return null;

@@ -215,6 +215,7 @@
     private List<OrganizationModel> organizaciones = new();
     private ProductorModel productorEdit = new();
     private IBrowserFile? selectedImageFile;
+    private Dictionary<int, IBrowserFile> selectedProcedureFiles = new();
     private string previewImageSrc = string.Empty;
     private bool editando = false;
     private bool esModoEdicion = false;
@@ -351,16 +352,22 @@
         {
             try
             {
-                var url = await ApiService.UploadImageAsync(e.File);
-                if (!string.IsNullOrEmpty(url))
-                {
-                    productorEdit.Procedimientos[index].Imagen = url;
-                    StateHasChanged();
-                }
+                // Guardamos la referencia al archivo seleccionado para enviarlo al presionar Guardar
+                selectedProcedureFiles[index] = e.File;
+
+                // Creamos la vista previa inmediata en Base64
+                var previewFile = await e.File.RequestImageFileAsync("image/jpeg", 300, 300);
+                using var ms = new MemoryStream();
+                await previewFile.OpenReadStream(maxAllowedSize: 15 * 1024 * 1024).CopyToAsync(ms);
+
+                string base64Data = $"data:image/jpeg;base64,{Convert.ToBase64String(ms.ToArray())}";
+                productorEdit.Procedimientos[index].Imagen = base64Data;
+
+                StateHasChanged();
             }
             catch (Exception ex)
             {
-                mensajeAlerta = $"Error al subir imagen de procedimiento: {ex.Message}";
+                mensajeAlerta = $"Error al cargar vista previa del procedimiento: {ex.Message}";
                 esErrorAlerta = true;
             }
         }
@@ -385,12 +392,28 @@
             return;
         }
 
-        // ✅ CORRECCIÓN: Validar que la organización sea válida en lugar de sobreescribirla silenciosamente con Tres Nevados
         if (productorEdit.IdOrganizacion <= 0)
         {
             mensajeAlerta = "Debe seleccionar una organización válida para el productor.";
             esErrorAlerta = true;
             return;
+        }
+
+        // Validar que si hay procedimientos en la lista, tengan completados Nombre, Título y Descripción
+        if (productorEdit.Procedimientos != null && productorEdit.Procedimientos.Any())
+        {
+            for (int i = 0; i < productorEdit.Procedimientos.Count; i++)
+            {
+                var proc = productorEdit.Procedimientos[i];
+                if (string.IsNullOrWhiteSpace(proc.Nombre) ||
+                    string.IsNullOrWhiteSpace(proc.Titulo) ||
+                    string.IsNullOrWhiteSpace(proc.Descripcion))
+                {
+                    mensajeAlerta = $"Por favor escriba el Nombre, Título y Descripción para el Procedimiento #{i + 1}.";
+                    esErrorAlerta = true;
+                    return;
+                }
+            }
         }
 
         if (string.IsNullOrWhiteSpace(productorEdit.HistoriaTexto))
@@ -418,6 +441,42 @@
 
             if (ok)
             {
+                int targetProductorId = productorEdit.Id;
+                if (esNuevo || targetProductorId <= 0)
+                {
+                    var todosActualizados = await ApiService.GetProductoresAsync(forceRefresh: true);
+                    var reciénCreado = todosActualizados?.FirstOrDefault(p => p.Nombre.Equals(productorEdit.Nombre,
+    StringComparison.OrdinalIgnoreCase));
+                    if (reciénCreado != null)
+                    {
+                        targetProductorId = reciénCreado.Id;
+                    }
+                }
+
+                // ✅ BUCLE CORREGIDO: Procesa tanto creaciones (POST) como actualizaciones (PUT)
+                if (targetProductorId > 0 && productorEdit.Procedimientos != null && productorEdit.Procedimientos.Any())
+                {
+                    for (int i = 0; i < productorEdit.Procedimientos.Count; i++)
+                    {
+                        var proc = productorEdit.Procedimientos[i];
+                        proc.IdProductor = targetProductorId;
+
+                        // Extrae el archivo IBrowserFile si el usuario seleccionó una imagen nueva
+                        selectedProcedureFiles.TryGetValue(i, out var procFile);
+
+                        if (proc.Id <= 0)
+                        {
+                            // Procedimiento NUEVO -> POST /api/Procedimiento
+                            await ApiService.CrearProcedimientoAsync(proc, procFile);
+                        }
+                        else
+                        {
+                            // Procedimiento EXISTENTE -> PUT /api/Procedimiento/{id}
+                            await ApiService.ActualizarProcedimientoAsync(proc, procFile);
+                        }
+                    }
+                }
+
                 mensajeAlerta = esNuevo
                     ? $"¡Productor '{productorEdit.Nombre}' creado exitosamente!"
                     : $"¡Productor '{productorEdit.Nombre}' actualizado exitosamente!";
@@ -425,6 +484,7 @@
                 esErrorAlerta = false;
                 editando = false;
                 selectedImageFile = null;
+                selectedProcedureFiles.Clear(); // Limpiamos el diccionario
                 previewImageSrc = string.Empty;
 
                 productorEdit = new ProductorModel();
@@ -447,11 +507,11 @@
             StateHasChanged();
         }
     }
-
     private void Cancelar()
     {
         editando = false;
         selectedImageFile = null;
+        selectedProcedureFiles.Clear();
         previewImageSrc = string.Empty;
         mensajeAlerta = string.Empty;
         productorEdit = new ProductorModel();
