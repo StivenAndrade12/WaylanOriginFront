@@ -14,7 +14,8 @@
         <svg viewBox="0 0 180 180" class="vtp-corner-wave-green" fill="none">
             <path d="M0,180 L0,60 C45,60 85,90 120,125 C155,160 165,180 180,180 Z" fill="#3B4D36" />
         </svg>
-        <svg viewBox="0 0 100 100" class="vtp-corner-leaf-icon" fill="none" stroke="#9A835C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <svg viewBox="0 0 100 100" class="vtp-corner-leaf-icon" fill="none" stroke="#9A835C" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 88 C34 72 56 62 78 52 C62 74 46 84 18 88 Z" />
             <path d="M18 88 C44 72 60 62 78 52" />
             <path d="M34 81 C44 76 54 68 64 60" />
@@ -45,7 +46,8 @@
                     Personas que hacen posible<br />un gran café
                 </h1>
                 <p class="vtp-description">
-                    Conoce a las familias productoras que, con su esfuerzo, tradición y amor por la tierra, cultivan el café de alta calidad que nos inspira.
+                    Conoce a las familias productoras que, con su esfuerzo, tradición y amor por la tierra, cultivan el
+                    café de alta calidad que nos inspira.
                 </p>
             </div>
 
@@ -53,7 +55,8 @@
                 <div class="vtp-banner-card">
                     <!-- Ilustración botánica en líneas doradas en el fondo derecho -->
                     <div class="vtp-banner-botanical-wrap">
-                        <svg viewBox="0 0 180 130" fill="none" stroke="rgba(224, 196, 160, 0.32)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <svg viewBox="0 0 180 130" fill="none" stroke="rgba(224, 196, 160, 0.32)" stroke-width="1.6"
+                             stroke-linecap="round" stroke-linejoin="round">
                             <path d="M175 15 C130 35 75 75 35 125" stroke-width="2" />
                             <path d="M130 35 C110 18 80 22 62 40 C80 50 110 45 130 35 Z" />
                             <path d="M130 35 C108 30 85 36 62 40" />
@@ -67,7 +70,8 @@
                     </div>
 
                     <div class="vtp-banner-icon-wrap">
-                        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#2C1609" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#2C1609" stroke-width="1.7"
+                             stroke-linecap="round" stroke-linejoin="round">
                             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                             <circle cx="9" cy="7" r="4" />
                             <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -86,32 +90,20 @@
             </div>
         </div>
 
-        <!-- BARRA DE BÚSQUEDA Y FILTROS POR DEPARTAMENTO -->
+        <!-- BARRA DE BÚSQUEDA -->
         <div class="vtp-toolbar">
             <div class="vtp-search-container">
-                <svg class="vtp-search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#8C796E" stroke-width="2">
+                <svg class="vtp-search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#8C796E"
+                     stroke-width="2">
                     <circle cx="11" cy="11" r="8" />
                     <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
-                <input type="text"
-                       class="vtp-search-input"
-                       placeholder="Buscar productor..."
-                       @bind="searchTerm"
+                <input type="text" class="vtp-search-input" placeholder="Buscar productor..." @bind="searchTerm"
                        @bind:event="oninput" />
                 @if (!string.IsNullOrEmpty(searchTerm))
                 {
-                    <button type="button" class="vtp-search-clear" @onclick="LimpiarBusqueda" title="Limpiar búsqueda">✕</button>
-                }
-            </div>
-
-            <div class="vtp-pills-list">
-                @foreach (var region in regiones)
-                {
-                    <button type="button"
-                            class="vtp-pill @(selectedRegion == region ? "vtp-pill-active" : "")"
-                            @onclick="() => SeleccionarRegion(region)">
-                        @region
-                    </button>
+                    <button type="button" class="vtp-search-clear" @onclick="LimpiarBusqueda"
+                            title="Limpiar búsqueda">✕</button>
                 }
             </div>
         </div>
@@ -129,7 +121,7 @@
             <div class="vtp-empty-state">
                 <div class="vtp-empty-icon">☕</div>
                 <h3>No se encontraron productores</h3>
-                <p>No hay resultados que coincidan con "<strong>@(searchTerm)</strong>" en la región <strong>@selectedRegion</strong>.</p>
+                <p>No hay resultados que coincidan con "<strong>@(searchTerm)</strong>".</p>
                 <button type="button" class="vtp-btn-reset" @onclick="ResetFiltros">Restablecer filtros</button>
             </div>
         }
@@ -141,9 +133,7 @@
                     <article class="vtp-card">
                         <a href="perfil/@p.Id" class="vtp-card-media-link" aria-label="Ver perfil de @p.Nombre">
                             <div class="vtp-card-media">
-                                <img src="@ApiService.GetFullImageUrl(p.ImagenPrincipal)"
-                                     alt="@p.Nombre"
-                                     loading="lazy"
+                                <img src="@ApiService.GetFullImageUrl(p.ImagenPrincipal)" alt="@p.Nombre" loading="lazy"
                                      onerror="this.onerror=null;this.src='imagenes/productores/juan_carlos_restrepo.jpg';" />
                             </div>
                         </a>
@@ -162,8 +152,12 @@
 
                                 <div class="vtp-card-coffee-icon" title="Café de Origen">
                                     <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
-                                        <path d="M19 5.5C15.5 2 9.8 2.3 6.2 6.2C2.6 10.1 2.9 15.8 6.8 19.4C10.7 23 16.5 22.7 20.1 18.8C23.7 14.9 23.1 9.1 19 5.5Z" fill="#C59B6D" opacity="0.9"/>
-                                        <path d="M7.5 16.5C9.5 14 10.5 11.5 10 9C9.5 6.5 11.5 4.5 13.5 4C15.5 3.5 17 4.5 17.5 6.5" stroke="#FBF8F4" stroke-width="1.8" stroke-linecap="round"/>
+                                        <path
+                                        d="M19 5.5C15.5 2 9.8 2.3 6.2 6.2C2.6 10.1 2.9 15.8 6.8 19.4C10.7 23 16.5 22.7 20.1 18.8C23.7 14.9 23.1 9.1 19 5.5Z"
+                                        fill="#C59B6D" opacity="0.9" />
+                                        <path
+                                        d="M7.5 16.5C9.5 14 10.5 11.5 10 9C9.5 6.5 11.5 4.5 13.5 4C15.5 3.5 17 4.5 17.5 6.5"
+                                        stroke="#FBF8F4" stroke-width="1.8" stroke-linecap="round" />
                                     </svg>
                                 </div>
                             </div>
@@ -188,11 +182,8 @@
             <!-- PAGINACIÓN CON LÍNEA HORIZONTAL IDÉNTICA AL BOCETO -->
             <div class="vtp-pagination-wrapper">
                 <nav class="vtp-pagination" aria-label="Paginación de productores">
-                    <button type="button"
-                            class="vtp-page-chevron"
-                            disabled="@(currentPage <= 1)"
-                            @onclick="() => CambiarPagina(currentPage - 1)"
-                            aria-label="Página anterior">
+                    <button type="button" class="vtp-page-chevron" disabled="@(currentPage <= 1)"
+                            @onclick="() => CambiarPagina(currentPage - 1)" aria-label="Página anterior">
                         &lsaquo;
                     </button>
 
@@ -203,17 +194,13 @@
                         var isValida = paginaNum <= TotalPages;
                         <button type="button"
                                 class="vtp-page-number @(isActual ? "vtp-page-number-active" : "") @(!isValida ? "vtp-page-number-disabled" : "")"
-                                disabled="@(!isValida)"
-                                @onclick="() => CambiarPagina(paginaNum)">
+                                disabled="@(!isValida)" @onclick="() => CambiarPagina(paginaNum)">
                             @paginaNum
                         </button>
                     }
 
-                    <button type="button"
-                            class="vtp-page-chevron"
-                            disabled="@(currentPage >= TotalPages)"
-                            @onclick="() => CambiarPagina(currentPage + 1)"
-                            aria-label="Página siguiente">
+                    <button type="button" class="vtp-page-chevron" disabled="@(currentPage >= TotalPages)"
+                            @onclick="() => CambiarPagina(currentPage + 1)" aria-label="Página siguiente">
                         &rsaquo;
                     </button>
                 </nav>
@@ -224,22 +211,14 @@
 </div>
 
 @code {
+    [SupplyParameterFromQuery]
+    public int? OrgId { get; set; }
+
     private List<ProductorModel> productores = new();
     private bool isLoading = true;
     private string searchTerm = string.Empty;
-    private string selectedRegion = "Todos";
     private int currentPage = 1;
     private const int PageSize = 8;
-
-    private readonly List<string> regiones = new()
-    {
-        "Todos",
-        "Caldas",
-        "Quindío",
-        "Risaralda",
-        "Tolima",
-        "Huila"
-    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -280,14 +259,25 @@
         {
             var query = productores.AsEnumerable();
 
-            // 1. Filtro por Región / Departamento
-            if (!string.IsNullOrWhiteSpace(selectedRegion) && selectedRegion != "Todos")
+            // 1. Filtro por Organización específica pasada por URL (OrgId)
+            if (OrgId.HasValue && OrgId.Value > 0)
             {
-                query = query.Where(p =>
-                    (!string.IsNullOrEmpty(p.Ubicacion) && p.Ubicacion.Contains(selectedRegion, StringComparison.OrdinalIgnoreCase)) ||
-                    (selectedRegion == "Caldas" && (p.IdOrganizacion == 1 || (p.OrganizacionNombre != null && p.OrganizacionNombre.Contains("Tres Nevados", StringComparison.OrdinalIgnoreCase)))) ||
-                    (selectedRegion == "Quindío" && (p.IdOrganizacion == 2 || (p.OrganizacionNombre != null && p.OrganizacionNombre.Contains("FAMYCAFE", StringComparison.OrdinalIgnoreCase))))
-                );
+                if (OrgId.Value == 1)
+                {
+                    query = query.Where(p => p.IdOrganizacion == 1 ||
+                        (!string.IsNullOrEmpty(p.OrganizacionNombre) && p.OrganizacionNombre.Contains("Nevados",
+StringComparison.OrdinalIgnoreCase)));
+                }
+                else if (OrgId.Value == 2)
+                {
+                    query = query.Where(p => p.IdOrganizacion == 2 ||
+                        (!string.IsNullOrEmpty(p.OrganizacionNombre) && p.OrganizacionNombre.Contains("Famy",
+StringComparison.OrdinalIgnoreCase)));
+                }
+                else
+                {
+                    query = query.Where(p => p.IdOrganizacion == OrgId.Value);
+                }
             }
 
             // 2. Filtro por búsqueda de texto
@@ -313,12 +303,6 @@
     private IEnumerable<ProductorModel> ProductoresPaginados =>
         ProductoresFiltrados.Skip((currentPage - 1) * PageSize).Take(PageSize);
 
-    private void SeleccionarRegion(string region)
-    {
-        selectedRegion = region;
-        currentPage = 1;
-    }
-
     private void LimpiarBusqueda()
     {
         searchTerm = string.Empty;
@@ -327,21 +311,24 @@
 
     private void ResetFiltros()
     {
-        selectedRegion = "Todos";
+        // ✅ AHORA: Solo limpia el texto de búsqueda, pero MANTIENE el OrgId si existe
         searchTerm = string.Empty;
         currentPage = 1;
     }
 
     private async Task VerTodosClick()
     {
-        ResetFiltros();
+        // Mantiene la organización actual y limpia la búsqueda
+        searchTerm = string.Empty;
+        currentPage = 1;
+
         try
         {
+            // Hace un scroll suave hacia la lista de productores
             await JSRuntime.InvokeVoidAsync("eval", "document.querySelector('.vtp-toolbar')?.scrollIntoView({ behavior: 'smooth' })");
         }
         catch { }
     }
-
     private async Task CambiarPagina(int pagina)
     {
         if (pagina >= 1 && pagina <= TotalPages)
